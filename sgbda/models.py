@@ -54,7 +54,6 @@ class instancia(models.Model):
     )
     nombre_instancia = models.CharField(max_length=255)
     puerto = models.IntegerField()
-    servicio = models.CharField(max_length=100)
     major_version = models.CharField(max_length=50)
     edition = models.CharField(max_length=100)
 
