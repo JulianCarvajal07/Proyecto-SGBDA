@@ -1,4 +1,35 @@
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
+from django.contrib.auth.base_user import BaseUserManager
+ 
+
+class UsuarioManager(BaseUserManager):
+    def create_user(self, nombre, password=None, **extra_fields):
+        user = self.model(nombre=nombre, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, nombre, password=None, **extra_fields):
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_staff', True)
+        return self.create_user(nombre, password, **extra_fields)
+
+class usuario(AbstractBaseUser, PermissionsMixin):
+    nombre = models.CharField(max_length=150, unique=True)
+    rol = models.CharField(max_length=50, blank=True, default='')
+
+
+    is_active = models.BooleanField(default=True)
+    is_staff  = models.BooleanField(default=False)  # Solo para el admin de Django
+
+    objects = UsuarioManager()
+
+    # REQUIRED_FIELDS es necesario para crear superusuarios por consola
+    # ejemplo python manage.py createsuperuser
+    # con el super usuario se puede ingresar al panel admin de django http://localhost:8000/admin/
+    USERNAME_FIELD = 'nombre'
+    REQUIRED_FIELDS = ['rol']  # ✅
 
 
 class cliente(models.Model):
@@ -9,18 +40,6 @@ class cliente(models.Model):
 
     class Meta:
         db_table = 'cliente'
-
-    def __str__(self):
-        return self.nombre
-
-
-class usuario(models.Model):
-    id_usuario = models.AutoField(primary_key=True)
-    nombre = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = 'usuario'
 
     def __str__(self):
         return self.nombre

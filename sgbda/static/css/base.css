@@ -1,0 +1,22 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+.sidebar {
+    background: #1a1d21;
+    border-right: 1px solid #2d3239;
+}
+.nav-link {
+    color: #adb5bd;
+}
+.nav-link:hover, .nav-link.active {
+    color: white;
+    background-color: #2d3239;
+}
+.card {
+    background: #212529;
+    border: 1px solid #2d3239;
+}
+.navbar {
+    background: #212529 !important;
+    border-bottom: 1px solid #2d3239;
+}
