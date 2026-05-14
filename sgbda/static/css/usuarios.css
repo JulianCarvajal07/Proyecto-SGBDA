@@ -4,7 +4,7 @@
     width: 80%;
     justify-content: center;
     align-items: top;
-    gap: 200px;
+    gap: 150px;
 }
 
 .registro-usuarios{
@@ -14,11 +14,16 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+
+}
+
+.formulario-usuarios{
     gap: 10px;
     padding: 30px;
     margin: 0 0 50px 0;
     border: 1px solid #dee2e6;
-    border-radius: 20px;
+    border-radius: 0 0 20px 20px;
+
 }
 
 .tabla-usuarios{

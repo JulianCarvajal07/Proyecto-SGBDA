@@ -24,7 +24,16 @@
     <form method="POST" action="{% url 'registrar_usuarios' %}">
     {% csrf_token %}
     <div class="registro-usuarios">
-                <h2>Registrar Usuario</h2>
+                <h2 
+                    style="background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
+                            margin: 0px;
+                            padding: 0 30px 0 30px;
+                            border-radius: 20px 20px 0 0;
+                            border: 1px solid #dee2e6;"
+                    >Registrar Usuario
+                </h2>
+    <div class="formulario-usuarios">
+
                 <h5 style="margin: 10px 0 0 0">Usuario</h5>
                 <input class="form-control" name="usuario" type="text">
                 <h5 style="margin: 10px 0 0 0">Rol</h5>
@@ -37,9 +46,11 @@
                 
                 <h5 style="margin: 10px 0 0 0">Contraseña</h5>
                 <input class="form-control" name="contraseña" type="password">
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
                     Registrar
                 </button>   
+
+    </div>
     </div>
     </form>
 
