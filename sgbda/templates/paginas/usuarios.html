@@ -8,9 +8,15 @@
 
 {% if messages %}
     {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
-        </div>
+        {% if message.tags == 'error' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+            </div>
+        {% else %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
     {% endfor %}
 {% endif %}
 
@@ -19,9 +25,9 @@
     {% csrf_token %}
     <div class="registro-usuarios">
                 <h2>Registrar Usuario</h2>
-                <h5>Usuario</h5>
+                <h5 style="margin: 10px 0 0 0">Usuario</h5>
                 <input class="form-control" name="usuario" type="text">
-                <h5>Rol</h5>
+                <h5 style="margin: 10px 0 0 0">Rol</h5>
                 <select class="form-select" name="rol">
                         <option selected>Seleccion una opcion</option>
                         <option value="Administrador">Administrador</option>
@@ -29,7 +35,7 @@
                 </select>
                 
                 
-                <h5>Contraseña</h5>
+                <h5 style="margin: 10px 0 0 0">Contraseña</h5>
                 <input class="form-control" name="contraseña" type="password">
                 <button type="submit" class="btn btn-primary">
                     Registrar
@@ -38,31 +44,79 @@
     </form>
 
     <div class="tabla-usuarios">
-        <div class="table-responsive-sm">
-            <table class="table table-primary">
+            <table class="tabla-personalizada">
                 <thead>
                     <tr>
-                        <th scope="col">Usuario</th>
-                        <th scope="col">Rol</th>
-                        <th scope="col">Accion</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Accion</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in usuarios %}
-                    <tr class="">
-                        <td scope="row">{{user.nombre}}</td>
+                    <tr>
+                        <td>{{user.nombre}}</td>
                         <td>{{user.rol}}</td>
                         <td>
-                            <button type="button" class="btn btn-primary">
-                                Modificar
+                            <button type="button" class="btn btn-primary" style="margin: 2.5px" data-bs-toggle="modal" data-bs-target="#modalId">
+                                <i class="bi bi-pencil"></i>
                             </button>
+                            
+                            <form method="POST" action="{% url 'eliminar_usuario' user.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" style="margin: 2.5px">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
-        </div>        
+            </table>      
     </div>
 
 </div>
+
+<div
+    class="modal fade"
+    id="modalId"
+    tabindex="-1"
+    data-bs-backdrop="static"
+    data-bs-keyboard="false"
+    
+    role="dialog"
+    aria-labelledby="modalTitleId"
+    aria-hidden="true"
+>
+    <div
+        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+        role="document"
+    >
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">
+                    Modal title
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">Body</div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

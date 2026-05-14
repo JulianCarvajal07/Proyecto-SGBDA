@@ -11,6 +11,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tabla-personalizada.css' %}">
     <link rel="stylesheet" href="{% static 'css/bases_de_datos.css' %}">
     <link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
 
@@ -40,7 +41,7 @@
         <nav class="barra-superior">                       
                     <div class="dropdown">
                         <a class="nombre-usuario" href="#" data-bs-toggle="dropdown">
-                                <h6 class="fw-semibold">Julian</h6>
+                                <h6 class="fw-semibold">{{ user }}</h6>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>

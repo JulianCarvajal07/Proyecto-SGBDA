@@ -1,6 +1,6 @@
 from django.urls import path
 from .views.index import index
-from .views.usuarios import registro_usuarios, listar_usuarios
+from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 from .views.bases_de_datos import bases_de_datos 
 from django.contrib.auth.views import LogoutView
@@ -14,4 +14,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('listar_usuarios/', listar_usuarios, name='listar_usuarios'),
     path('registrar_usuarios/', registro_usuarios, name='registrar_usuarios'),
+    path('eliminar_usuario/<int:id>/', eliminar_usuario, name="eliminar_usuario"),
 ]

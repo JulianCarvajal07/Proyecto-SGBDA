@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from sgbda.models import usuario
 from django.contrib import messages
 
@@ -31,3 +31,19 @@ def registro_usuarios(request):
     
     
     return render(request, 'paginas/usuarios.html')
+
+
+def eliminar_usuario(request, id):
+
+    if request.method == "POST":
+        user_to_delete = get_object_or_404(usuario, id=id)
+
+        # ❌ evitar que se elimine a sí mismo
+        if request.user.id == user_to_delete.id:
+            messages.error(request, "No puedes eliminar tu propio usuario")
+            return redirect("listar_usuarios")
+
+        user_to_delete.delete()
+        messages.success(request, "Usuario eliminado correctamente")
+
+    return redirect("listar_usuarios")
