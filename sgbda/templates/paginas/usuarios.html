@@ -5,13 +5,30 @@
 {% load static %}
 
 {% block contenido %}
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
 <div class="contenedor-usuarios">
-    <form method="POST" action="{% url 'usuarios' %}">
+    <form method="POST" action="{% url 'registrar_usuarios' %}">
     {% csrf_token %}
     <div class="registro-usuarios">
                 <h2>Registrar Usuario</h2>
                 <h5>Usuario</h5>
                 <input class="form-control" name="usuario" type="text">
+                <h5>Rol</h5>
+                <select class="form-select" name="rol">
+                        <option selected>Seleccion una opcion</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Lectura">Lectura</option>
+                </select>
+                
+                
                 <h5>Contraseña</h5>
                 <input class="form-control" name="contraseña" type="password">
                 <button type="submit" class="btn btn-primary">

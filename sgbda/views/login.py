@@ -1,13 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from django.contrib.auth import authenticate, login  as auth_login
 from django.http import JsonResponse
 from django.urls import reverse
-
-
-def index(request):
-    return render(request, 'paginas/login.html')
-
 
 def login_usuario(request):
     if request.method == 'POST':
@@ -24,11 +18,3 @@ def login_usuario(request):
             return JsonResponse({'success': False, 'error': 'Usuario o contraseña incorrectos'})
             #return render(request, 'paginas/inicio_sesion.html', {'error': error})
     return render(request, 'paginas/login.html')
-
-
-def bases_de_datos(request):
-
-    return render(request, 'paginas/bases_de_datos.html')
-
-def usuarios(request):
-    return render(request, 'paginas/usuarios.html')
