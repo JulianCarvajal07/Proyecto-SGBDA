@@ -31,5 +31,4 @@ def bases_de_datos(request):
     return render(request, 'paginas/bases_de_datos.html')
 
 def usuarios(request):
-
     return render(request, 'paginas/usuarios.html')
