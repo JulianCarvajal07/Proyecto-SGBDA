@@ -1,0 +1,29 @@
+
+.contenedor-usuarios{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    justify-content: center;
+    align-items: center;
+}
+
+.registro-usuarios{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    padding: 30px;
+    margin: 0 0 50px 0;
+    border: 1px solid #f7f7f7a2;
+    border-radius: 20px;
+}
+
+.tabla-usuarios{
+    width: 500px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}

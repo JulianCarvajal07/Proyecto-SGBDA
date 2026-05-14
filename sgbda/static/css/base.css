@@ -1,21 +1,60 @@
 body {
     font-family: 'Inter', sans-serif;
 }
+
+.contenedor-abuela{
+    display: flex;
+    height: 100vh;
+}
+
+.nombre-usuario{
+    display: flex;
+    text-decoration: none;
+}
+
 .sidebar {
     background: #1a1d21;
     border-right: 1px solid #2d3239;
+    width: 250px;
+    color: white;
+    padding: 10px;   
 }
+
+.contenedor-madre{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.barra-superior{
+    padding: 15px;
+    display: flex;
+    justify-content: end;
+}
+
+.contenido-principal{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
 .nav-link {
     color: #adb5bd;
 }
+
 .nav-link:hover, .nav-link.active {
     color: white;
     background-color: #2d3239;
 }
+
 .card {
     background: #212529;
     border: 1px solid #2d3239;
 }
+
 .navbar {
     background: #212529 !important;
     border-bottom: 1px solid #2d3239;

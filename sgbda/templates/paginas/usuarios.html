@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block titulo %} usuarios {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+<div class="contenedor-usuarios">
+    <form method="POST" action="{% url 'usuarios' %}">
+    {% csrf_token %}
+    <div class="registro-usuarios">
+                <h2>Registrar Usuario</h2>
+                <h5>Usuario</h5>
+                <input class="form-control" name="usuario" type="text">
+                <h5>Contraseña</h5>
+                <input class="form-control" name="contraseña" type="password">
+                <button type="submit" class="btn btn-primary">
+                    Registrar
+                </button>   
+    </div>
+    </form>
+
+    <div class="tabla-usuarios">
+        <div class="table-responsive-sm">
+            <table class="table table-primary">
+                <thead>
+                    <tr>
+                        <th scope="col">Usuario</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Accion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="">
+                        <td scope="row">R1C1</td>
+                        <td>R1C2</td>
+                        <td>R1C3</td>
+                    </tr>
+                    <tr class="">
+                        <td scope="row">Item</td>
+                        <td>Item</td>
+                        <td>Item</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>        
+    </div>
+
+</div>
+{% endblock %}
