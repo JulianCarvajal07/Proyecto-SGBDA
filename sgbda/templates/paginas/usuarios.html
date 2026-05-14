@@ -48,16 +48,17 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for user in usuarios %}
                     <tr class="">
-                        <td scope="row">R1C1</td>
-                        <td>R1C2</td>
-                        <td>R1C3</td>
+                        <td scope="row">{{user.nombre}}</td>
+                        <td>{{user.rol}}</td>
+                        <td>
+                            <button type="button" class="btn btn-primary">
+                                Modificar
+                            </button>
+                        </td>
                     </tr>
-                    <tr class="">
-                        <td scope="row">Item</td>
-                        <td>Item</td>
-                        <td>Item</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>        
