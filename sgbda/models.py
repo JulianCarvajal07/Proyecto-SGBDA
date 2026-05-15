@@ -31,48 +31,45 @@ class usuario(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'nombre'
     REQUIRED_FIELDS = ['rol']  # ✅
 
-
 class cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=255)
-    estado = models.CharField(max_length=100)
-    fecha_creacion = models.DateField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'cliente'
 
     def __str__(self):
         return self.nombre
-
+    
 
 class servidor(models.Model):
     id_servidor = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(
         cliente,
         on_delete=models.CASCADE,
-        db_column='cliente_id'
+        db_column='cliente_id',
     )
+    ip = models.GenericIPAddressField(unique=True)
     hostname = models.CharField(max_length=255)
-    ip = models.GenericIPAddressField()
     sistema_operativo = models.CharField(max_length=100)
-    fecha_registro = models.DateField()
 
     class Meta:
         db_table = 'servidor'
 
     def __str__(self):
         return self.hostname
-
+    
 
 class instancia(models.Model):
     id_instancia = models.AutoField(primary_key=True)
     servidor = models.ForeignKey(
         servidor,
         on_delete=models.CASCADE,
-        db_column='servidor_id'
+        db_column='servidor_id',
     )
     nombre_instancia = models.CharField(max_length=255)
-    puerto = models.IntegerField()
+    puerto = models.CharField(max_length=50)
     major_version = models.CharField(max_length=50)
     edition = models.CharField(max_length=100)
 
@@ -84,12 +81,8 @@ class instancia(models.Model):
 
 
 class conexion(models.Model):
-    id_conexion = models.AutoField(primary_key=True)
-    instancia = models.ForeignKey(
-        instancia,
-        on_delete=models.CASCADE,
-        db_column='instancia_id'
-    )
+    ip_servidor = models.GenericIPAddressField()
+    puerto = models.CharField(max_length=50)
     tipo_autenticacion = models.CharField(max_length=100)
     usuario = models.CharField(max_length=255)
     password_encriptado = models.CharField(max_length=512)
@@ -99,7 +92,11 @@ class conexion(models.Model):
 
     def __str__(self):
         return f"Conexion {self.id_conexion} - {self.instancia}"
-
+    
+#================================================================
+#================================================================
+#================================================================
+#================================================================
 
 class servicio(models.Model):
     id_servicio = models.AutoField(primary_key=True)

@@ -11,7 +11,7 @@ def login_usuario(request):
 
         if user is not None:
             auth_login(request, user)
-            return JsonResponse({'success': True, 'redirect_url': reverse('bases_de_datos')})
+            return JsonResponse({'success': True, 'redirect_url': reverse('conexiones')})
             #return redirect('datos_cliente_proyecto')
         else:
             #error = "Usuario o contraseña incorrectos"

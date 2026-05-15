@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block titulo %} usuarios {% endblock %} 
+{% block titulo %} Conexiones {% endblock %} 
 
 {% load static %}
 
@@ -20,56 +20,57 @@
     {% endfor %}
 {% endif %}
 
-<div class="contenedor-usuarios">
-    <form method="POST" action="{% url 'registrar_usuarios' %}">
+<div class="contenedor-conexiones">
+    <form method="POST" action="{% url 'registro_conexion' %}">
     {% csrf_token %}
-    <div class="registro-usuarios">
+    <div class="registro-conexion">
         <h2 
             style="background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
                     margin: 0px;
                     padding: 0 30px 0 30px;
                     border-radius: 20px 20px 0 0;
                     border: 1px solid #dee2e6;"
-            >Registrar Usuario
+            >Registrar Conexion
         </h2>
-        <div class="formulario-usuarios">
-
+        <div class="tarjeta-conexion">
+                    <h5 style="margin: 10px 0 0 0">Ip del servidor</h5>
+                        <input class="form-control" name="ip_servidor" type="text">
+                    <h5 style="margin: 10px 0 0 0">Puerto</h5>
+                        <input class="form-control" name="puerto" type="text">
+                    <h5 style="margin: 10px 0 0 0">Tipo de autenticacion</h5>
+                        <select class="form-select" name="autenticacion">
+                                <option selected>Seleccion una opcion</option>
+                                <option value="Sql user">Sql User</option>
+                        </select>
                     <h5 style="margin: 10px 0 0 0">Usuario</h5>
-                    <input class="form-control" name="usuario" type="text">
-                    <h5 style="margin: 10px 0 0 0">Rol</h5>
-                    <select class="form-select" name="rol">
-                            <option selected>Seleccion una opcion</option>
-                            <option value="Administrador">Administrador</option>
-                            <option value="Lectura">Lectura</option>
-                    </select>
-                    
-                    
+                        <input class="form-control" name="usuario" type="text">                
                     <h5 style="margin: 10px 0 0 0">Contraseña</h5>
-                    <input class="form-control" name="contraseña" type="password">
+                        <input class="form-control" name="contraseña" type="password">
                     <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
-                        Registrar
+                        Registrar Conexion
                     </button>   
-
         </div>
     </div>
     </form>
 
-    <div class="tabla-usuarios">
+    <div class="tabla-conexiones">
             <table class="tabla-personalizada">
                 <thead>
                     <tr>
+                        <th>Ip</th>
+                        <th>Puerto</th>
                         <th>Usuario</th>
-                        <th>Rol</th>
                         <th>Accion</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in usuarios %}
+    
                     <tr>
-                        <td>{{user.nombre}}</td>
-                        <td>{{user.rol}}</td>
+                        <td>10.75.55.85</td>
+                        <td>1433</td>
+                        <td>sa</td>
                         <td>                          
-                            <form method="POST" action="{% url 'eliminar_usuario' user.id %}" style="display:inline;">
+                            <form method="POST" action="" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger" style="margin: 2.5px">
                                     <i class="bi bi-trash-fill"></i>
@@ -77,11 +78,9 @@
                             </form>
                         </td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>      
     </div>
 
 </div>
-
 {% endblock %}
