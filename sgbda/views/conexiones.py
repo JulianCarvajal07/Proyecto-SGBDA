@@ -1,6 +1,6 @@
 import pyodbc
 
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from sgbda.models import conexion
 
@@ -76,3 +76,13 @@ def registro_conexion(request):
         return redirect('listar_conexiones')
 
     return render(request, 'paginas/conexiones.html')
+
+
+def eliminar_conexion(request, id):
+
+    if request.method == "POST":
+        eliminar = get_object_or_404(conexion, id=id)
+        eliminar.delete()
+        messages.success(request, "conexion eliminada correctamente")
+
+    return redirect("listar_conexiones")

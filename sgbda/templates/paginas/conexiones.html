@@ -64,13 +64,13 @@
                     </tr>
                 </thead>
                 <tbody>
-    
+                    {% for conexion in conexiones %}
                     <tr>
-                        <td>10.75.55.85</td>
-                        <td>1433</td>
-                        <td>sa</td>
+                        <td>{{conexion.ip_servidor}}</td>
+                        <td>{{conexion.puerto}}</td>
+                        <td>{{conexion.usuario}}</td>
                         <td>                          
-                            <form method="POST" action="" style="display:inline;">
+                            <form method="POST" action="{% url 'eliminar_conexion' conexion.id %}" style="display:inline;">
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-danger" style="margin: 2.5px">
                                     <i class="bi bi-trash-fill"></i>
@@ -78,6 +78,7 @@
                             </form>
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>      
     </div>
