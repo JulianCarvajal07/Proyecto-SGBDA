@@ -31,3 +31,16 @@
     align-items: center;
     text-align: center;
 }
+
+
+@media (max-width: 1030px) {
+    .contenedor-conexiones {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .tarjeta-conexion, .tabla-conexiones {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+}

@@ -9,11 +9,11 @@
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
-            <div class="alert alert-danger alert-dismissible fade show" style="display: flex; text-align: center; justify-content: center;" role="alert">
+            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
                 {{ message }}
             </div>
         {% else %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show"  style="display: flex; text-align: center; justify-content: center;" role="alert">
+            <div id="mi-alerta" class="alert alert-success fade" role="alert">
                 {{ message }}
             </div>
         {% endif %}
@@ -29,7 +29,8 @@
                     margin: 0px;
                     padding: 0 30px 0 30px;
                     border-radius: 20px 20px 0 0;
-                    border: 1px solid #dee2e6;"
+                    border: 1px solid #dee2e6;
+                    width: 100%;"
             >Registrar Usuario
         </h2>
         <div class="formulario-usuarios">

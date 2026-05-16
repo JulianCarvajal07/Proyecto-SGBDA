@@ -4,7 +4,6 @@ body {
 
 .contenedor-abuela{
     display: flex;
-    height: 100vh;
 }
 
 .nombre-usuario{
@@ -13,11 +12,25 @@ body {
 }
 
 .sidebar {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    gap: 15px;
     background: #1a1d21;
     border-right: 1px solid #2d3239;
     width: 250px;
     color: white;
     padding: 10px;   
+    align-self: stretch; /* se estira automáticamente con el contenido */
+    min-height: 100vh;
+}
+
+.contenedor-titulo-p{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 .contenedor-madre{
@@ -30,6 +43,8 @@ body {
     padding: 15px;
     display: flex;
     justify-content: end;
+    border-bottom: 1px solid #adb5bd;
+    margin: 0 0 20px 0;
 }
 
 .contenido-principal{

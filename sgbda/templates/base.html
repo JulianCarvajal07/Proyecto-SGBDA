@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/tabla-personalizada.css' %}">
+    <link rel="stylesheet" href="{% static 'css/mensajes-personalizados.css' %}">
     <link rel="stylesheet" href="{% static 'css/bases_de_datos.css' %}">
     <link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
     <link rel="stylesheet" href="{% static 'css/conexiones.css' %}">
@@ -42,7 +43,7 @@
         <nav class="barra-superior">                       
                     <div class="dropdown">
                         <a class="nombre-usuario" href="#" data-bs-toggle="dropdown">
-                                <h6 class="fw-semibold">{{ user }}</h6>
+                                <h6 class="fw-semibold" style="margin:0px">{{ user }}</h6>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
@@ -64,6 +65,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/mensajes-personalizados.js' %}"></script>
 
 </body>
 </html>
