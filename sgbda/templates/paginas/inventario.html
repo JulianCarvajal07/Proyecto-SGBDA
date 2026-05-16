@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block titulo %} Inventario {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+                {{ message }}
+            </div>
+        {% else %}
+            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+    <div class="tabla-inventario">
+            <table class="tabla-personalizada">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Ip</th>
+                        <th>Hostname</th>
+                        <th>Instancia</th>
+                        <th>Puerto</th>
+                        <th>S.O</th>
+                        <th>Edicion</th>
+                        <th>Accion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>COBO</td>
+                        <td>10.75.55.87</td>
+                        <td>SSRV-3</td>
+                        <td>MSSQL</td>
+                        <td>1433</td>
+                        <td>Microsoft Server 2016</td>
+                        <td>SQLServer 2019</td>
+                        <td>                          
+                            <form method="POST" action="" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" style="margin: 2.5px">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                   
+                </tbody>
+            </table>      
+    </div>
+
+</div>
+{% endblock %}
