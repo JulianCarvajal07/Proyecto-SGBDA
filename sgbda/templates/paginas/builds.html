@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block titulo %} Inventario {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+                {{ message }}
+            </div>
+        {% else %}
+            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+    <div class="tabla-builds">
+            <table class="tabla-personalizada">
+                <thead>
+                    <tr>
+                        <th>Version SQL</th>
+                        <th>CU (Cumulative Update)</th>
+                        <th>KB (Knowledge Base)</th>
+                        <th>Fecha oficial de publicación del parche</th>
+                        <th>Soportado</th>
+                        <th>fecha de registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                    <tr>
+                        <td>SQL Server 2022</td>
+                        <td>CU28</td>
+                        <td>KB5030333</td>
+                        <td>2025-03-12</td>
+                        <td>True</td>
+                        <td>2025-05-12</td>
+                    </tr>
+                   
+                </tbody>
+            </table>      
+    </div>
+
+</div>
+{% endblock %}
