@@ -14,11 +14,13 @@ def listar_builds(request):
 def actualizar_builds(request):
 
     try:
-        sync_gdr()
+        
+        nuevos = sync_gdr()
 
         messages.success(
             request,
-            "Sincronización de builds completada correctamente."
+            f"Sincronización completada. "
+            f"Se agregaron {nuevos} builds nuevas."
         )
 
     except Exception as e:
