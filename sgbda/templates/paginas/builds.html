@@ -20,6 +20,15 @@
     {% endfor %}
 {% endif %}
 
+<div class="boton-actualizar-builds">
+<h2 style="margin: 0">Actualizaciones SQL Server</h2>
+    <form method="POST" action="{% url 'actualizar_builds' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Actualizar</button>
+    </form>
+</div>
+
+
     <div class="tabla-builds">
             <table class="tabla-personalizada">
                 <thead>
