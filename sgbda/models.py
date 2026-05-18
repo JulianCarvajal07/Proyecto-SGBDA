@@ -138,12 +138,13 @@ class checkSQL(models.Model):
 
 class actualizaciones(models.Model):
     id_actualizaciones = models.AutoField(primary_key=True)
-    major_version = models.CharField(max_length=50)
-    cu = models.CharField(max_length=100)
-    kb = models.CharField(max_length=100)
-    release_date = models.DateField(null=True, blank=True)
-    soportado = models.BooleanField(default=True)
-    fecha = models.DateField(null=True, blank=True)
+    major_version = models.CharField(max_length=50) # Guarda la versión principal de SQL Server.
+    build = models.CharField(max_length=50)  # Guarda el número oficial del build publicado por Microsoft.
+    kb = models.CharField(max_length=100) # Es el identificador oficial del parche/documentación Microsoft.
+    descripcion = models.CharField(max_length=200) # Texto descriptivo de la actualización.
+    release_date = models.DateField(null=True, blank=True) # Fecha oficial de publicación del GDR.
+    soportado = models.BooleanField(default=True) # Indica si la versión/build todavía está soportada.
+    fecha_registro = models.DateTimeField(auto_now_add=True) # Fecha en la que el sistema guardó/sincronizó ese registro
 
     class Meta:
         db_table = 'actualizaciones'
