@@ -7,7 +7,7 @@ from sgbda.models import actualizaciones
 def sync_gdr():
     print("Iniciando sincronización GDR...")
 
-    url = "https://learn.microsoft.com/en-us/troubleshoot/sql/releases/download-and-install-latest-updates"
+    url = "https://learn.microsoft.com/es-es/troubleshoot/sql/releases/sqlserver-2019/build-versions"
 
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "lxml")
