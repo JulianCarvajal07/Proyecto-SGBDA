@@ -1,14 +1,36 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from sgbda.models import actualizaciones
+from django.db.models import Q
 from sgbda.services.microsoft_gdr_sync import sync_gdr
 
 def listar_builds(request):
     
     builds = actualizaciones.objects.all()
+
+    buscar = request.GET.get('buscar')
+    version = request.GET.get('version')
+
+    # FILTRO DE TEXTO
+    if buscar:
+        builds = builds.filter(
+            Q(kb__icontains=buscar) |
+            Q(build__icontains=buscar) |
+            Q(descripcion__icontains=buscar)
+        )
+
+    # FILTRO POR VERSION
+    if version:
+        builds = builds.filter(
+            major_version__icontains=version
+        )
+
+    context = {
+        'builds':builds,
+    }
     
-    return render(request, 'paginas/builds.html', {
-        "builds": builds})
+    return render(request, 'paginas/builds.html', context)
+
 
 
 def actualizar_builds(request):
