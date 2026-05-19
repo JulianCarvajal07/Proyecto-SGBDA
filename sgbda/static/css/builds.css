@@ -5,3 +5,36 @@
     width: 100%;
     padding: 15px;
 }
+
+.filtro-busqueda {
+    background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    width: 700px;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid  #dee2e6;
+    border-radius: 20px;
+    margin: 0 0 15px 0;
+}
+
+.busqueda-texto{
+    display: flex;
+    gap: 10px;
+}
+
+.opciones-sql {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    width: 100%;
+}
+
+.tabla-builds {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+    align-items: end;
+}
