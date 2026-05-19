@@ -1,3 +1,11 @@
+.titulo-inventario{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+}
+
 .tabla-inventario{
     display: flex;
     width: 80%;
