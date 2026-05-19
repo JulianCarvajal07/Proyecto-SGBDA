@@ -28,21 +28,12 @@ def sync_gdr():
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     nuevos = 0
 
-    """ 
-    def es_gdr(descripcion):
-        # Detecta cualquier variante de GDR válida para todas las versiones.
-        desc = descripcion.upper().strip()
-        if "GDR" not in desc:
-            return False
-        # Acepta: GDR, SP1+GDR, SP2+GDR, SP3+GDR, CU+GDR, Azure Connect Pack+GDR
-        return bool(re.search(r'(SP\d+\s*[\+]\s*GDR|CU\d+\s*[\+]\s*GDR|\bGDR\b)', desc))
-    """
     def es_gdr(descripcion):
 
         desc = descripcion.upper().strip()
 
         return bool(
-            re.match(r'^(SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR|GDR)$', desc)
+            re.match(r'^(SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR)$', desc)
         )
 
     def parsear_fila(cols, version):
