@@ -25,6 +25,12 @@
 </div>
 
     <div class="tabla-inventario">
+
+        <form method="POST" action="{% url 'actualizar_inventario' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+        </form>
+
             <table class="tabla-personalizada">
                 <thead>
                     <tr>
@@ -39,15 +45,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    
+                    {% for instancia in instancias %}
                     <tr>
-                        <td>COBO</td>
-                        <td>10.75.55.87</td>
-                        <td>SSRV-3</td>
-                        <td>MSSQL</td>
-                        <td>1433</td>
-                        <td>Microsoft Server 2016</td>
-                        <td>SQLServer 2019</td>
+                        <td></td>
+                        <td>No especificado</td>
+                        <td>NO especificado</td>
+                        <td>{{instancia.nombre_instancia}}</td>
+                        <td>{{instancia.puerto}}</td>
+                        <td>{{instancia.edition}}</td>
+                        <td>{{instancia.major_version}}</td>
                         <td>                          
                             <form method="POST" action="" style="display:inline;">
                                 {% csrf_token %}
@@ -57,6 +63,7 @@
                             </form>
                         </td>
                     </tr>
+                    {% endfor %}
                    
                 </tbody>
             </table>      

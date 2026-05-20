@@ -6,7 +6,10 @@
     padding: 15px;
 }
 
-.tabla-inventario{
+.tabla-inventario {
     display: flex;
+    flex-direction: column;
+    gap: 15px;
     width: 80%;
+    align-items: start;
 }

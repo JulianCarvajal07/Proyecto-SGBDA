@@ -49,6 +49,8 @@ class servidor(models.Model):
         cliente,
         on_delete=models.CASCADE,
         db_column='cliente_id',
+        null=True,
+        blank=True
     )
     ip = models.GenericIPAddressField(unique=True)
     hostname = models.CharField(max_length=255)

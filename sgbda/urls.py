@@ -3,7 +3,7 @@ from .views.index import index
 from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 from .views.conexiones import registro_conexion, listar_conexiones, eliminar_conexion
-from .views.inventario import listar_inventario
+from .views.inventario import listar_inventario, actualizar_inventario
 from .views.builds import listar_builds, actualizar_builds
 from django.contrib.auth.views import LogoutView
 
@@ -22,6 +22,7 @@ urlpatterns = [
     path('eliminar_conexion/<int:id>/', eliminar_conexion, name='eliminar_conexion'),
 
     path('listar_inventario/', listar_inventario, name='listar_inventario'),
+    path('actualizar_inventario', actualizar_inventario, name="actualizar_inventario"),
 
     path('listar_builds/', listar_builds, name='listar_builds'),
     path('actualizar_builds/', actualizar_builds, name='actualizar_builds'),
