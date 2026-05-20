@@ -7,10 +7,10 @@ from sgbda.services.actualizar_instancias import actualizar_instancias_desde_con
 
 def listar_inventario(request):
 
-    all_instancias = instancia.objects.all()
-    
+    all_inventario =  instancia.objects.select_related('servidor').all()
+
     return render(request, 'paginas/inventario.html',{
-        'instancias': all_instancias,
+        'instancias': all_inventario,
     })
 
 

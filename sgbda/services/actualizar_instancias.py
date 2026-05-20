@@ -35,13 +35,49 @@ def actualizar_instancias_desde_conexiones():
             cursor = conn.cursor()
 
             # 🧠 metadata del servidor + instancia
+            #cursor.execute("""
+            #    SELECT
+            #        CAST(SERVERPROPERTY('MachineName') AS NVARCHAR(128)),
+            #        CAST(@@SERVERNAME AS NVARCHAR(128)),
+            #        CAST(SERVERPROPERTY('Edition') AS NVARCHAR(128)),
+            #        CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR(128)),
+            #        CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT)
+            #""")
+
+            #🧠 metadata del servidor + instancia
             cursor.execute("""
+                DECLARE @version VARCHAR(MAX);
+
+                SET @version = @@VERSION;
+
                 SELECT
                     CAST(@@SERVERNAME AS NVARCHAR(128)),
-                    CAST(SERVERPROPERTY('MachineName') AS NVARCHAR(128)),
+                           
+                    CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT),
+
+                    -- Version SQL limpia
+                    CAST(LEFT(@version, CHARINDEX('(', @version + '(') - 2) AS NVARCHAR(128)),
+
+                    -- Edición SQL
                     CAST(SERVERPROPERTY('Edition') AS NVARCHAR(128)),
-                    CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR(128)),
-                    CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT)
+
+                    -- Instancia
+                    CAST(REPLACE(REPLACE(servicename, 'SQL Server (',''), ')','') AS NVARCHAR(128)),
+
+                    -- Build
+                    CAST(SUBSTRING(@version, CHARINDEX(' - ', @version) + 3, CHARINDEX('(X64)', @version) - CHARINDEX(' - ', @version) - 4) AS NVARCHAR(128)),
+
+                    -- Sistema Operativo
+                    CAST(LTRIM(RTRIM(
+                        SUBSTRING(
+                            @version,
+                            CHARINDEX('Windows', @version),
+                            CHARINDEX('(Build', @version) - CHARINDEX('Windows', @version)
+                        )
+                    )) AS NVARCHAR(128))
+
+                FROM sys.dm_server_services
+                WHERE servicename LIKE 'SQL Server (%';
             """)
 
             row = cursor.fetchone()
@@ -49,7 +85,7 @@ def actualizar_instancias_desde_conexiones():
             if not row:
                 continue
 
-            nombre_instancia, hostname, edition, version, puerto_sql = row
+            hostname, puerto_sql, version, edition, nombre_instancia, build, sistema_op,  = row
 
             # 🖥️ 1. CREAR / ACTUALIZAR SERVIDOR
             srv, created_srv = servidor.objects.update_or_create(
@@ -58,7 +94,7 @@ def actualizar_instancias_desde_conexiones():
 
                 defaults={
                     "hostname": hostname or c.ip_servidor,
-                    "sistema_operativo": "Desconocido",  # opcional
+                    "sistema_operativo": sistema_op,  # opcional
                 }
             )
 
@@ -75,6 +111,7 @@ def actualizar_instancias_desde_conexiones():
                 defaults={
                     "major_version": version,
                     "edition": edition,
+                    "build": build,
                     "puerto": puerto_sql or c.puerto,
                 }
             )

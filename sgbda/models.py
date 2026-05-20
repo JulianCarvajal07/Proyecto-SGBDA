@@ -72,6 +72,7 @@ class instancia(models.Model):
     )
     nombre_instancia = models.CharField(max_length=255)
     puerto = models.CharField(max_length=50)
+    build = models.CharField(max_length=100, null=True, blank=True) #temporal
     major_version = models.CharField(max_length=50)
     edition = models.CharField(max_length=100)
 

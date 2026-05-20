@@ -40,6 +40,7 @@
                         <th>Instancia</th>
                         <th>Puerto</th>
                         <th>S.O</th>
+                        <th>build</th>
                         <th>Edicion</th>
                         <th>Accion</th>
                     </tr>
@@ -47,12 +48,13 @@
                 <tbody>
                     {% for instancia in instancias %}
                     <tr>
-                        <td></td>
                         <td>No especificado</td>
-                        <td>NO especificado</td>
+                        <td>{{instancia.servidor.ip}}</td>
+                        <td>{{instancia.servidor.hostname}}</td>
                         <td>{{instancia.nombre_instancia}}</td>
                         <td>{{instancia.puerto}}</td>
                         <td>{{instancia.edition}}</td>
+                        <td>{{instancia.build}}</td>
                         <td>{{instancia.major_version}}</td>
                         <td>                          
                             <form method="POST" action="" style="display:inline;">
