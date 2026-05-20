@@ -6,6 +6,12 @@
 
 {% block contenido %}
 
+<div class="titulo-inventario">
+    <h2>Inventario SQL Server</h2>
+</div>
+
+<div class="tabla-inventario">
+
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
@@ -19,12 +25,6 @@
         {% endif %}
     {% endfor %}
 {% endif %}
-
-<div class="titulo-inventario">
-    <h2 style="margin: 0">Inventario SQL Server</h2>
-</div>
-
-    <div class="tabla-inventario">
 
         <form method="POST" action="{% url 'actualizar_inventario' %}">
             {% csrf_token %}
@@ -48,7 +48,7 @@
                 <tbody>
                     {% for instancia in instancias %}
                     <tr>
-                        <td>No especificado</td>
+                        <td>{{instancia.servidor.cliente.nombre|default:"Cliente no asignado"}}</td>
                         <td>{{instancia.servidor.ip}}</td>
                         <td>{{instancia.servidor.hostname}}</td>
                         <td>{{instancia.nombre_instancia}}</td>
@@ -63,13 +63,71 @@
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                             </form>
+                            <form method="POST" action="" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="button" 
+                                        class="btn btn-primary" 
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalId" 
+                                        style="margin: 2.5px"
+                                        id-servidor="{{instancia.servidor.id_servidor}}"
+                                        id-cliente="{{instancia.servidor.cliente.id_cliente}}"
+                                        data-nombre="{{instancia.servidor.cliente.nombre}}">
+                                        <i class="bi bi-pencil"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
-                   
                 </tbody>
-            </table>      
-    </div>
+            </table>
+
+    <!-- Modal Body -->
+    <div
+        class="modal fade"
+        id="modalId"
+        tabindex="-1"        
+        role="dialog"
+        aria-labelledby="modalTitleId"
+        aria-hidden="true"
+    >
+        <div
+            class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+            role="document"
+        >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'asignar_cliente' %}">
+                        {% csrf_token %}
+                            <h4>Asigne un cliente</h4>
+                            <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
+                            <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
+                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente">
+                        </div>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                            >
+                                Cerrar
+                            </button>
+                            <button type="submit" class="btn btn-primary">Modificar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>  
 
 </div>
+
+<script src="{% static 'js/llamado_cliente.js' %}"></script>
 {% endblock %}

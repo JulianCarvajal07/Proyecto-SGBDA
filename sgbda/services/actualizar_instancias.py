@@ -34,16 +34,6 @@ def actualizar_instancias_desde_conexiones():
 
             cursor = conn.cursor()
 
-            # 🧠 metadata del servidor + instancia
-            #cursor.execute("""
-            #    SELECT
-            #        CAST(SERVERPROPERTY('MachineName') AS NVARCHAR(128)),
-            #        CAST(@@SERVERNAME AS NVARCHAR(128)),
-            #        CAST(SERVERPROPERTY('Edition') AS NVARCHAR(128)),
-            #        CAST(SERVERPROPERTY('ProductVersion') AS NVARCHAR(128)),
-            #        CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT)
-            #""")
-
             #🧠 metadata del servidor + instancia
             cursor.execute("""
                 DECLARE @version VARCHAR(MAX);
