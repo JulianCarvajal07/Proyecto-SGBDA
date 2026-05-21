@@ -1,5 +1,5 @@
 import pyodbc
-from sgbda.models import conexion, instancia, servidor 
+from sgbda.models import conexion, instancia, servidor, servicio
 
 
 def conectar_sqlserver(ip, puerto, usuario, password):
@@ -68,14 +68,24 @@ def actualizar_instancias_desde_conexiones():
 
                 FROM sys.dm_server_services
                 WHERE servicename LIKE 'SQL Server (%';
+                           
+                EXEC xp_cmdshell 'powershell.exe -Command "Get-Service | Where-Object {$_.DisplayName -like ''*SQL*''} | ForEach-Object { $_.DisplayName, $_.Status, $_.StartType -join ''|'' }"';
             """)
 
+            # Primer resultset (metadata)
             row = cursor.fetchone()
 
-            if not row:
-                continue
+            if row:
+                
+                hostname = row[0]
+                puerto_sql = row[1]
+                version = row[2]
+                edition = row[3]
+                nombre_instancia = row[4]
+                build = row[5]
+                sistema_op = row[6]
 
-            hostname, puerto_sql, version, edition, nombre_instancia, build, sistema_op,  = row
+
 
             # 🖥️ 1. CREAR / ACTUALIZAR SERVIDOR
             srv, created_srv = servidor.objects.update_or_create(
@@ -111,8 +121,57 @@ def actualizar_instancias_desde_conexiones():
 
             print(f"OK {c.ip_servidor} → {nombre_instancia}")
 
+            try:
+
+                has_next = cursor.nextset()
+
+                if not has_next:
+                    print("No hay segundo resultset")
+                else:
+
+                    rows = cursor.fetchall()
+
+                    for row in rows:
+
+                        if row and row[0]:
+
+                            datos = row[0].split("|")
+
+                            if len(datos) == 3:
+
+                                nombre = datos[0].strip()
+                                estado = datos[1].strip()
+                                inicio = datos[2].strip()
+
+                                print(nombre)
+                                print(estado)
+                                print(inicio)
+
+                                servicio.objects.update_or_create(
+                                    instancia=inst,
+                                    nombre_servicio=nombre,
+                                    defaults={
+                                        "estado_servicio": estado,
+                                        "tipo_inicio": inicio
+                                    }
+                                )
+
+            except Exception as e:
+
+                print("ERROR PARA TRAER INFORMACION:", str(e))
+
         except Exception as e:
             print(f"Error con {c.ip_servidor}: {e}")
+
+        finally:
+
+            # cerrar cursor
+            if cursor:
+                cursor.close()
+
+            # cerrar conexión
+            if conn:
+                conn.close()
 
     return {
         "servidores_nuevos": nuevos_servidores,

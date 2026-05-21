@@ -5,3 +5,10 @@
     width: 80%;
     align-items: start;
 }
+
+.contenedor-servicios {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 5px;
+}

@@ -43,7 +43,7 @@
                         <th>build</th>
                         <th>Edicion</th>
                         <th>Servicios</th>
-                        <th>Accion</th>
+                        <th>tipo inicio</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -58,7 +58,13 @@
                         <td>{{instancia.build}}</td>
                         <td>{{instancia.major_version}}</td>
                         <td>
-
+                            <button
+                                type="button"
+                                class="btn btn-primary btn-lg"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalServicio">
+                                <i class="bi bi-eye"></i>
+                            </button>    
                         </td>
                         <td>                          
                             <form method="POST" action="{% url 'eliminar_instancia' %}" style="display:inline;">
@@ -88,19 +94,9 @@
             </table>
 </div>
 
-<!-- Modal Body -->
-<div
-    class="modal fade"
-    id="modalId"
-    tabindex="-1"        
-    role="dialog"
-    aria-labelledby="modalTitleId"
-    aria-hidden="true"
->
-    <div
-        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
-        role="document"
-    >
+<!-- Modal para asignar cliente -->
+<div class="modal fade" id="modalId" tabindex="-1" role="dialog" aria-labelledby="modalTitleId" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button
@@ -137,11 +133,46 @@
                             Cerrar
                         </button>
                         <button type="submit" class="btn btn-primary">Modificar</button>
+                    </div>
                 </form>
             </div>
         </div>
+    </div>  
+</div>
+
+
+
+
+<!-- Modal Body -->
+<!-- if you want to close by clicking outside the modal, delete the last endpoint:data-bs-backdrop and data-bs-keyboard -->
+<div class="modal fade" id="modalServicio" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitleId">
+                    Modal title
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">Body</div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary">Save</button>
+            </div>
+        </div>
     </div>
-</div>  
+</div>
 
 <script src="{% static 'js/llamado_cliente.js' %}"></script>
 {% endblock %}

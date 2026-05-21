@@ -106,11 +106,13 @@ class servicio(models.Model):
     instancia = models.ForeignKey(
         instancia,
         on_delete=models.CASCADE,
-        db_column='instancia_id'
+        db_column='instancia_id',
+        related_name='servicios'
     )
     nombre_servicio = models.CharField(max_length=255)
     estado_servicio = models.CharField(max_length=100)
-    ultima_verificacion = models.DateTimeField(null=True, blank=True)
+    tipo_inicio = models.CharField(max_length=100, null=True, blank=True)
+    ultima_verificacion = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'servicio'

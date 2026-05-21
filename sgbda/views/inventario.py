@@ -7,7 +7,12 @@ from sgbda.services.actualizar_instancias import actualizar_instancias_desde_con
 
 def listar_inventario(request):
 
-    all_inventario =  instancia.objects.select_related('servidor', 'servidor__cliente').all()
+    all_inventario =  instancia.objects.select_related(
+        'servidor', 
+        'servidor__cliente'
+    ).prefetch_related(
+        'servicios'
+    ).all()
 
     all_clientes = cliente.objects.all()
 
