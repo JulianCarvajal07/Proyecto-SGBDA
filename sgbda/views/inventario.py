@@ -77,4 +77,18 @@ def asignar_cliente(request):
 
     return redirect("listar_inventario")
 
+def eliminar_instancia(request):
+
+    if request.method == 'POST':
+        instancia_id = request.POST.get('id_instancia')
+        instancia_obj= instancia.objects.get(id_instancia=instancia_id)
+        
+        if instancia_obj:
+            instancia_obj.delete()
+            messages.success(request,"sea eliminado la instancia correctamente")
+            return redirect('listar_inventario')
+        else:
+            messages.error(request,"Error, al eliminar la instancia")
+            return redirect('listar_inventario')
+
 
