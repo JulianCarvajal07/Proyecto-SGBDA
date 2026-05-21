@@ -11,8 +11,22 @@ def listar_clientes(request):
     })
 
 def registro_cliente(request):
-        
 
-    return render(request, 'paginas/clientes.html')
+    if request.method == 'POST':
+        nombre_cliente = request.POST.get('nombre')
+
+        if nombre_cliente:
+            
+            cliente.objects.create(
+                nombre = nombre_cliente 
+            )
+            
+            messages.success(request, "Cliente registrado correctamente")
+            return redirect("listar_clientes")
+        
+        else:
+
+            messages.error(request, "Ingrese un cliente")
+            return redirect("listar_clientes")
 
 

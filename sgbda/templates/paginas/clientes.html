@@ -10,8 +10,23 @@
     <h2>Clientes</h2>
 </div>
 
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+                {{ message }}
+            </div>
+        {% else %}
+            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
 <div class="contenedor-clientes">
-    <form method="POST" action="{% url 'registro_' %}">
+
+    <form method="POST" action="{% url 'registro_cliente' %}">
     {% csrf_token %}
         <div class="registro-clientes">
             <h2 
@@ -25,7 +40,7 @@
             </h2>
             <div class="tarjeta-clientes">
                         <h5 style="margin: 10px 0 10px 0">Nombre</h5>
-                            <input class="form-control" name="ip_servidor" type="text">
+                            <input class="form-control" name="nombre" type="text">
                         <button type="submit" class="btn btn-primary" style="margin: 20px 0 0 0">
                             Registrar
                         </button>   
@@ -35,24 +50,10 @@
 
     <div class="tabla-clientes">
 
-        {% if messages %}
-            {% for message in messages %}
-                {% if message.tags == 'error' %}
-                    <div id="mi-alerta" class="alert alert-danger fade" role="alert">
-                        {{ message }}
-                    </div>
-                {% else %}
-                    <div id="mi-alerta" class="alert alert-success fade" role="alert">
-                        {{ message }}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-
         <table class="tabla-personalizada">
             <thead>
                 <tr>
-                    <th>Clientes</th>
+                    <th>Nombre</th>
                     <th>Fecha de creacion</th>
                     <th>Accion</th>
                 </tr>
