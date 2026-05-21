@@ -29,7 +29,7 @@ urlpatterns = [
 
     path('listar_inventario/', listar_inventario, name='listar_inventario'),
     path('actualizar_inventario/', actualizar_inventario, name="actualizar_inventario"),
-    path('asigna_cliente/', asignar_cliente, name="asignar_cliente"),
+    path('asignar_cliente/', asignar_cliente, name="asignar_cliente"),
 
     path('listar_builds/', listar_builds, name='listar_builds'),
     path('actualizar_builds/', actualizar_builds, name='actualizar_builds'),

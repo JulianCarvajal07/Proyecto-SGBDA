@@ -42,7 +42,7 @@ def asignar_cliente(request):
     if request.method == "POST":
 
         servidor_id = request.POST.get("id_servidor")
-        nombre_cliente = request.POST.get("nombre_cliente")
+        nombre_cliente = request.POST.get("cliente_id")
 
         if not nombre_cliente:
 
@@ -56,15 +56,12 @@ def asignar_cliente(request):
         nombre_cliente = nombre_cliente.strip()
 
         # obtener servidor
-        servidor_obj = servidor.objects.get(
-            id_servidor=servidor_id
-        )
+        servidor_obj = servidor.objects.get(id_servidor=servidor_id)
 
         # SI YA TIENE CLIENTE -> modificar nombre
-        if servidor_obj.cliente:
-
-            servidor_obj.cliente.nombre = nombre_cliente
-            servidor_obj.cliente.save()
+        if nombre_cliente:
+            servidor_obj.cliente_id = nombre_cliente
+            servidor_obj.save()
 
             messages.success(
                 request,
@@ -73,17 +70,9 @@ def asignar_cliente(request):
 
         else:
 
-            cliente_obj = cliente.objects.create(
-                    nombre=nombre_cliente
-                )
-
-            # asignar cliente al servidor
-            servidor_obj.cliente = cliente_obj
-            servidor_obj.save()
-
-            messages.success(
+            messages.error(
                 request,
-                "Cliente asignado correctamente."
+                "Debe asignar un cliente."
             )
 
     return redirect("listar_inventario")

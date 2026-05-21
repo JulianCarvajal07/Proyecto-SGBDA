@@ -114,19 +114,19 @@
                     {% csrf_token %}
                         <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
                         <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
-                        <h4>Asigne nuevo cliente</h4>
-                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente">
-                        <h4>Clientes existentes</h4>
+                        <h4>Asigne cliente</h4>
                             <select
                                 class="form-select"
-                                name="nombre_cliente"
-                                id="nombre-cliente"
+                                id= "nombre-cliente"
+                                name="cliente_id"
                             >
-                                <option selected>Seleccione...</option>
+                                <option selected disabled>Seleccione...</option>
+
                                 {% for cliente in clientes %}
-                                    <option value="">{{cliente.nombre}}</option>
+                                    <option value="{{cliente.id_cliente}}">{{cliente.nombre}}</option>
                                 {% endfor %}
                             </select>
+
                     <div class="modal-footer">
                         <button
                             type="button"
