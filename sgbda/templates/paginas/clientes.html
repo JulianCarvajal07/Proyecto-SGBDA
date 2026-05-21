@@ -76,7 +76,9 @@
                                         class="btn btn-primary" 
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalId" 
-                                        style="margin: 2.5px">
+                                        style="margin: 2.5px"
+                                        id-cliente="{{cliente.id_cliente}}"
+                                        data-nombre="{{cliente.nombre}}">
                                         <i class="bi bi-pencil"></i>
                                 </button>
                             </form>
@@ -85,7 +87,53 @@
                 {% endfor %}
             </tbody>
         </table>
+
     </div>
+
 </div>
 
+<!-- Modal Body -->
+<div
+    class="modal fade"
+    id="modalId"
+    tabindex="-1"        
+    role="dialog"
+    aria-labelledby="modalTitleId"
+    aria-hidden="true"
+>
+    <div
+        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+        role="document"
+    >
+        <div class="modal-content">
+            <div class="modal-header">
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'modificar_cliente' %}">
+                    {% csrf_token %}
+                        <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
+                        <h4>modificar cliente</h4>
+                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente">
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cerrar
+                        </button>
+                        <button type="submit" class="btn btn-primary">Modificar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>  
+
+<script src="{% static 'js/info_cliente.js' %}"></script>
 {% endblock %}
