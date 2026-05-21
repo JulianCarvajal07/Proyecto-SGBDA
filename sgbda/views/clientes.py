@@ -48,5 +48,14 @@ def modificar_cliente(request):
             messages.error(request, "Debe registrar nombre de cliente")
             return redirect('listar_clientes')
         
+def eliminar_cliente(request):
+
+    if request.method == 'POST':
+        cliente_id = request.POST.get('id_cliente')
+        eliminar_cliente = cliente.objects.get(id_cliente=cliente_id)
+        eliminar_cliente.delete()
+        return redirect('listar_clientes')
+        
+    
 
             

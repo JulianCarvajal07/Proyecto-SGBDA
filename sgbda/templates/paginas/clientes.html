@@ -64,8 +64,9 @@
                         <td>{{cliente.nombre}}</td>
                         <td>{{cliente.fecha_creacion}}</td>
                         <td>                          
-                            <form method="POST" action="" style="display:inline;">
+                            <form method="POST" action="{% url 'eliminar_cliente' %}" style="display:inline;">
                                 {% csrf_token %}
+                                <input type="hidden" value="{{cliente.id_cliente}}" name="id_cliente">
                                 <button type="submit" class="btn btn-danger" style="margin: 2.5px">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
