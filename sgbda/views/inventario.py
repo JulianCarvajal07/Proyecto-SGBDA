@@ -9,8 +9,11 @@ def listar_inventario(request):
 
     all_inventario =  instancia.objects.select_related('servidor', 'servidor__cliente').all()
 
+    all_clientes = cliente.objects.all()
+
     return render(request, 'paginas/inventario.html',{
         'instancias': all_inventario,
+        'clientes': all_clientes,
     })
 
 

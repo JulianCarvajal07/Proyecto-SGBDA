@@ -6,7 +6,7 @@
 
 {% block contenido %}
 
-<div class="titulo-inventario">
+<div class="titulo-personalizado">
     <h2>Inventario SQL Server</h2>
 </div>
 
@@ -42,6 +42,7 @@
                         <th>S.O</th>
                         <th>build</th>
                         <th>Edicion</th>
+                        <th>Servicios</th>
                         <th>Accion</th>
                     </tr>
                 </thead>
@@ -56,6 +57,9 @@
                         <td>{{instancia.edition}}</td>
                         <td>{{instancia.build}}</td>
                         <td>{{instancia.major_version}}</td>
+                        <td>
+
+                        </td>
                         <td>                          
                             <form method="POST" action="" style="display:inline;">
                                 {% csrf_token %}
@@ -81,53 +85,62 @@
                     {% endfor %}
                 </tbody>
             </table>
+</div>
 
-    <!-- Modal Body -->
+<!-- Modal Body -->
+<div
+    class="modal fade"
+    id="modalId"
+    tabindex="-1"        
+    role="dialog"
+    aria-labelledby="modalTitleId"
+    aria-hidden="true"
+>
     <div
-        class="modal fade"
-        id="modalId"
-        tabindex="-1"        
-        role="dialog"
-        aria-labelledby="modalTitleId"
-        aria-hidden="true"
+        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+        role="document"
     >
-        <div
-            class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
-            role="document"
-        >
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                    ></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{% url 'asignar_cliente' %}">
-                        {% csrf_token %}
-                            <h4>Asigne un cliente</h4>
-                            <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
-                            <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'asignar_cliente' %}">
+                    {% csrf_token %}
+                        <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
+                        <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
+                        <h4>Asigne nuevo cliente</h4>
                             <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente">
-                        </div>
-                        <div class="modal-footer">
-                            <button
-                                type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal"
+                        <h4>Clientes existentes</h4>
+                            <select
+                                class="form-select"
+                                style="color: white;"
+                                name=""
                             >
-                                Cerrar
-                            </button>
-                            <button type="submit" class="btn btn-primary">Modificar</button>
-                    </form>
-                </div>
+                                <option selected>Seleccione...</option>
+                                {% for cliente in clientes %}
+                                    <option value="">{{cliente.nombre}}</option>
+                                {% endfor %}
+                            </select>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cerrar
+                        </button>
+                        <button type="submit" class="btn btn-primary">Modificar</button>
+                </form>
             </div>
         </div>
-    </div>  
-
-</div>
+    </div>
+</div>  
 
 <script src="{% static 'js/llamado_cliente.js' %}"></script>
 {% endblock %}

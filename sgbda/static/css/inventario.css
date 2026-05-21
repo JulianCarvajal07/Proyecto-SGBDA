@@ -1,11 +1,3 @@
-.titulo-inventario{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin: 0 20px 0 0;
-}
-
 .tabla-inventario {
     display: flex;
     flex-direction: column;

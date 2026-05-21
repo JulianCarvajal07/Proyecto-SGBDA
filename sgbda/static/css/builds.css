@@ -1,11 +1,3 @@
-.titulo-builds{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 15px;
-}
-
 .filtro-busqueda {
     background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
     color: white;
