@@ -10,6 +10,7 @@
     <h2>Clientes</h2>
 </div>
 
+<div class="contenedor-alerta">
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
@@ -23,6 +24,7 @@
         {% endif %}
     {% endfor %}
 {% endif %}
+</div>
 
 <div class="contenedor-clientes">
 

@@ -6,6 +6,11 @@
 
 {% block contenido %}
 
+
+
+<div class="titulo-personalizado">
+    <h2 style="margin: 0">Actualizaciones SQL Server</h2>
+
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
@@ -19,9 +24,6 @@
         {% endif %}
     {% endfor %}
 {% endif %}
-
-<div class="titulo-personalizado">
-    <h2>Actualizaciones SQL Server</h2>
 </div>
 
 <form method="GET">

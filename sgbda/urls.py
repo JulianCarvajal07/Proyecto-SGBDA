@@ -31,7 +31,6 @@ urlpatterns = [
     path('actualizar_inventario/', actualizar_inventario, name="actualizar_inventario"),
     path('asignar_cliente/', asignar_cliente, name="asignar_cliente"),
     path('eliminar_instancia/', eliminar_instancia, name='eliminar_instancia'),
-    #path('ejecutar_check_builds/', ejecutar_check_builds, name='verificar_checksql'),
 
     path('listar_builds/', listar_builds, name='listar_builds'),
     path('actualizar_builds/', actualizar_builds, name='actualizar_builds'),

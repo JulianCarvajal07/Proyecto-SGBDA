@@ -10,4 +10,14 @@
 
 .alert{
     transition: opacity 0.5s ease;
+    margin: 0;
+    width: 80%;
+}
+
+.contenedor-alerta{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 20px 0;
+    width: 80%;
 }
