@@ -14,15 +14,15 @@
 
 {% if messages %}
     {% for message in messages %}
-        {% if message.tags == 'error' %}
-            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
-                {{ message }}
-            </div>
-        {% else %}
-            <div id="mi-alerta" class="alert alert-success fade" role="alert">
-                {{ message }}
-            </div>
-        {% endif %}
+
+        <div class="alert 
+            {% if message.tags == 'success' %}alert-success
+            {% elif message.tags == 'error' %}alert-danger
+            {% elif message.tags == 'warning' %}alert-warning
+            {% else %}alert-info{% endif %}">
+            {{ message }}
+        </div>
+
     {% endfor %}
 {% endif %}
 
@@ -60,11 +60,60 @@
                         <td>
                             <button
                                 type="button"
-                                class="btn btn-primary btn-lg"
+                                class="btn btn-primary"
                                 data-bs-toggle="modal"
-                                data-bs-target="#modalServicio">
+                                data-bs-target="#modalServicio{{ instancia.id_instancia }}">
                                 <i class="bi bi-eye"></i>
-                            </button>    
+                            </button> 
+
+                            <!-- MODAL PARA SERVICIOS -->
+                            <div class="modal fade" id="modalServicio{{ instancia.id_instancia }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalTitleId">
+                                                Servicios de {{ instancia.nombre_instancia }}
+                                            </h5>
+                                            <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                            ></button>
+                                        </div>
+                                        <div class="modal-body">
+                                                <table class="table table-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Servicio</th>
+                                                            <th scope="col">Estado</th>
+                                                            <th scope="col">Tipo de inicio</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for servicio in instancia.servicios.all %}
+                                                        <tr>
+                                                            <td>{{ servicio.nombre_servicio }}</td>
+                                                            <td>{{ servicio.estado_servicio }}</td>
+                                                            <td>{{ servicio.tipo_inicio }}</td>
+                                                        </tr>
+                                                        {% endfor %}
+
+                                                    </tbody>
+                                                </table>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                Cerrar
+                                            </button>
+                                            <button type="button" class="btn btn-primary">
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                         </td>
                         <td>                          
                             <form method="POST" action="{% url 'eliminar_instancia' %}" style="display:inline;">
@@ -91,7 +140,7 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table>                
 </div>
 
 <!-- Modal para asignar cliente -->
@@ -138,40 +187,6 @@
             </div>
         </div>
     </div>  
-</div>
-
-
-
-
-<!-- Modal Body -->
-<!-- if you want to close by clicking outside the modal, delete the last endpoint:data-bs-backdrop and data-bs-keyboard -->
-<div class="modal fade" id="modalServicio" tabindex="-1">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitleId">
-                    Modal title
-                </h5>
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-            </div>
-            <div class="modal-body">Body</div>
-            <div class="modal-footer">
-                <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                >
-                    Close
-                </button>
-                <button type="button" class="btn btn-primary">Save</button>
-            </div>
-        </div>
-    </div>
 </div>
 
 <script src="{% static 'js/llamado_cliente.js' %}"></script>

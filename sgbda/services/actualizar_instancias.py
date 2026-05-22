@@ -1,5 +1,6 @@
 import pyodbc
 from sgbda.models import conexion, instancia, servidor, servicio
+from django.contrib import messages
 
 
 def conectar_sqlserver(ip, puerto, usuario, password):
@@ -21,8 +22,12 @@ def actualizar_instancias_desde_conexiones():
 
     nuevos_servidores = 0
     nuevas_instancias = 0
+    errores=[]
 
     for c in conexiones:
+
+        cursor = None  # ✅ inicializar aquí
+        conn = None    # ✅ inicializar aquí
 
         try:
             conn = conectar_sqlserver(
@@ -121,50 +126,40 @@ def actualizar_instancias_desde_conexiones():
 
             print(f"OK {c.ip_servidor} → {nombre_instancia}")
 
-            try:
+            
+            if cursor.nextset():
+                rows = cursor.fetchall()
+                for row in rows:
+                    if row and row[0]:
 
-                has_next = cursor.nextset()
+                        datos = row[0].split("|")
 
-                if not has_next:
-                    print("No hay segundo resultset")
-                else:
+                        if len(datos) == 3:
 
-                    rows = cursor.fetchall()
+                            nombre = datos[0].strip()
+                            estado = datos[1].strip()
+                            inicio = datos[2].strip()
 
-                    for row in rows:
+                            print(nombre)
+                            print(estado)
+                            print(inicio)
 
-                        if row and row[0]:
-
-                            datos = row[0].split("|")
-
-                            if len(datos) == 3:
-
-                                nombre = datos[0].strip()
-                                estado = datos[1].strip()
-                                inicio = datos[2].strip()
-
-                                print(nombre)
-                                print(estado)
-                                print(inicio)
-
-                                servicio.objects.update_or_create(
-                                    instancia=inst,
-                                    nombre_servicio=nombre,
-                                    defaults={
-                                        "estado_servicio": estado,
-                                        "tipo_inicio": inicio
-                                    }
-                                )
-
-            except Exception as e:
-
-                print("ERROR PARA TRAER INFORMACION:", str(e))
+                            servicio.objects.update_or_create(
+                                instancia=inst,
+                                nombre_servicio=nombre,
+                                defaults={
+                                    "estado_servicio": estado,
+                                    "tipo_inicio": inicio
+                                }
+                            )
+            else:
+                print("No hay segundo resultset")
+            
 
         except Exception as e:
+            errores.append(f"Error con {c.ip_servidor}: {e}")  # ✅ ahora sí captura el error real             
             print(f"Error con {c.ip_servidor}: {e}")
-
         finally:
-
             # cerrar cursor
             if cursor:
                 cursor.close()
@@ -175,5 +170,6 @@ def actualizar_instancias_desde_conexiones():
 
     return {
         "servidores_nuevos": nuevos_servidores,
-        "instancias_nuevas": nuevas_instancias
+        "instancias_nuevas": nuevas_instancias,
+        "errores":errores
     }

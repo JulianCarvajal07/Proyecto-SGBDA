@@ -26,21 +26,31 @@ def actualizar_inventario(request):
 
     try:
 
-        nuevos = actualizar_instancias_desde_conexiones()
+        result = actualizar_instancias_desde_conexiones()
+
+        nuevos_servidores = result["servidores_nuevos"]
+        nuevas_instancias = result["instancias_nuevas"]
+        errores = result["errores"]
 
         messages.success(
             request,
-            f"Instancias actualizadas. Nuevas: {nuevos}"
+            f"Servidores nuevos: {nuevos_servidores} | Instancias nuevas: {nuevas_instancias}"
         )
+
+        for error in errores:
+            messages.error(request, error)
+
+        # ✅ opcional: avisar si todo salió limpio
+        if not errores:
+            messages.success(request, "Inventario actualizado sin errores.")
 
     except Exception as e:
-
-        messages.error(
-            request,
-            str(e)
-        )
+        messages.error(request, f"Error inesperado: {str(e)}")
 
     return redirect('listar_inventario')
+
+
+
 
 def asignar_cliente(request):
 
