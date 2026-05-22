@@ -31,6 +31,11 @@
             <button type="submit" class="btn btn-primary">Actualizar</button>
         </form>
 
+        <form method="POST" action="{% url 'verificar_checksql' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">obtener</button>
+        </form>
+
             <table class="tabla-personalizada">
                 <thead>
                     <tr>
@@ -41,6 +46,9 @@
                         <th>Puerto</th>
                         <th>S.O</th>
                         <th>build</th>
+                        <th>ultima actualizacion</th>
+                        <th>Check</th>
+
                         <th>Edicion</th>
                         <th>Servicios</th>
                         <th>tipo inicio</th>
@@ -56,6 +64,21 @@
                         <td>{{instancia.puerto}}</td>
                         <td>{{instancia.edition}}</td>
                         <td>{{instancia.build}}</td>
+                        {% for check in instancia.checksql.all%}
+                        <td>
+                            
+                            <div class="contenedor-build-referencia">
+                                <p style="margin: 0">{{check.nombre_ultima_update}}</p>
+                                <p style="margin: 0">{{check.build_referencia}}</p>
+                                <p style="margin: 0">{{check.fecha_publicacion}}</p>
+                                <!--<p style="margin: 0">10 de Marzo de 2026</p>-->
+                            </div>
+                            
+                        </td>
+                        <td>
+                            <strong>{{check.estado}}</strong>
+                        </td>
+                        {% endfor %}
                         <td>{{instancia.major_version}}</td>
                         <td>
                             <button
@@ -82,12 +105,12 @@
                                             ></button>
                                         </div>
                                         <div class="modal-body">
-                                                <table class="table table-sm">
+                                                <table class="tabla-personalizada">
                                                     <thead>
                                                         <tr>
-                                                            <th scope="col">Servicio</th>
-                                                            <th scope="col">Estado</th>
-                                                            <th scope="col">Tipo de inicio</th>
+                                                            <th>Servicio</th>
+                                                            <th>Estado</th>
+                                                            <th>Tipo de inicio</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>

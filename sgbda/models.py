@@ -126,11 +126,14 @@ class checkSQL(models.Model):
     instancia = models.ForeignKey(
         instancia,
         on_delete=models.CASCADE,
-        db_column='instancia_id'
+        db_column='instancia_id',
+        related_name='checksql'
     )
     build_detectado = models.CharField(max_length=100)
     build_referencia = models.CharField(max_length=100)
     estado = models.CharField(max_length=100)
+    fecha_publicacion = models.DateField(null=True, blank= True)
+    nombre_ultima_update = models.CharField(max_length=200, null=True, blank=True)
     fecha_check = models.DateTimeField()
     detalle = models.TextField(null=True, blank=True)
 
