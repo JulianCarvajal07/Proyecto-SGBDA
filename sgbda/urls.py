@@ -3,7 +3,7 @@ from .views.index import index
 from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 from .views.conexiones import registro_conexion, listar_conexiones, eliminar_conexion
-from .views.inventario import listar_inventario, actualizar_inventario, asignar_cliente, eliminar_instancia, ejecutar_check_builds
+from .views.inventario import listar_inventario, actualizar_inventario, asignar_cliente, eliminar_instancia
 from .views.builds import listar_builds, actualizar_builds
 from .views.clientes import listar_clientes, registro_cliente, modificar_cliente, eliminar_cliente
 from django.contrib.auth.views import LogoutView
@@ -31,7 +31,7 @@ urlpatterns = [
     path('actualizar_inventario/', actualizar_inventario, name="actualizar_inventario"),
     path('asignar_cliente/', asignar_cliente, name="asignar_cliente"),
     path('eliminar_instancia/', eliminar_instancia, name='eliminar_instancia'),
-    path('ejecutar_check_builds/', ejecutar_check_builds, name='verificar_checksql'),
+    #path('ejecutar_check_builds/', ejecutar_check_builds, name='verificar_checksql'),
 
     path('listar_builds/', listar_builds, name='listar_builds'),
     path('actualizar_builds/', actualizar_builds, name='actualizar_builds'),
