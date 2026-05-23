@@ -25,40 +25,42 @@
 <div class="contenedor-abuela">
     <!-- Sidebar -->
     <div class="sidebar">
-        <div class="contenedor-titulo-p">
-            <img src="/media/NG_BLANCO.png" style="width:200px; padding:20px" alt="">
-            <h4 class="mb-0 fw-bold">OrionSQL</h4>
-        </div>
-        
-        <ul class="nav flex-column">
-            <li class="nav-item mb-1"><a href="{% url 'listar_clientes' %}" class="nav-link"><i class="bi bi-building"></i> clientes</a></li>
-            <li class="nav-item mb-1"><a href="{% url 'listar_inventario' %}" class="nav-link"><i class="bi bi-box"></i> Inventario</a></li>
-            <li class="nav-item mb-1"><a href="{% url 'listar_builds' %}" class="nav-link"><i class="bi bi-arrow-clockwise"></i> Builds</a></li>
-            <li class="nav-item mb-1"><a href="{% url 'listar_conexiones' %}" class="nav-link"><i class="bi bi-plug"></i> Conexiones</a></li>
-            <li class="nav-item mb-1"><a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="bi bi-people-fill"></i></i> Usuarios</a></li>
+        <div class="sidebar-inner">  <!-- div wrapper -->
+            <div class="contenedor-titulo-p">
+                <img src="/media/NG_BLANCO.png" style="width:200px; padding:15px" alt="">
+                <h4 class="mb-0 fw-bold">OrionSQL</h4>
+            </div>
             
-            <!--<li class="nav-item mb-1"><a href="#" class="nav-link active"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
-            <li class="nav-item mb-1"><a href="#" class="nav-link"><i class="bi bi-clock-history me-2"></i> Consultas</a></li>
-            <li class="nav-item mb-1"><a href="#" class="nav-link"><i class="bi bi-exclamation-triangle me-2"></i> Alertas</a></li>-->
-        </ul>
+            <ul class="nav flex-column">
+                <li class="nav-item mb-1"><a href="{% url 'listar_clientes' %}" class="nav-link"><i class="bi bi-building"></i> clientes</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_inventario' %}" class="nav-link"><i class="bi bi-box"></i> Inventario</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_builds' %}" class="nav-link"><i class="bi bi-arrow-clockwise"></i> Builds</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_conexiones' %}" class="nav-link"><i class="bi bi-plug"></i> Conexiones</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="bi bi-people-fill"></i></i> Usuarios</a></li>
+            </ul>
+        </div>
     </div>
 
     <!-- Contenido Principal -->
     <div class="contenedor-madre">
-        <nav class="barra-superior">                       
-                    <div class="dropdown">
-                        <a class="nombre-usuario" href="#" data-bs-toggle="dropdown">
-                                <h6 class="fw-semibold" style="margin:0px">{{ user }}</h6>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <form method="POST" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
+        <nav class="barra-superior"> 
+            <button id="toggleSidebar">
+                <i class="bi bi-three-dots-vertical"></i>
+            </button>
+            
+            <div class="dropdown">
+                <a class="nombre-usuario" href="#" data-bs-toggle="dropdown">
+                        <h6 class="fw-semibold" style="margin:0px; text-align:center;">{{ user }}</h6>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <form method="POST" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </nav>   
         <div class="contenido-principal">
             {% block contenido %}
@@ -71,6 +73,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'js/mensajes-personalizados.js' %}"></script>
+<script src="{% static 'js/ocultar-opciones.js' %}"></script>
 
 </body>
 </html>

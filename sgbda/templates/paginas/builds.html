@@ -44,13 +44,14 @@
     </div>
 </form>
 
+<form method="POST" action="{% url 'actualizar_builds' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+</form>
 
     <div class="tabla-builds">
 
-        <form method="POST" action="{% url 'actualizar_builds' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-        </form>
+
         
             <table class="tabla-personalizada">
                 <thead>

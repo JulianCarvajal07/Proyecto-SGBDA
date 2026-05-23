@@ -16,8 +16,10 @@
 
 .contenedor-alerta{
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    align-items: start;
+    justify-content: start;
     margin: 0 0 20px 0;
-    width: 80%;
+    min-width: 700px;
 }

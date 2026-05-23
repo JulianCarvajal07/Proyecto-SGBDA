@@ -4,6 +4,7 @@ body {
 
 .contenedor-abuela{
     display: flex;
+    min-height: 100vh;
 }
 
 .nombre-usuario{
@@ -19,10 +20,26 @@ body {
     background: #1a1d21;
     border-right: 1px solid #2d3239;
     width: 250px;
+    flex-shrink: 0;  /* <- esto evita que el sidebar se encoja */
+    transition: width 0.25s ease, padding 0.25s ease;
+    overflow: hidden;
     color: white;
-    padding: 10px;   
+       
     align-self: stretch; /* se estira automáticamente con el contenido */
-    min-height: 100vh;
+    min-height: 100%;
+}
+
+.sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    min-width: 250px; /* mismo ancho que el sidebar */
+    gap: 15px;
+    
+}
+
+.sidebar.collapsed {
+  width: 0;
+  padding: 0; /* elimina el padding al colapsar */
 }
 
 .contenedor-titulo-p{
@@ -31,6 +48,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+    width: 100%;
 }
 
 .contenedor-madre{
@@ -42,7 +60,9 @@ body {
 .barra-superior{
     padding: 15px;
     display: flex;
-    justify-content: end;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
     border-bottom: 1px solid #adb5bd;
     margin: 0 0 20px 0;
 }
@@ -50,9 +70,11 @@ body {
 .contenido-principal{
     display: flex;
     flex-direction: column;
-    width: 100%;
+    
     justify-content:flex-start;
     padding: 10px 30px;
+    min-width: 0;     /* <- permite que el contenido se encoja en lugar del sidebar */
+    overflow-x: auto; /* <- scroll horizontal en el contenido, no en el sidebar */
 }
 
 .nav-link {

@@ -10,8 +10,7 @@
     <h2 style="margin: 0">Inventario SQL Server</h2>
 </div>
 
-<div class="tabla-inventario">
-
+<div class="contenedor-alerta">
 {% if messages %}
     {% for message in messages %}
 
@@ -25,11 +24,14 @@
 
     {% endfor %}
 {% endif %}
+</div>
 
-        <form method="POST" action="{% url 'actualizar_inventario' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Actualizar</button>
-        </form>
+<form method="POST" action="{% url 'actualizar_inventario' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-primary">Actualizar</button>
+</form>
+
+<div class="tabla-inventario">
 
             <table class="tabla-personalizada">
                 <thead>

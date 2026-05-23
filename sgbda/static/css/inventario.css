@@ -1,8 +1,11 @@
 .tabla-inventario {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 80%;
+    margin-top: 15px;
+    min-width: 700px;
+    min-height: 700px;
+    overflow-x: auto;
+    overflow-y: auto;
     align-items: start;
 }
 
