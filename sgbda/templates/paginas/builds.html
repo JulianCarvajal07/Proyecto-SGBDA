@@ -26,8 +26,7 @@
 {% endif %}
 </div>
 
-<form method="GET">
-    <div class="filtro-busqueda">
+<form class="filtro-busqueda" method="GET">
         <div class="busqueda-texto">
             <input type="text" class="form-control" name="buscar" id="" aria-describedby="helpId" placeholder="">
             <!-- Mantener la versión seleccionada -->
@@ -41,7 +40,6 @@
             <button type="submit" name="version" value="2019" class="btn {% if request.GET.version == '2019' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2019</button>
             <button type="submit" name="version" value="2022" class="btn {% if request.GET.version == '2022' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2022</button>
         </div>
-    </div>
 </form>
 
 <form method="POST" action="{% url 'actualizar_builds' %}">

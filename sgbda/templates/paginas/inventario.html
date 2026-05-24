@@ -10,6 +10,36 @@
     <h2 style="margin: 0">Inventario SQL Server</h2>
 </div>
 
+<form class="filtro-busqueda" method="GET">
+        <div class="busqueda-texto">
+            <input type="text" class="form-control" value="{{buscar}}" name="buscar" id="" aria-describedby="helpId" placeholder="">
+            <button type="submit" class="btn btn-secondary">Buscar</button>
+        </div>
+        <div class="opciones-sql">
+            <div class="filtro-versiones">
+                <h5 style="margin: 0; margin: 5px">Versiones SQL</h5>
+                <select class="form-select form-select-lg filtro-auto" name="versiones_sql" id="">
+                    <option value="" {% if versiones_sql == "" %}selected{% endif %}>Todas las versiones</option>
+                    <option value="2016" {% if versiones_sql == "2016" %}selected{% endif %}>SQL Server 2016</option>
+                    <option value="2017" {% if versiones_sql == "2017" %}selected{% endif %}>SQL Server 2017</option>
+                    <option value="2019" {% if versiones_sql == "2019" %}selected{% endif %}>SQL Server 2019</option>
+                    <option value="2022" {% if versiones_sql == "2022" %}selected{% endif %}>SQL Server 2022</option>
+                </select>
+            </div>
+            <div class="filtro-cliente">
+                <h5 style="margin: 0; margin: 5px">Clientes</h5>
+                <select class="form-select form-select-lg filtro-auto" name="cliente_actual" id="">
+                    <option value="" {% if cliente_actual == "" %}selected{% endif %}>Todos los Clientes</option>
+                    {% for cli in clientes %}
+                        <option value="{{cli.nombre}}" {% if cliente_actual == cli.nombre %}selected{% endif %}>{{cli.nombre}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+</form>
+
+
+
 <div class="contenedor-alerta">
 {% if messages %}
     {% for message in messages %}
@@ -205,4 +235,5 @@
 </div>
 
 <script src="{% static 'js/llamado_cliente.js' %}"></script>
+<script src="{% static 'js/filtro_automatico.js' %}"></script>
 {% endblock %}

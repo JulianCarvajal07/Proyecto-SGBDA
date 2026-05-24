@@ -1,11 +1,12 @@
 import pyodbc
 import re
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from sgbda.models import instancia, cliente, servidor, checkSQL, actualizaciones
 from sgbda.services.actualizar_instancias import actualizar_instancias_desde_conexiones
 from django.utils import timezone
+from django.db.models import Q
 
 
 #=================================================================================
@@ -15,6 +16,12 @@ from django.utils import timezone
 
 def listar_inventario(request):
 
+    buscar = request.GET.get('buscar', '')
+    version = request.GET.get('versiones_sql', '')
+    clientes_obj = request.GET.get('cliente_actual', '')
+
+    all_clientes = cliente.objects.all()
+
     all_inventario =  instancia.objects.select_related(
         'servidor', 
         'servidor__cliente'
@@ -23,11 +30,36 @@ def listar_inventario(request):
         'checksql'
     ).all()
 
-    all_clientes = cliente.objects.all()
+    # FILTRO DE TEXTO
+    if buscar:
+        all_inventario = all_inventario.filter(
+            Q(nombre_instancia__icontains=buscar) |
+            Q(build__icontains=buscar) |
+            Q(edition__icontains=buscar) |
+            Q(servidor__ip__icontains=buscar) |
+            Q(servidor__hostname__icontains=buscar) |
+            Q(servidor__sistema_operativo__icontains=buscar)
+        )
+
+    # FILTRO POR VERSION
+    if version:
+        all_inventario = all_inventario.filter(
+            major_version__icontains=version
+        )
+
+    # FILTRO POR CLIENTE
+    if clientes_obj:
+        all_inventario = all_inventario.filter(
+            servidor__cliente__nombre__icontains=clientes_obj
+        )
 
     return render(request, 'paginas/inventario.html',{
         'instancias': all_inventario,
         'clientes': all_clientes,
+        # devolver filtros al template
+        'buscar': buscar,
+        'versiones_sql': version,
+        'cliente_actual': clientes_obj,
     })
 
 #=================================================================================
