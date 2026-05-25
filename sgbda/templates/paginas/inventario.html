@@ -76,8 +76,10 @@
                         <th>ultima actualizacion</th>
                         <th>Check</th>
                         <th>Edicion</th>
+                        <th>Administrado</th>
+                        <th>Observaciones</th>
                         <th>Servicios</th>
-                        <th>tipo inicio</th>
+                        <th>Accion</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -115,6 +117,14 @@
                         </td>
                         {% endfor %}
                         <td>{{instancia.major_version}}</td>
+                        <td>
+                            {% if instancia.administrado == True %}
+                                <h6><strong>SI</strong></h6>
+                            {% elif instancia.administrado == False %}
+                                <h6><strong>NO</strong></h6>
+                            {% endif %}
+                        </td>
+                        <td>{{instancia.observaciones}}</td>
                         <td>
                             <button
                                 type="button"
@@ -188,7 +198,9 @@
                                         id-instancia="{{instancia.id_instancia}}"
                                         id-servidor="{{instancia.servidor.id_servidor}}"
                                         id-cliente="{{instancia.servidor.cliente.id_cliente}}"
-                                        data-nombre="{{instancia.servidor.cliente.nombre}}">
+                                        data-nombre="{{instancia.servidor.cliente.nombre}}"
+                                        data-administrado="{{instancia.administrado}}"
+                                        data-observaciones="{{instancia.observaciones}}">
                                         <i class="bi bi-pencil"></i>
                                 </button>
                             </form>
@@ -222,7 +234,7 @@
                             <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
                             <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
                             
-                            <h5>Asigne cliente</h5>
+                            <h5>Asigne cliente<strong class="campo-obligatorio">*</strong></h5>
                                 <select
                                     class="form-select"
                                     id= "nombre-cliente"
@@ -237,15 +249,15 @@
                         </div>
                         
                         <div class="informacion">
-                            <h5>Administrado</h5>                               
+                            <h5>Administrado<strong class="campo-obligatorio">*</strong></h5>                               
                                 <select
                                     class="form-select"
                                     name="administrado"
                                     id="administrado"
                                 >
                                     <option value="" selected>Seleccione...</option>
-                                    <option value="1">SI</option>
-                                    <option value="0">NO</option>
+                                    <option value="True">SI</option>
+                                    <option value="False">NO</option>
                                 </select>
                         </div>
 
