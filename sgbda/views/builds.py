@@ -6,7 +6,7 @@ from sgbda.services.microsoft_gdr_sync import sync_gdr
 
 def listar_builds(request):
     
-    builds = actualizaciones.objects.all()
+    builds = actualizaciones.objects.all().order_by('major_version','-release_date')
 
     buscar = request.GET.get('buscar')
     version = request.GET.get('version')

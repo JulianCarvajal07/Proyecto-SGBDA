@@ -17,10 +17,12 @@ def sync_gdr():
     print("Iniciando sincronización GDR...")
 
     URLS_SQL = {
+        "2014": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2014/build-versions.md",
         "2016": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2016/build-versions.md",
         "2017": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2017/build-versions.md",
         "2019": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2019/build-versions.md",
         "2022": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2022/build-versions.md",
+        "2025": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2025/build-versions.md",
     }
 
     FORMATOS_FECHA = ["%B %d, %Y", "%Y-%m-%d", "%d/%m/%Y"]
@@ -31,9 +33,14 @@ def sync_gdr():
     def es_gdr(descripcion):
 
         desc = descripcion.upper().strip()
+        # Normalizar: quitar prefijo "SQL SERVER 20XX " si existe
+        desc = re.sub(r'^SQL\s+SERVER\s+\d{4}\s+', '', desc)
 
         return bool(
-            re.match(r'^(SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR)$', desc)
+            re.match(
+                r'^(SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR|SP\d+\s+GDR|MS\d{2}-\d{3}:\s*GDR\s*SECURITY\s*UPDATE)$',
+                desc
+            )
         )
 
     def parsear_fila(cols, version):
@@ -43,7 +50,7 @@ def sync_gdr():
         2016 → 4 cols: [descripcion | build | KB | fecha]
         2017/2019/2022 → 7 cols: [descripcion | build | sqlservr | AS build | AS file | KB | fecha]
         """
-        if version == "2016":
+        if version in ("2014", "2016"):  # ← agregar "2014"
             if len(cols) < 4:
                 return None
             return cols[0], cols[1], cols[2], cols[3]

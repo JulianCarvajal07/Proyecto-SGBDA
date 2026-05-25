@@ -35,10 +35,12 @@
         </div>
         <div class="opciones-sql">
             <button type="submit" value="" name="version" class="btn {% if not request.GET.version %}btn-success{% else %}btn-secondary{% endif %}">Todas las versiones</button>
+            <button type="submit" name="version" value="2014" class="btn {% if request.GET.version == '2014' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2014</button>
             <button type="submit" name="version" value="2016" class="btn {% if request.GET.version == '2016' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2016</button>
             <button type="submit" name="version" value="2017" class="btn {% if request.GET.version == '2017' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2017</button>
             <button type="submit" name="version" value="2019" class="btn {% if request.GET.version == '2019' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2019</button>
             <button type="submit" name="version" value="2022" class="btn {% if request.GET.version == '2022' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2022</button>
+            <button type="submit" name="version" value="2025" class="btn {% if request.GET.version == '2025' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2025</button>
         </div>
 </form>
 
