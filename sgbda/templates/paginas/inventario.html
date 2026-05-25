@@ -35,6 +35,14 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="filtro-administrados">
+                <h5 style="margin: 0; margin: 5px">Administrados</h5>
+                <select class="form-select form-select-lg filtro-auto" name="administrados" id="">
+                    <option value="" {% if administrados == "" %}selected{% endif %}>Todos</option>
+                    <option value="True" {% if administrados == "True" %}selected{% endif %}>Si</option>
+                    <option value="False" {% if administrados == "False" %}selected{% endif %}>No</option>
+                </select>
+            </div>
         </div>
 </form>
 

@@ -19,6 +19,7 @@ def listar_inventario(request):
     buscar = request.GET.get('buscar', '')
     version = request.GET.get('versiones_sql', '')
     clientes_obj = request.GET.get('cliente_actual', '')
+    administrado = request.GET.get('administrados')
 
     all_clientes = cliente.objects.all()
 
@@ -47,6 +48,11 @@ def listar_inventario(request):
             major_version__icontains=version
         )
 
+    if administrado in ["True", "False"]:
+        all_inventario = all_inventario.filter(
+            administrado=(administrado == "True")
+        )
+
     # FILTRO POR CLIENTE
     if clientes_obj:
         all_inventario = all_inventario.filter(
@@ -59,6 +65,7 @@ def listar_inventario(request):
         # devolver filtros al template
         'buscar': buscar,
         'versiones_sql': version,
+        'administrados': administrado,
         'cliente_actual': clientes_obj,
     })
 
