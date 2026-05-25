@@ -1,4 +1,5 @@
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -10,14 +11,21 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-5-cnhnp7wj@3e_el1yhus@o&^#*l_=0#$v^imkhvfgj2=8a3(m'
+SECRET_KEY = config('SECRET_KEY')
+ENCRYPTION_KEY = config('ENCRYPTION_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 
-ENCRYPTION_KEY = 'wm6C5r2lbV9O1cLk7GOjZbwNOKKuaXnlzepkGDtOjVE='
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT', default='5432'),
+    }
+}
 
 AUTH_USER_MODEL = 'sgbda.usuario'
 
@@ -62,32 +70,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'PROYECTO_SGBDA.wsgi.application'
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'app_bd',
-        'USER': 'postgres',
-        'PASSWORD': 'N2tgr45psa',
-        'HOST': '10.75.55.85',
-        'PORT': '5432',
-    }
-}
-
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'app_bd',
-        'USER': 'postgres',
-        'PASSWORD': 'N2tgr45psa',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}"""
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
