@@ -16,11 +16,22 @@ def registro_conexion(request):
 
     if request.method == 'POST':
 
-        ip_servidor = request.POST.get('ip_servidor')
-        puerto = request.POST.get('puerto')
-        autenticacion = request.POST.get('autenticacion')
-        usuario = request.POST.get('usuario')
-        password = request.POST.get('contraseña')
+        ip_servidor = request.POST.get('ip_servidor').strip()
+        puerto = request.POST.get('puerto').strip()
+        autenticacion = request.POST.get('autenticacion').strip()
+        usuario = request.POST.get('usuario').strip()
+        password = request.POST.get('contraseña').strip()
+
+        if not all([
+            ip_servidor.strip(),
+            puerto.strip(),
+            autenticacion.strip(),
+            usuario.strip(),
+            password.strip()
+        ]):
+            messages.error(request,"Todos los campos son obligatorios")
+            return redirect ('listar_conexiones')
+
 
         try:
 

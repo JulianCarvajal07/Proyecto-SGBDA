@@ -101,7 +101,17 @@
                             
                         </td>
                         <td>
-                            <strong>{{check.estado}}</strong>
+                            {% if check.estado == 'Actualizado' %}
+                                <strong>
+                                    <i class="bi bi-database-check" style="color: green;"></i>
+                                    {{check.estado}}
+                                </strong>
+                            {% else %}
+                                <strong>
+                                    <i class="bi bi-x-octagon" style="color: red;"></i>
+                                    {{check.estado}}
+                                </strong>
+                            {% endif %}
                         </td>
                         {% endfor %}
                         <td>{{instancia.major_version}}</td>

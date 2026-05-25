@@ -13,7 +13,7 @@ def listar_clientes(request):
 def registro_cliente(request):
 
     if request.method == 'POST':
-        nombre_cliente = request.POST.get('nombre')
+        nombre_cliente = request.POST.get('nombre').strip()
 
         if nombre_cliente:
             
@@ -32,8 +32,8 @@ def registro_cliente(request):
 def modificar_cliente(request):
 
     if request.method == 'POST':
-        nombre_cliente = request.POST.get('nombre_cliente')
-        cliente_id= request.POST.get('id_cliente')
+        nombre_cliente = request.POST.get('nombre_cliente').strip()
+        cliente_id= request.POST.get('id_cliente').strip()
 
         if nombre_cliente:
 

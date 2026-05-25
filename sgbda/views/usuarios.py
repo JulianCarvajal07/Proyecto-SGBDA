@@ -15,9 +15,17 @@ def listar_usuarios(request):
 def registro_usuarios(request):
 
     if request.method == "POST":
-        nombre = request.POST.get("usuario")
-        rol = request.POST.get("rol")
-        password = request.POST.get("contraseña")
+        nombre = request.POST.get("usuario").strip()
+        rol = request.POST.get("rol").strip()
+        password = request.POST.get("contraseña").strip()
+
+        if not all([
+            nombre.strip(),
+            rol.strip(),
+            password.strip()
+        ]):
+            messages.error(request, "Todos los campos son obligatorios")
+            return redirect("listar_usuarios")
 
         # crear usuario en base de datos
         usuario.objects.create_user(

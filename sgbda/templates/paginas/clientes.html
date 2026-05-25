@@ -42,7 +42,7 @@
             </h2>
             <div class="tarjeta-clientes">
                         <h5 style="margin: 10px 0 10px 0">Nombre</h5>
-                            <input class="form-control" name="nombre" type="text">
+                            <input class="form-control" name="nombre" type="text" required>
                         <button type="submit" class="btn btn-primary" style="margin: 20px 0 0 0">
                             Registrar
                         </button>   
@@ -122,7 +122,7 @@
                     {% csrf_token %}
                         <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
                         <h4>modificar cliente</h4>
-                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente">
+                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente" required>
                     <div class="modal-footer">
                         <button
                             type="button"

@@ -38,17 +38,17 @@
         </h2>
         <div class="tarjeta-conexion">
                     <h5 style="margin: 10px 0 0 0">Ip del servidor</h5>
-                        <input class="form-control" name="ip_servidor" type="text">
+                        <input class="form-control" name="ip_servidor" type="text" required>
                     <h5 style="margin: 10px 0 0 0">Puerto</h5>
-                        <input class="form-control" name="puerto" type="text">
+                        <input class="form-control" name="puerto" type="text" required>
                     <h5 style="margin: 10px 0 0 0">Tipo de autenticacion</h5>
-                        <select class="form-select" name="autenticacion">
+                        <select class="form-select" name="autenticacion" required>
                                 <option value="SQL User" selected>SQL User</option>
                         </select>
                     <h5 style="margin: 10px 0 0 0">Usuario</h5>
-                        <input class="form-control" name="usuario" type="text">                
+                        <input class="form-control" name="usuario" type="text" required>                
                     <h5 style="margin: 10px 0 0 0">Contraseña</h5>
-                        <input class="form-control" name="contraseña" type="password">
+                        <input class="form-control" name="contraseña" type="password" required>
                     <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
                         Registrar Conexion
                     </button>   
