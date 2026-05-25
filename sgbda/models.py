@@ -76,6 +76,8 @@ class instancia(models.Model):
     build = models.CharField(max_length=100, null=True, blank=True) #temporal
     major_version = models.CharField(max_length=50)
     edition = models.CharField(max_length=100)
+    observaciones = models.TextField(null=True, blank=True)
+    administrado = models.BooleanField(null=True, blank=True)
 
     class Meta:
         db_table = 'instancia'

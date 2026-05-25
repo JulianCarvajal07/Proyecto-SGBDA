@@ -162,23 +162,24 @@ def actualizar_inventario(request):
 #=================================================================================
 
 
-def asignar_cliente(request):
+def detalles_instancia(request):
 
     if request.method == "POST":
 
+        instancia_id = request.POST.get("id_instancia")
         servidor_id = request.POST.get("id_servidor")
-        nombre_cliente = request.POST.get("cliente_id")
+        nombre_cliente = request.POST.get("cliente_id").strip()
+        administrado = request.POST.get("administrado")
+        observaciones = request.POST.get("observaciones").strip()
 
-        if not nombre_cliente:
+        if not nombre_cliente or not administrado:
 
             messages.error(
                 request,
-                "Debe ingresar un nombre"
+                "Debe llenar los campos obligatorios"
             )
 
             return redirect("listar_inventario")
-
-        nombre_cliente = nombre_cliente.strip()
 
         # obtener servidor
         servidor_obj = servidor.objects.get(id_servidor=servidor_id)
@@ -188,17 +189,17 @@ def asignar_cliente(request):
             servidor_obj.cliente_id = nombre_cliente
             servidor_obj.save()
 
-            messages.success(
-                request,
-                "Cliente actualizado correctamente."
-            )
+        #obtener instancia
+        instancia_obj = instancia.objects.get(id_instancia=instancia_id)
+        instancia_obj.administrado = administrado
+        instancia_obj.observaciones = observaciones
+        instancia_obj.save()
+        messages.success(
+            request,
+            "Informacion actualizadada correctamente."
+        )
 
-        else:
 
-            messages.error(
-                request,
-                "Debe asignar un cliente."
-            )
     return redirect("listar_inventario")
 
 #=================================================================================

@@ -1,7 +1,3 @@
-/*document.getElementById('toggleSidebar').addEventListener('click', () => {
-  document.querySelector('.sidebar').classList.toggle('collapsed');
-});*/
-
 const sidebar = document.querySelector('.sidebar');
 const toggleBtn = document.getElementById('toggleSidebar');
 

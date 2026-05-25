@@ -185,6 +185,7 @@
                                         data-bs-toggle="modal"
                                         data-bs-target="#modalId" 
                                         style="margin: 2.5px"
+                                        id-instancia="{{instancia.id_instancia}}"
                                         id-servidor="{{instancia.servidor.id_servidor}}"
                                         id-cliente="{{instancia.servidor.cliente.id_cliente}}"
                                         data-nombre="{{instancia.servidor.cliente.nombre}}">
@@ -211,22 +212,49 @@
                 ></button>
             </div>
             <div class="modal-body">
-                <form method="POST" action="{% url 'asignar_cliente' %}">
+                <form method="POST" action="{% url 'detalles_instancia' %}">
                     {% csrf_token %}
-                        <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
-                        <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
-                        <h4>Asigne cliente</h4>
-                            <select
-                                class="form-select"
-                                id= "nombre-cliente"
-                                name="cliente_id"
-                            >
-                                <option selected disabled>Seleccione...</option>
 
-                                {% for cliente in clientes %}
-                                    <option value="{{cliente.id_cliente}}">{{cliente.nombre}}</option>
-                                {% endfor %}
-                            </select>
+                    <div class="informacion-modal-personalizada">
+
+                        <div class="informacion">
+                            <input type="hidden" class="form-control" id="instancia-id" name="id_instancia">
+                            <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
+                            <input type="hidden" class="form-control" id="servidor-id" name="id_servidor">
+                            
+                            <h5>Asigne cliente</h5>
+                                <select
+                                    class="form-select"
+                                    id= "nombre-cliente"
+                                    name="cliente_id"
+                                >
+                                    <option selected disabled>Seleccione...</option>
+
+                                    {% for cliente in clientes %}
+                                        <option value="{{cliente.id_cliente}}">{{cliente.nombre}}</option>
+                                    {% endfor %}
+                                </select>
+                        </div>
+                        
+                        <div class="informacion">
+                            <h5>Administrado</h5>                               
+                                <select
+                                    class="form-select"
+                                    name="administrado"
+                                    id="administrado"
+                                >
+                                    <option value="" selected>Seleccione...</option>
+                                    <option value="1">SI</option>
+                                    <option value="0">NO</option>
+                                </select>
+                        </div>
+
+                        <div class="informacion">
+                            <h5>Observaciones</h5>
+                                <textarea class="form-control" name="observaciones" id="observaciones" rows="3"></textarea>
+                        </div>
+
+                    </div>
 
                     <div class="modal-footer">
                         <button
