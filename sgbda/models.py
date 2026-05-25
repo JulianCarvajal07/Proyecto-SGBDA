@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.contrib.auth.base_user import BaseUserManager
+from sgbda.utils.fields import EncryptedPasswordField
  
 
 class UsuarioManager(BaseUserManager):
@@ -88,7 +89,7 @@ class conexion(models.Model):
     puerto = models.CharField(max_length=50)
     tipo_autenticacion = models.CharField(max_length=100)
     usuario = models.CharField(max_length=255)
-    password_encriptado = models.CharField(max_length=512)
+    password_encriptado = EncryptedPasswordField()
 
     class Meta:
         db_table = 'conexion'
