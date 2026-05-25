@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Poner valores en los inputs del modal
         document.getElementById("cliente-id").value = idcliente;
-        document.getElementById("nombre-cliente").value = nombre; 
+        document.getElementById("nombre-cliente").value =  idcliente; 
         document.getElementById("servidor-id").value = idservidor;
     });
 });
