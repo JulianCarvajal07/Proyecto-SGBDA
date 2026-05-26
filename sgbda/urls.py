@@ -1,5 +1,5 @@
 from django.urls import path
-from .views.bienvenida import bienvenida
+from .views.bienvenida import bienvenida, inicio
 from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 from .views.conexiones import registro_conexion, listar_conexiones, eliminar_conexion
@@ -11,7 +11,8 @@ from django.contrib.auth.views import LogoutView
 
 
 urlpatterns = [
-    path('', bienvenida, name='bienvenida'),
+    path('', inicio),
+    path('bienvenida/', bienvenida, name='bienvenida'),
     path('login/', login_usuario, name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('listar_usuarios/', listar_usuarios, name='listar_usuarios'),

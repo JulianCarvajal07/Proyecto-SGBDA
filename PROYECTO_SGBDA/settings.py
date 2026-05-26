@@ -50,7 +50,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'sgbda.middleware.LoginRequiredMiddleware',  # para requerir el login
 ]
+
+LOGIN_URL = '/login/'
+LOGIN_EXEMPT_URLS = ['/login/', '/bienvenida/']  # URLs que no requieren login
 
 ROOT_URLCONF = 'PROYECTO_SGBDA.urls'
 

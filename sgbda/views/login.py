@@ -5,36 +5,11 @@ from django.http import JsonResponse
 from django.urls import reverse
 from sgbda.models import usuario
 
-
-def setup_admin(request):
-
-    # Si ya existe un usuario, no permitir acceso
-    if usuario.objects.exists():
-        return redirect('login_usuario')
-
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        # Crear superusuario
-        usuario.objects.create_user(
-            nombre=username,
-            rol='Administrador',
-            password=password
-        )
-
-        messages.success(request, 'Administrador creado correctamente')
-
-        return redirect('login_usuario')
-
-    return render(request, 'paginas/bienvenida.html')
-
-
 def login_usuario(request):
 
     # Si NO hay usuarios
     if not usuario.objects.exists():
-        return redirect('setup_admin')
+        return redirect('bienvenida')
 
     if request.method == 'POST':
         usuario_input = request.POST['usuario']
