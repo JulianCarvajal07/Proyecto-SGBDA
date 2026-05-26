@@ -1,0 +1,72 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Inicial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/bienvenida.css' %}">
+</head>
+<body>
+ 
+<div class="card corner-tl corner-br">
+    <div class="header">
+
+        <img src="/media/NG_SA.png" style="width:200px; padding:15px" alt="">
+ 
+        <div class="divider">
+            <div class="divider-dot"></div>
+        </div>
+ 
+        <h1 class="card-title">Bienvenido a Vortex SQL</h1>
+        <p class="card-subtitle">Configuración inicial del sistema</p>
+    </div>
+ 
+    <form method="POST" action="{% url 'bienvenida' %}">
+        {% csrf_token %}
+ 
+        <div class="form-group">
+            <label for="username">Usuario</label>
+            <div class="input-wrapper">
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Nombre de administrador"
+                    required
+                    autocomplete="username"
+                >
+                <div class="input-accent"></div>
+            </div>
+        </div>
+ 
+        <div class="form-group">
+            <label for="password">Contraseña</label>
+            <div class="input-wrapper">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Contraseña segura"
+                    required
+                    autocomplete="new-password"
+                >
+                <div class="input-accent"></div>
+            </div>
+        </div>
+ 
+        <button type="submit" class="btn">
+            <span>Crear administrador</span>
+        </button>
+    </form>
+ 
+    <p class="footer-note">
+        <strong>Solo se necesita hacer esto una vez.</strong><br>
+        Esta cuenta tendrá acceso completo al sistema.
+    </p>
+</div>
+ 
+</body>
+</html>

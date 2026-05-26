@@ -1,9 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import authenticate, login  as auth_login
 from django.http import JsonResponse
 from django.urls import reverse
+from sgbda.models import usuario
+
+
+def setup_admin(request):
+
+    # Si ya existe un usuario, no permitir acceso
+    if usuario.objects.exists():
+        return redirect('login_usuario')
+
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        # Crear superusuario
+        usuario.objects.create_user(
+            nombre=username,
+            rol='Administrador',
+            password=password
+        )
+
+        messages.success(request, 'Administrador creado correctamente')
+
+        return redirect('login_usuario')
+
+    return render(request, 'paginas/bienvenida.html')
+
 
 def login_usuario(request):
+
+    # Si NO hay usuarios
+    if not usuario.objects.exists():
+        return redirect('setup_admin')
+
     if request.method == 'POST':
         usuario_input = request.POST['usuario']
         contraseña_input = request.POST['contraseña']
@@ -17,4 +49,5 @@ def login_usuario(request):
             #error = "Usuario o contraseña incorrectos"
             return JsonResponse({'success': False, 'error': 'Usuario o contraseña incorrectos'})
             #return render(request, 'paginas/inicio_sesion.html', {'error': error})
+
     return render(request, 'paginas/login.html')
