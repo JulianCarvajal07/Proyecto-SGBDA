@@ -1,0 +1,51 @@
+services:
+
+  db:
+    image: postgres:${POSTGRES_VERSION}
+    container_name: postgresql
+    restart: always
+    env_file:
+      - .env.bd
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: .
+    container_name: vortexsql
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.backend
+    volumes:
+      - static_volume:/vortexSQL/staticfiles
+      - media_volume:/vortexSQL/media
+    expose:
+      - "8000"
+
+  nginx:
+    image: nginx:${NGINX_VERSION}
+    container_name: nginx
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - static_volume:/static
+      - media_volume:/media
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
