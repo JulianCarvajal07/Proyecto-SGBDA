@@ -10,6 +10,7 @@
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
+        <!--id="mi-alerta"-->
             <div id="mi-alerta" class="alert alert-danger fade" role="alert">
                 {{ message }}
             </div>
@@ -43,7 +44,7 @@
                         <input class="form-control" name="puerto" type="text" required>
                     <h5 style="margin: 10px 0 0 0">Tipo de autenticacion</h5>
                         <select class="form-select" name="autenticacion" required>
-                                <option value="SQL User" selected>SQL User</option>
+                                <option value="sql" select>SQL User</option>
                         </select>
                     <h5 style="margin: 10px 0 0 0">Usuario</h5>
                         <input class="form-control" name="usuario" type="text" required>                

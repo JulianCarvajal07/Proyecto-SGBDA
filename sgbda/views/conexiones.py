@@ -19,18 +19,33 @@ def registro_conexion(request):
         ip_servidor = request.POST.get('ip_servidor').strip()
         puerto = request.POST.get('puerto').strip()
         autenticacion = request.POST.get('autenticacion').strip()
-        usuario = request.POST.get('usuario').strip()
-        password = request.POST.get('contraseña').strip()
+        usuario = request.POST.get('usuario', '').strip()
+        password = request.POST.get('contraseña', '').strip()
 
+        # ==========================================
+        # VALIDACIONES GENERALES
+        # ==========================================
         if not all([
             ip_servidor.strip(),
             puerto.strip(),
-            autenticacion.strip(),
-            usuario.strip(),
-            password.strip()
+            autenticacion.strip()
         ]):
-            messages.error(request,"Todos los campos son obligatorios")
+            messages.error(request,"IP, puerto y autenticación son obligatorios")
             return redirect ('listar_conexiones')
+        
+        # ==========================================
+        # VALIDAR CREDENCIALES
+        # ==========================================
+        if autenticacion in ["sql"]:
+
+            if not all([usuario, password]):
+
+                messages.error(
+                    request,
+                    "Usuario y contraseña son obligatorios"
+                )
+
+                return redirect('listar_conexiones')
 
 
         try:
@@ -38,21 +53,23 @@ def registro_conexion(request):
             # =====================================================
             # STRING DE CONEXION
             # =====================================================
+            
+            if autenticacion == "sql":
 
-            conn_str = (
-                "DRIVER={ODBC Driver 18 for SQL Server};"
-                f"SERVER={ip_servidor},{puerto};"
-                f"UID={usuario};"
-                f"PWD={password};"
-                "TrustServerCertificate=yes;"
-                "Connection Timeout=5;"
-            )
+                conn_str = (
+                    "DRIVER={ODBC Driver 18 for SQL Server};"
+                    f"SERVER={ip_servidor},{puerto};"
+                    f"UID={usuario};"
+                    f"PWD={password};"
+                    "TrustServerCertificate=yes;"
+                )
 
             # =====================================================
             # TEST DE CONEXION
             # =====================================================
 
-            conexion_sql = pyodbc.connect(conn_str)
+            with pyodbc.connect(conn_str):
+                pass
 
             # =====================================================
             # SI CONECTA -> GUARDAR CONFIGURACION
@@ -70,14 +87,14 @@ def registro_conexion(request):
             # CERRAR CONEXION
             # =====================================================
 
-            conexion_sql.close()
-
             messages.success(
                 request,
                 'La conexion fue existosa'
             )
 
         except Exception as e:
+
+            print({str(e)})
 
             messages.error(
                 request,
