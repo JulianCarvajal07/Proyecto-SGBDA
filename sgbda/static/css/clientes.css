@@ -26,7 +26,8 @@
 }
 
 .tabla-clientes{
-    width: auto;
+    overflow-y: auto;
+    max-height: 400px;
     justify-content: center;
     align-items: center;
     text-align: center;

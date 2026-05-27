@@ -26,7 +26,8 @@
 }
 
 .tabla-conexiones{
-    width: auto;
+    overflow-y: auto;
+    max-height: 480px;
     justify-content: center;
     align-items: center;
     text-align: center;
