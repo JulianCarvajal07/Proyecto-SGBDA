@@ -10,20 +10,19 @@
 
 <div class="titulo-personalizado">
     <h2 style="margin: 0">Actualizaciones SQL Server</h2>
-
-{% if messages %}
-    {% for message in messages %}
-        {% if message.tags == 'error' %}
-            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
-                {{ message }}
-            </div>
-        {% else %}
-            <div id="mi-alerta" class="alert alert-success fade" role="alert">
-                {{ message }}
-            </div>
-        {% endif %}
-    {% endfor %}
-{% endif %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == 'error' %}
+                <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div id="mi-alerta" class="alert alert-success fade" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 </div>
 
 <form class="filtro-busqueda" method="GET">

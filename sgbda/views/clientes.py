@@ -54,6 +54,7 @@ def eliminar_cliente(request):
         cliente_id = request.POST.get('id_cliente')
         eliminar_cliente = cliente.objects.get(id_cliente=cliente_id)
         eliminar_cliente.delete()
+        messages.success(request, "Cliente eliminado exitosamente")
         return redirect('listar_clientes')
         
     
