@@ -119,7 +119,10 @@ def actualizar_inventario(request):
             ultima_actualizacion = actualizaciones.objects.filter(
                 major_version=version_normalizada,
                 soportado=True
-            ).order_by('-release_date').first()
+            ).order_by(
+                '-release_date',
+                '-build'
+            ).first()
 
             if not ultima_actualizacion:
                 errores.append(f"No se encontró referencia para versión {inst.major_version} en instancia {inst.nombre_instancia}")

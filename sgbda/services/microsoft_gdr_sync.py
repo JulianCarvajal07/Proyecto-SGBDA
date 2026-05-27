@@ -38,7 +38,7 @@ def sync_gdr():
 
         return bool(
             re.match(
-                r'^(SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR|SP\d+\s+GDR|MS\d{2}-\d{3}:\s*GDR\s*SECURITY\s*UPDATE)$',
+                r'^(SP\d+\s+CU\d+\s*\+\s*GDR|SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR|SP\d+\s+GDR|MS\d{2}-\d{3}:\s*GDR\s*SECURITY\s*UPDATE)$',
                 desc
             )
         )
