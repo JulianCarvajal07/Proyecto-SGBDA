@@ -36,7 +36,7 @@ def registro_conexion(request):
         # ==========================================
         # VALIDAR CREDENCIALES
         # ==========================================
-        if autenticacion in ["sql"]:
+        if autenticacion in ["Database Authentication"]:
 
             if not all([usuario, password]):
 
@@ -54,7 +54,7 @@ def registro_conexion(request):
             # STRING DE CONEXION
             # =====================================================
             
-            if autenticacion == "sql":
+            if autenticacion == "Database Authentication":
 
                 conn_str = (
                     "DRIVER={ODBC Driver 18 for SQL Server};"

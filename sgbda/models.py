@@ -87,6 +87,7 @@ class instancia(models.Model):
 
 
 class conexion(models.Model):
+    motor=puerto = models.CharField(max_length=70, blank=True, null=True)
     ip_servidor = models.GenericIPAddressField()
     puerto = models.CharField(max_length=50)
     tipo_autenticacion = models.CharField(max_length=100)

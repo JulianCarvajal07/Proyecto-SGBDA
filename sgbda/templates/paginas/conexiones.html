@@ -38,17 +38,23 @@
             >Registrar Conexion
         </h2>
         <div class="tarjeta-conexion">
-                    <h5 style="margin: 10px 0 0 0">Ip del servidor</h5>
-                        <input class="form-control" name="ip_servidor" type="text" required>
-                    <h5 style="margin: 10px 0 0 0">Puerto</h5>
-                        <input class="form-control" name="puerto" type="text" required>
-                    <h5 style="margin: 10px 0 0 0">Tipo de autenticacion</h5>
-                        <select class="form-select" name="autenticacion" required>
-                                <option value="sql" select>SQL User</option>
+                    <h5 class="Titulo-tarjeta">Motor de Bases de datos</h5>
+                        <select class="form-select">
+                                <option value="" select>Seleccione...</option>
+                                <option value="SQL SERVER">SQL SERVER</option>
+                                <option value="POSTGRESQL">POSTGRESQL</option>
                         </select>
-                    <h5 style="margin: 10px 0 0 0">Usuario</h5>
+                    <h5 class="Titulo-tarjeta">Ip del servidor</h5>
+                        <input class="form-control" name="ip_servidor" type="text" required>
+                    <h5 class="Titulo-tarjeta">Puerto</h5>
+                        <input class="form-control" name="puerto" type="text" required>
+                    <h5 class="Titulo-tarjeta">Tipo de autenticacion</h5>
+                        <select class="form-select" name="autenticacion" required>
+                                <option value="Database Authentication" select>Database Authentication</option>
+                        </select>
+                    <h5 class="Titulo-tarjeta">Usuario</h5>
                         <input class="form-control" name="usuario" type="text" required>                
-                    <h5 style="margin: 10px 0 0 0">Contraseña</h5>
+                    <h5 class="Titulo-tarjeta">Contraseña</h5>
                         <input class="form-control" name="contraseña" type="password" required>
                     <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
                         Registrar Conexion
