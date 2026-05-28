@@ -16,6 +16,7 @@ def registro_conexion(request):
 
     if request.method == 'POST':
 
+        motor = request.POST.get('motor').strip()
         ip_servidor = request.POST.get('ip_servidor').strip()
         puerto = request.POST.get('puerto').strip()
         autenticacion = request.POST.get('autenticacion').strip()
@@ -26,6 +27,7 @@ def registro_conexion(request):
         # VALIDACIONES GENERALES
         # ==========================================
         if not all([
+            motor.strip(),
             ip_servidor.strip(),
             puerto.strip(),
             autenticacion.strip()
@@ -53,16 +55,29 @@ def registro_conexion(request):
             # =====================================================
             # STRING DE CONEXION
             # =====================================================
-            
-            if autenticacion == "Database Authentication":
+            if motor == "SQL SERVER":
 
-                conn_str = (
-                    "DRIVER={ODBC Driver 18 for SQL Server};"
-                    f"SERVER={ip_servidor},{puerto};"
-                    f"UID={usuario};"
-                    f"PWD={password};"
-                    "TrustServerCertificate=yes;"
-                )
+                if autenticacion == "Database Authentication":
+
+                    conn_str = (
+                        "DRIVER={ODBC Driver 18 for SQL Server};"
+                        f"SERVER={ip_servidor},{puerto};"
+                        f"UID={usuario};"
+                        f"PWD={password};"
+                        "TrustServerCertificate=yes;"
+                    )
+            
+            if motor == "POSTGRESQL":
+
+                if autenticacion == "Database Authentication":
+
+                    conn_str = (
+                        "DRIVER={PostgreSQL Unicode};"
+                        f"SERVER={ip_servidor},{puerto};"
+                        f"UID={usuario};"
+                        f"PWD={password};"
+                        "TrustServerCertificate=yes;"
+                    )
 
             # =====================================================
             # TEST DE CONEXION
@@ -76,6 +91,7 @@ def registro_conexion(request):
             # =====================================================
 
             conexion.objects.create(
+                motor = motor,
                 ip_servidor=ip_servidor,
                 puerto=puerto,
                 tipo_autenticacion=autenticacion,

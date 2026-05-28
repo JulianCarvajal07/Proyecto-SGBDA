@@ -39,7 +39,7 @@
         </h2>
         <div class="tarjeta-conexion">
                     <h5 class="Titulo-tarjeta">Motor de Bases de datos</h5>
-                        <select class="form-select">
+                        <select class="form-select" name="motor" required>
                                 <option value="" select>Seleccione...</option>
                                 <option value="SQL SERVER">SQL SERVER</option>
                                 <option value="POSTGRESQL">POSTGRESQL</option>
@@ -67,6 +67,7 @@
             <table class="tabla-personalizada">
                 <thead>
                     <tr>
+                        <th>Motor</th>
                         <th>Ip</th>
                         <th>Puerto</th>
                         <th>Usuario</th>
@@ -76,6 +77,7 @@
                 <tbody>
                     {% for conexion in conexiones %}
                     <tr>
+                        <td>{{conexion.motor}}</td>
                         <td>{{conexion.ip_servidor}}</td>
                         <td>{{conexion.puerto}}</td>
                         <td>{{conexion.usuario}}</td>
