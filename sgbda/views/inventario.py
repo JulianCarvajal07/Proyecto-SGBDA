@@ -1,5 +1,4 @@
 import re
-
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from sgbda.models import instancia, cliente, servidor, checkSQL, actualizaciones
@@ -17,6 +16,7 @@ def listar_inventario(request):
 
     buscar = request.GET.get('buscar', '')
     version = request.GET.get('versiones_sql', '')
+    version_pg = request.GET.get('versiones_pg', '')
     clientes_obj = request.GET.get('cliente_actual', '')
     administrado = request.GET.get('administrados')
 
@@ -40,13 +40,20 @@ def listar_inventario(request):
             Q(servidor__hostname__icontains=buscar) |
             Q(servidor__sistema_operativo__icontains=buscar)
         )
+    
+    filtro_versiones = Q()
 
-    # FILTRO POR VERSION
+    # FILTRO COMBINADO PARA BUSCAR VERSIONES DE PG Y SQL SERVER AL TIEMPO
     if version:
-        all_inventario = all_inventario.filter(
-            major_version__icontains=version
-        )
+        filtro_versiones |= Q(major_version__icontains=version)
 
+    if version_pg:
+        filtro_versiones |= Q(major_version__icontains=version_pg)
+
+    if filtro_versiones:
+        all_inventario = all_inventario.filter(filtro_versiones)
+
+    # FILTRO SI ESTA ADMINISTRADA LA INSTANCIA 
     if administrado in ["True", "False"]:
         all_inventario = all_inventario.filter(
             administrado=(administrado == "True")
@@ -64,6 +71,7 @@ def listar_inventario(request):
         # devolver filtros al template
         'buscar': buscar,
         'versiones_sql': version,
+        'versiones_pg': version_pg,
         'administrados': administrado,
         'cliente_actual': clientes_obj,
     })
