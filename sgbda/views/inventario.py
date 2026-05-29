@@ -126,7 +126,6 @@ def actualizar_inventario(request):
             # 1. Buscar la actualización más reciente para esa major_version
             ultima_actualizacion = actualizaciones.objects.filter(
                 major_version=version_normalizada,
-                #soportado=True
             ).order_by(
                 '-release_date',
                 '-build'

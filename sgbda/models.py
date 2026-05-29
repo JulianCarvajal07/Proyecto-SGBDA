@@ -156,7 +156,7 @@ class actualizaciones(models.Model):
     kb = models.CharField(max_length=150) # Es el identificador oficial del parche/documentación Microsoft.
     descripcion = models.TextField() # Texto descriptivo de la actualización.
     release_date = models.DateField(null=True, blank=True) # Fecha oficial de publicación del GDR.
-    soportado = models.BooleanField(default=True) # Indica si la versión/build todavía está soportada.
+    #soportado = models.BooleanField(default=True) # Indica si la versión/build todavía está soportada.
     fecha_registro = models.DateTimeField(auto_now_add=True) # Fecha en la que el sistema guardó/sincronizó ese registro
 
     class Meta:

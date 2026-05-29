@@ -106,7 +106,7 @@ def sync_gdr():
                         "build":         build,
                         "descripcion":   descripcion,
                         "release_date":  fecha_obj,
-                        "soportado":     True,
+                        #"soportado":     True,
                     }
                 )
                 if created:
@@ -150,7 +150,7 @@ def sync_gdr():
         version       = release.get("latest", "")          # ej: "17.9"
         fecha_raw     = release.get("latestReleaseDate", "") # ej: "2026-02-26"
         eol_raw       = release.get("eol", "")
-        soportado     = release.get("support", False)
+        # soportado     = release.get("support", False)
 
         fecha_obj = None
         try:
@@ -161,7 +161,7 @@ def sync_gdr():
         descripcion = f"Minor Release {version}"
         kb_pg       = f"PG-{version}"
 
-        print(f"  ✅ [PG {major}] {version} | Fecha: {fecha_obj} | Soportado: {soportado}")
+        # print(f"  ✅ [PG {major}] {version} | Fecha: {fecha_obj} | Soportado: {soportado}")
 
         try:
             obj, created = actualizaciones.objects.update_or_create(
@@ -171,7 +171,7 @@ def sync_gdr():
                     "build":         version,
                     "descripcion":   descripcion,
                     "release_date":  fecha_obj,
-                    "soportado":     soportado,
+                    #"soportado":     soportado,
                 }
             )
             if created:
