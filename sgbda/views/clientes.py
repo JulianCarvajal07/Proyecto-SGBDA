@@ -1,6 +1,6 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
-from sgbda.models import instancia, cliente, servidor
+from sgbda.models import cliente
 
 def listar_clientes(request):
 

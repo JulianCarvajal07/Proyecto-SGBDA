@@ -1,7 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib import messages
 from sgbda.models import usuario
-from django.contrib.auth.models import User
 
 
 def inicio(request):
