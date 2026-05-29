@@ -230,7 +230,7 @@ def eliminar_instancia(request):
         instancia_id = request.POST.get('id_instancia')
         instancia_obj= instancia.objects.get(id_instancia=instancia_id)
         
-        if instancia_obj:
+        if instancia_id and instancia_obj:
             instancia_obj.delete()
             messages.success(request,"sea eliminado la instancia correctamente")
             return redirect('listar_inventario')
