@@ -1,10 +1,9 @@
-import pyodbc
 import re
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from sgbda.models import instancia, cliente, servidor, checkSQL, actualizaciones
-from sgbda.services.actualizar_instancias import actualizar_instancias_desde_conexiones
+from sgbda.services.actualizar_instancias_v2 import actualizar_instancias_desde_conexiones
 from django.utils import timezone
 from django.db.models import Q
 
@@ -111,14 +110,23 @@ def actualizar_inventario(request):
     for inst in instancias:
 
         try:
-            # Extraer solo el año de la major_version de la instancia
-            match = re.search(r'\d{4}', inst.major_version)
-            version_normalizada = match.group() if match else inst.major_version
+            if inst.edition != 'PostgreSQL':
+                # Extraer solo el año de la major_version de la instancia
+                # la major_version en SQL SERVER se guarda como 'Microsoft SQL Server 2019'
+                match = re.search(r'\d{4}', inst.major_version)
+                version_normalizada = match.group() if match else inst.major_version
+            else:
+                # Extraer la version de postgresql
+                # la major version en PostgreSQL se guarda como 'Postgresql 16'
+                match = re.search(r'\d+', inst.major_version)
+                version_normalizada = match.group() if match else inst.major_version
+                            
+            print(version_normalizada)
 
             # 1. Buscar la actualización más reciente para esa major_version
             ultima_actualizacion = actualizaciones.objects.filter(
                 major_version=version_normalizada,
-                soportado=True
+                #soportado=True
             ).order_by(
                 '-release_date',
                 '-build'

@@ -73,7 +73,7 @@ class instancia(models.Model):
     )
     nombre_instancia = models.CharField(max_length=255)
     puerto = models.CharField(max_length=50)
-    build = models.CharField(max_length=100, null=True, blank=True) #temporal
+    build = models.CharField(max_length=500, null=True, blank=True) #temporal
     major_version = models.CharField(max_length=50)
     edition = models.CharField(max_length=100)
     observaciones = models.TextField(blank=True, default="")
@@ -87,7 +87,7 @@ class instancia(models.Model):
 
 
 class conexion(models.Model):
-    motor = puerto = models.CharField(max_length=70, blank=True, null=True)
+    motor = models.CharField(max_length=70, blank=True, null=True)
     ip_servidor = models.GenericIPAddressField()
     puerto = models.CharField(max_length=50)
     tipo_autenticacion = models.CharField(max_length=100)
@@ -150,6 +150,7 @@ class checkSQL(models.Model):
 
 class actualizaciones(models.Model):
     id_actualizaciones = models.AutoField(primary_key=True)
+    motor = models.CharField(max_length=60, null=True, blank=True)
     major_version = models.CharField(max_length=50) # Guarda la versión principal de SQL Server.
     build = models.CharField(max_length=200)  # Guarda el número oficial del build publicado por Microsoft.
     kb = models.CharField(max_length=150) # Es el identificador oficial del parche/documentación Microsoft.

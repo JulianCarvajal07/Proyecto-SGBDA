@@ -2,19 +2,13 @@ import requests
 from datetime import datetime
 from sgbda.models import actualizaciones
 import re
+from bs4 import BeautifulSoup
 
-import requests
-import re
-from datetime import datetime
-
-
-import requests
-import re
-from datetime import datetime
 
 def sync_gdr():
     print("Iniciando sincronización GDR...")
 
+    # ── SQL Server ────────────────────────────────────────────────────────────
     URLS_SQL = {
         "2014": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2014/build-versions.md",
         "2016": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2016/build-versions.md",
@@ -29,12 +23,11 @@ def sync_gdr():
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     nuevos = 0
 
+    # ── Helpers SQL Server ────────────────────────────────────────────────────
+
     def es_gdr(descripcion):
-
         desc = descripcion.upper().strip()
-        # Normalizar: quitar prefijo "SQL SERVER 20XX " si existe
         desc = re.sub(r'^SQL\s+SERVER\s+\d{4}\s+', '', desc)
-
         return bool(
             re.match(
                 r'^(SP\d+\s+CU\d+\s*\+\s*GDR|SP\d+\s*\+\s*GDR|CU\d+\s*\+\s*GDR|SP\d+\s+GDR|MS\d{2}-\d{3}:\s*GDR\s*SECURITY\s*UPDATE)$',
@@ -43,13 +36,7 @@ def sync_gdr():
         )
 
     def parsear_fila(cols, version):
-        """
-        Extrae (descripcion, build, kb, fecha_raw) según la estructura real por versión.
-
-        2016 → 4 cols: [descripcion | build | KB | fecha]
-        2017/2019/2022 → 7 cols: [descripcion | build | sqlservr | AS build | AS file | KB | fecha]
-        """
-        if version in ("2014", "2016"):  # ← agregar "2014"
+        if version in ("2014", "2016"):
             if len(cols) < 4:
                 return None
             return cols[0], cols[1], cols[2], cols[3]
@@ -57,6 +44,8 @@ def sync_gdr():
             if len(cols) < 7:
                 return None
             return cols[0], cols[1], cols[5], cols[6]
+
+    # ── Sincronización SQL Server ─────────────────────────────────────────────
 
     for version, url in URLS_SQL.items():
         print(f"\nProcesando SQL Server {version}...")
@@ -69,16 +58,13 @@ def sync_gdr():
             continue
 
         for linea in response.text.splitlines():
-            # Solo filas de tabla, descartar separadores
             if not linea.startswith("|"):
                 continue
             if re.match(r'^\s*\|[\s\-:]+\|', linea):
                 continue
 
             cols = [c.strip() for c in linea.strip("|").split("|")]
-            # Limpiar markdown links: [texto](url) → texto
             cols = [re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', c) for c in cols]
-            # Limpiar bold: **texto** → texto
             cols = [re.sub(r'\*\*([^*]+)\*\*', r'\1', c) for c in cols]
 
             resultado = parsear_fila(cols, version)
@@ -87,18 +73,17 @@ def sync_gdr():
 
             descripcion, build, kb_raw, fecha_raw = resultado
 
-            # Saltar encabezados de tabla
-            if re.search(r'(?i)cumulative update name|gdr name|sp name|build version|product version|knowledge base|release date', descripcion):
+            if re.search(
+                r'(?i)cumulative update name|gdr name|sp name|build version|product version|knowledge base|release date',
+                descripcion
+            ):
                 continue
 
-            # Filtro: solo GDR y sus variantes
             if not es_gdr(descripcion):
                 continue
 
-            # Limpiar KB → solo número
             kb = re.sub(r'(?i)^kb', '', kb_raw).strip()
 
-            # Parsear fecha
             fecha_obj = None
             for fmt in FORMATOS_FECHA:
                 try:
@@ -110,12 +95,13 @@ def sync_gdr():
             if not kb or not build:
                 continue
 
-            print(f"  ✅ [{version}] {descripcion} | Build: {build} | KB: {kb} | Fecha: {fecha_obj}")
+            print(f"  ✅ [SQL {version}] {descripcion} | Build: {build} | KB: {kb} | Fecha: {fecha_obj}")
 
             try:
                 obj, created = actualizaciones.objects.update_or_create(
                     kb=kb,
                     defaults={
+                        "motor":         "SQL SERVER",
                         "major_version": version,
                         "build":         build,
                         "descripcion":   descripcion,
@@ -128,6 +114,67 @@ def sync_gdr():
             except Exception as e:
                 print(f"  ❌ Error guardando KB{kb}: {e}")
 
-    print(f"\n{'='*50}")
-    print(f"Sincronización completada. Nuevos registros GDR: {nuevos}")
-    return nuevos
+    # ── Sincronización PostgreSQL vía API endoflife.date ─────────────────────────
+
+    PG_VERSIONS_SOPORTADAS = {"14", "15", "16", "17", "18"}
+    PG_EOL_API = "https://endoflife.date/api/postgresql.json"
+
+    print("\n" + "=" * 50)
+    print("Iniciando sincronización PostgreSQL...")
+
+    try:
+        resp = requests.get(PG_EOL_API, headers=headers, timeout=15)
+        resp.raise_for_status()
+        pg_data = resp.json()
+    except requests.RequestException as e:
+        print(f"  ⚠️  Error consultando API PostgreSQL: {e}")
+        pg_data = []
+
+    # La API devuelve una lista de releases con esta estructura:
+    # {
+    #   "cycle": "17",
+    #   "releaseDate": "2024-09-26",
+    #   "eol": "2029-11-08",
+    #   "latest": "17.9",
+    #   "latestReleaseDate": "2026-02-26",
+    #   "lts": false,
+    #   "support": true
+    # }
+
+    for release in pg_data:
+        major = str(release.get("cycle", ""))
+
+        if major not in PG_VERSIONS_SOPORTADAS:
+            continue
+
+        version       = release.get("latest", "")          # ej: "17.9"
+        fecha_raw     = release.get("latestReleaseDate", "") # ej: "2026-02-26"
+        eol_raw       = release.get("eol", "")
+        soportado     = release.get("support", False)
+
+        fecha_obj = None
+        try:
+            fecha_obj = datetime.strptime(fecha_raw, "%Y-%m-%d").date()
+        except (ValueError, TypeError):
+            pass
+
+        descripcion = f"Minor Release {version}"
+        kb_pg       = f"PG-{version}"
+
+        print(f"  ✅ [PG {major}] {version} | Fecha: {fecha_obj} | Soportado: {soportado}")
+
+        try:
+            obj, created = actualizaciones.objects.update_or_create(
+                kb=kb_pg,
+                defaults={
+                    "major_version": major,
+                    "build":         version,
+                    "descripcion":   descripcion,
+                    "release_date":  fecha_obj,
+                    "soportado":     soportado,
+                }
+            )
+            if created:
+                nuevos += 1
+        except Exception as e:
+            print(f"  ❌ Error guardando PG {version}: {e}")

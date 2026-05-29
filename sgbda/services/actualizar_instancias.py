@@ -1,6 +1,5 @@
 import pyodbc
 from sgbda.models import conexion, instancia, servidor, servicio
-from django.contrib import messages
 
 
 def conectar_sqlserver(ip, puerto, usuario, password):
@@ -34,7 +33,7 @@ def actualizar_instancias_desde_conexiones():
                 c.ip_servidor,
                 c.puerto,
                 c.usuario,
-                c.password_encriptado  # ⚠️ aquí debes desencriptar
+                c.password_encriptado 
             )
 
             cursor = conn.cursor()

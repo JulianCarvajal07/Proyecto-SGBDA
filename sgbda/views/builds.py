@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from sgbda.models import actualizaciones
 from django.db.models import Q
-from sgbda.services.microsoft_gdr_sync import sync_gdr
+from sgbda.services.microsoft_gdr__postgresql_sync_v2 import sync_gdr
+#from sgbda.services.microsoft_gdr_sync import sync_gdr
 
 def listar_builds(request):
     
