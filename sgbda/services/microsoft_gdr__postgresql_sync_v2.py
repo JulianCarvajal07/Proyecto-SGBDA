@@ -167,11 +167,11 @@ def sync_gdr():
             obj, created = actualizaciones.objects.update_or_create(
                 kb=kb_pg,
                 defaults={
+                    "motor": "POSTGRESQL",
                     "major_version": major,
                     "build":         version,
                     "descripcion":   descripcion,
                     "release_date":  fecha_obj,
-                    #"soportado":     soportado,
                 }
             )
             if created:

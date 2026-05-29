@@ -27,19 +27,28 @@
 
 <form class="filtro-busqueda" method="GET">
         <div class="busqueda-texto">
-            <input type="text" class="form-control" name="buscar" id="" aria-describedby="helpId" placeholder="">
+            <input type="text" class="form-control" value="{{buscar}}" name="buscar" id="" aria-describedby="helpId" placeholder="">
             <!-- Mantener la versión seleccionada -->
-            <input type="hidden" name="version" value="{{ request.GET.version }}">
+            <!--<input type="hidden" name="version" value="{{ request.GET.version }}">-->
             <button type="submit" class="btn btn-secondary">Buscar</button>
         </div>
         <div class="opciones-sql">
-            <button type="submit" value="" name="version" class="btn {% if not request.GET.version %}btn-success{% else %}btn-secondary{% endif %}">Todas las versiones</button>
-            <button type="submit" name="version" value="2014" class="btn {% if request.GET.version == '2014' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2014</button>
-            <button type="submit" name="version" value="2016" class="btn {% if request.GET.version == '2016' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2016</button>
-            <button type="submit" name="version" value="2017" class="btn {% if request.GET.version == '2017' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2017</button>
-            <button type="submit" name="version" value="2019" class="btn {% if request.GET.version == '2019' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2019</button>
-            <button type="submit" name="version" value="2022" class="btn {% if request.GET.version == '2022' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2022</button>
-            <button type="submit" name="version" value="2025" class="btn {% if request.GET.version == '2025' %}btn-success{% else %}btn-secondary{% endif %}">SQL Server 2025</button>
+            <div class="mb-3">
+                <h5>Motor / Version</h5>
+                <select
+                    class="form-select form-select-lg filtro-auto"
+                    name="version"
+                >
+                    <option value="" {% if version == "" %}selected{% endif %}>Todas las versiones</option>
+                    <option value="2014" {% if version == "2014" %}selected{% endif %}>SQL Server 2014</option>
+                    <option value="2016" {% if version == "2016" %}selected{% endif %}>SQL Server 2016</option>
+                    <option value="2017" {% if version == "2017" %}selected{% endif %}>SQL Server 2017</option>
+                    <option value="2019" {% if version == "2019" %}selected{% endif %}>SQL Server 2019</option>
+                    <option value="2022" {% if version == "2022" %}selected{% endif %}>SQL Server 2022</option>
+                    <option value="2025" {% if version == "2025" %}selected{% endif %}>SQL Server 2025</option>
+                    <option value="POSTGRESQL" {% if version == "POSTGRESQL" %}selected{% endif %}>PostgreSQL</option>
+                </select>
+            </div>
         </div>
 </form>
 
@@ -79,4 +88,6 @@
     </div>
 
 </div>
+
+<script src="{% static 'js/filtro_automatico.js' %}"></script>
 {% endblock %}

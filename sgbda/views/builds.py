@@ -8,7 +8,7 @@ def listar_builds(request):
     
     builds = actualizaciones.objects.all().order_by('major_version','-release_date')
 
-    buscar = request.GET.get('buscar')
+    buscar = request.GET.get('buscar','').strip()
     version = request.GET.get('version')
 
     # FILTRO DE TEXTO
@@ -21,12 +21,20 @@ def listar_builds(request):
 
     # FILTRO POR VERSION
     if version:
-        builds = builds.filter(
-            major_version__icontains=version
-        )
+        if version == "POSTGRESQL":
+            builds = builds.filter(
+                motor__icontains="POSTGRESQL"
+            )
+
+        else:
+            builds = builds.filter(
+                major_version__icontains=version
+            )
 
     context = {
         'builds':builds,
+        'version':version,
+        'buscar':buscar,
     }
     
     return render(request, 'paginas/builds.html', context)
