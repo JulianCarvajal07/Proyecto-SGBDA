@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 from sgbda.models import actualizaciones
 import re
-from bs4 import BeautifulSoup
 
 
 def sync_gdr():
