@@ -177,3 +177,5 @@ def sync_gdr():
                 nuevos += 1
         except Exception as e:
             print(f"  ❌ Error guardando PG {version}: {e}")
+    
+    return nuevos
