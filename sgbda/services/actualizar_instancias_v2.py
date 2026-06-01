@@ -42,7 +42,7 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
             DECLARE @version VARCHAR(MAX);
             SET @version = @@VERSION;
             SELECT
-                CAST(@@SERVERNAME AS NVARCHAR(128)),
+                CAST(SERVERPROPERTY('MachineName') AS NVARCHAR(200)),
                 CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT),
                 CAST(LEFT(@version, CHARINDEX('(', @version + '(') - 2) AS NVARCHAR(128)),
                 CAST(SERVERPROPERTY('Edition') AS NVARCHAR(128)),
