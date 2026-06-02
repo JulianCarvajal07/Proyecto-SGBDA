@@ -6,10 +6,6 @@
 
 {% block contenido %}
 
-<div class="titulo-personalizado">
-    <h2>Clientes</h2>
-</div>
-
 <!-- ALERTAS -->
 <div class="contenedor-alerta">
 {% if messages %}
@@ -36,135 +32,142 @@
 {% endif %}
 </div>
 
-<div class="contenedor-clientes">
 
-    <form method="POST" action="{% url 'registro_cliente' %}">
-    {% csrf_token %}
-        <div class="registro-clientes">
-            <div class="registro-header">
-                <div class="registro-header-icon">
-                    <svg viewBox="0 7 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <!-- Edificio principal -->
-                        <rect x="6" y="10" width="12" height="20" rx="1"/>
-                        <!-- Ventanas -->
-                        <line x1="10" y1="14" x2="10" y2="14.01"/>
-                        <line x1="14" y1="14" x2="14" y2="14.01"/>
-                        <line x1="10" y1="18" x2="10" y2="18.01"/>
-                        <line x1="14" y1="18" x2="14" y2="18.01"/>
-                        <line x1="10" y1="22" x2="10" y2="22.01"/>
-                        <line x1="14" y1="22" x2="14" y2="22.01"/>
-                    </svg>
-                </div>
-                <div class="registro-header-text">
-                    <h2>Nuevo Cliente</h2>
-                    <span>Registrar nuevo cliente para asociar con instancia conectada</span>
-                </div>
-            </div>
-            <div class="tarjeta-clientes">
-                <div class="form-group-custom">    
-                    <h5>Nombre</h5>
-                    <input class="form-control" name="nombre" type="text" required>
-                </div>
-                <div class="form-group-custom">
-                    <button type="submit" class="btn-submit-custom">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M5 12h14"/>
-                            <path d="M12 5v14"/>
-                        </svg>
-                            Registrar Cliente
-                    </button>
-                </div>
-            </div>
-        </div>
-    </form>
 
-    <div class="tabla-clientes">
-
-        <table class="tabla-personalizada">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Fecha de creacion</th>
-                    <th>Accion</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for cliente in clientes %}
-                    <tr>
-                        <td>{{cliente.nombre}}</td>
-                        <td>{{cliente.fecha_creacion}}</td>
-                        <td>                          
-                            <form method="POST" action="{% url 'eliminar_cliente' %}" style="display:inline;">
-                                {% csrf_token %}
-                                <input type="hidden" value="{{cliente.id_cliente}}" name="id_cliente">
-                                <button type="submit" class="btn btn-danger" style="margin: 2.5px">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </form>
-                            <form method="POST" action="" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="button" 
-                                        class="btn btn-primary" 
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalId" 
-                                        style="margin: 2.5px"
-                                        id-cliente="{{cliente.id_cliente}}"
-                                        data-nombre="{{cliente.nombre}}">
-                                        <i class="bi bi-pencil"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
+<div class="page-wrapper">
+    <!-- HEADER DE PÁGINA -->
+    <div class="page-header">
+        <h1>Lista de Clientes</h1>
     </div>
 
+    <div class="contenedor-clientes">
+
+        <form method="POST" action="{% url 'registro_cliente' %}">
+        {% csrf_token %}
+            <div class="registro-clientes">
+                <div class="registro-header">
+                    <div class="registro-header-icon">
+                        <svg viewBox="0 7 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <!-- Edificio principal -->
+                            <rect x="6" y="10" width="12" height="20" rx="1"/>
+                            <!-- Ventanas -->
+                            <line x1="10" y1="14" x2="10" y2="14.01"/>
+                            <line x1="14" y1="14" x2="14" y2="14.01"/>
+                            <line x1="10" y1="18" x2="10" y2="18.01"/>
+                            <line x1="14" y1="18" x2="14" y2="18.01"/>
+                            <line x1="10" y1="22" x2="10" y2="22.01"/>
+                            <line x1="14" y1="22" x2="14" y2="22.01"/>
+                        </svg>
+                    </div>
+                    <div class="registro-header-text">
+                        <h2>Nuevo Cliente</h2>
+                        <span>Registrar nuevo cliente para asociar con instancia conectada</span>
+                    </div>
+                </div>
+                <div class="tarjeta-clientes">
+                    <div class="form-group-custom">    
+                        <h5>Nombre</h5>
+                        <input class="form-control" name="nombre" type="text" required>
+                    </div>
+                    <div class="form-group-custom">
+                        <button type="submit" class="btn-submit-custom">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 12h14"/>
+                                <path d="M12 5v14"/>
+                            </svg>
+                                Registrar Cliente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="tabla-clientes">
+
+            <table class="tabla-personalizada">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Fecha de creacion</th>
+                        <th>Accion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cliente in clientes %}
+                        <tr>
+                            <td>{{cliente.nombre}}</td>
+                            <td>{{cliente.fecha_creacion}}</td>
+                            <td>                          
+                                <form method="POST" action="{% url 'eliminar_cliente' %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" value="{{cliente.id_cliente}}" name="id_cliente">
+                                    <button type="submit" class="btn btn-danger" style="margin: 2.5px">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="button" 
+                                            class="btn btn-primary" 
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalId" 
+                                            style="margin: 2.5px"
+                                            id-cliente="{{cliente.id_cliente}}"
+                                            data-nombre="{{cliente.nombre}}">
+                                            <i class="bi bi-pencil"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<!-- Modal Body -->
-<div
-    class="modal fade"
-    id="modalId"
-    tabindex="-1"        
-    role="dialog"
-    aria-labelledby="modalTitleId"
-    aria-hidden="true"
->
+    <!-- Modal Body -->
     <div
-        class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
-        role="document"
+        class="modal fade"
+        id="modalId"
+        tabindex="-1"        
+        role="dialog"
+        aria-labelledby="modalTitleId"
+        aria-hidden="true"
     >
-        <div class="modal-content">
-            <div class="modal-header">
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-                ></button>
-            </div>
-            <div class="modal-body">
-                <form method="POST" action="{% url 'modificar_cliente' %}">
-                    {% csrf_token %}
-                        <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
-                        <h4>Modificar cliente</h4>
-                            <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente" required>
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                        >
-                            Cerrar
-                        </button>
-                        <button type="submit" class="btn btn-primary">Modificar</button>
-                </form>
+        <div
+            class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-sm"
+            role="document"
+        >
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'modificar_cliente' %}">
+                        {% csrf_token %}
+                            <input type="hidden" class="form-control" id="cliente-id" name="id_cliente">
+                            <h4>Modificar cliente</h4>
+                                <input type="text" class="form-control" id="nombre-cliente" name="nombre_cliente" required>
+                        <div class="modal-footer">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                            >
+                                Cerrar
+                            </button>
+                            <button type="submit" class="btn btn-primary">Modificar</button>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-</div>  
+    </div>  
 
 <script src="{% static 'js/info_cliente.js' %}"></script>
 {% endblock %}
