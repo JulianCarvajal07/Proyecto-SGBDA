@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+/*document.addEventListener("DOMContentLoaded", function () {
     const alerta = document.getElementById("mi-alerta");
 
     if (alerta) {
@@ -17,4 +17,16 @@ document.addEventListener("DOMContentLoaded", function () {
             }, 500); // debe coincidir con el transition
         }, 3000);
     }
+}); */
+
+
+
+// Auto-dismiss alerts after 5 seconds
+document.querySelectorAll('.alert-custom').forEach(alert => {
+    setTimeout(() => {
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-12px)';
+        alert.style.transition = 'all 0.4s ease';
+        setTimeout(() => alert.remove(), 400);
+    }, 10000);
 });

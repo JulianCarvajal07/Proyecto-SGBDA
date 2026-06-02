@@ -10,15 +10,25 @@
     <h2>Clientes</h2>
 </div>
 
+<!-- ALERTAS -->
 <div class="contenedor-alerta">
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
-            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+            <div class="alert-custom alert-danger" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
                 {{ message }}
             </div>
         {% else %}
-            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+            <div class="alert-custom alert-success" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
                 {{ message }}
             </div>
         {% endif %}
@@ -31,21 +41,39 @@
     <form method="POST" action="{% url 'registro_cliente' %}">
     {% csrf_token %}
         <div class="registro-clientes">
-            <h2 
-                style="background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
-                        margin: 0px;
-                        padding: 0 30px 0 30px;
-                        border-radius: 20px 20px 0 0;
-                        border: 1px solid #dee2e6;
-                        width: 100%;"
-                >Registrar Cliente
-            </h2>
+            <div class="registro-header">
+                <div class="registro-header-icon">
+                    <svg viewBox="0 7 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Edificio principal -->
+                        <rect x="6" y="10" width="12" height="20" rx="1"/>
+                        <!-- Ventanas -->
+                        <line x1="10" y1="14" x2="10" y2="14.01"/>
+                        <line x1="14" y1="14" x2="14" y2="14.01"/>
+                        <line x1="10" y1="18" x2="10" y2="18.01"/>
+                        <line x1="14" y1="18" x2="14" y2="18.01"/>
+                        <line x1="10" y1="22" x2="10" y2="22.01"/>
+                        <line x1="14" y1="22" x2="14" y2="22.01"/>
+                    </svg>
+                </div>
+                <div class="registro-header-text">
+                    <h2>Nuevo Cliente</h2>
+                    <span>Registrar nuevo cliente para asociar con instancia conectada</span>
+                </div>
+            </div>
             <div class="tarjeta-clientes">
-                        <h5 style="margin: 10px 0 10px 0">Nombre</h5>
-                            <input class="form-control" name="nombre" type="text" required>
-                        <button type="submit" class="btn btn-primary" style="margin: 20px 0 0 0">
-                            Registrar
-                        </button>   
+                <div class="form-group-custom">    
+                    <h5>Nombre</h5>
+                    <input class="form-control" name="nombre" type="text" required>
+                </div>
+                <div class="form-group-custom">
+                    <button type="submit" class="btn-submit-custom">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12h14"/>
+                            <path d="M12 5v14"/>
+                        </svg>
+                            Registrar Cliente
+                    </button>
+                </div>
             </div>
         </div>
     </form>

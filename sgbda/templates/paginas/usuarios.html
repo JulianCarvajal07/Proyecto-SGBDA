@@ -6,15 +6,25 @@
 
 {% block contenido %}
 
+<!-- ALERTAS -->
 <div class="contenedor-alerta">
 {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
-            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+            <div class="alert-custom alert-danger" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
                 {{ message }}
             </div>
         {% else %}
-            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+            <div class="alert-custom alert-success" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
                 {{ message }}
             </div>
         {% endif %}
@@ -26,32 +36,49 @@
     <form method="POST" action="{% url 'registrar_usuarios' %}">
     {% csrf_token %}
     <div class="registro-usuarios">
-        <h2 
-            style="background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
-                    margin: 0px;
-                    padding: 0 30px 0 30px;
-                    border-radius: 20px 20px 0 0;
-                    border: 1px solid #dee2e6;
-                    width: 100%;"
-            >Registrar Usuario
-        </h2>
+        <div class="registro-header">
+            <div class="registro-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10" cy="8" r="4"/>
+                    <path d="M2 20c0-4 4-6 8-6s8 2 8 6"/>
+                    <path d="M20 4v4M18 6h4"/>
+                </svg>
+            </div>
+            <div class="registro-header-text">
+                <h2>Nuevo Usuario</h2>
+                <span>Registrar nuevo usuario para ingreso al aplicativo</span>
+            </div>
+        </div>
         <div class="formulario-usuarios">
+                
+            <div class="form-group-custom">
+                <h5>Usuario</h5>
+                <input class="form-control" name="usuario" type="text" required>
+            </div>
+                
+            <div class="form-group-custom">
+                <h5>Rol</h5>
+                <select class="form-select" name="rol" required>
+                    <option value="" selected>Seleccion una opcion</option>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Lectura">Lectura</option>
+                </select>
+            </div>
+                    
+            <div class="form-group-custom">        
+                <h5 style="margin: 10px 0 0 0">Contraseña</h5>
+                <input class="form-control" name="contraseña" type="password" required>
+            </div>
 
-                    <h5 style="margin: 10px 0 0 0">Usuario</h5>
-                    <input class="form-control" name="usuario" type="text" required>
-                    <h5 style="margin: 10px 0 0 0">Rol</h5>
-                    <select class="form-select" name="rol" required>
-                            <option value="" selected>Seleccion una opcion</option>
-                            <option value="Administrador">Administrador</option>
-                            <option value="Lectura">Lectura</option>
-                    </select>
-                    
-                    
-                    <h5 style="margin: 10px 0 0 0">Contraseña</h5>
-                    <input class="form-control" name="contraseña" type="password" required>
-                    <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
-                        Registrar
-                    </button>   
+            <div class="form-group-custom">
+                <button type="submit" class="btn-submit-custom">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14"/>
+                        <path d="M12 5v14"/>
+                    </svg>
+                    Registrar Usuario
+                </button>
+            </div>
 
         </div>
     </div>

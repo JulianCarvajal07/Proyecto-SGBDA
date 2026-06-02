@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block titulo %} Conexiones {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+<div class="contenedor-alerta">
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+        <!--id="mi-alerta"-->
+            <div id="mi-alerta" class="alert alert-danger fade" role="alert">
+                {{ message }}
+            </div>
+        {% else %}
+            <div id="mi-alerta" class="alert alert-success fade" role="alert">
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+</div>
+
+<div class="contenedor-conexiones">
+
+    <form method="POST" action="{% url 'registro_conexion' %}">
+    {% csrf_token %}
+    <div class="registro-conexion">
+        <h2 
+            style="background: linear-gradient(135deg, #0a253f 0%, #0d6efd 100%);
+                    margin: 0px;
+                    padding: 0 30px 0 30px;
+                    border-radius: 20px 20px 0 0;
+                    border: 1px solid #dee2e6;
+                    width: 100%;"
+            >Registrar Conexion
+        </h2>
+        <div class="tarjeta-conexion">
+                    <h5 class="Titulo-tarjeta">Motor de Bases de datos</h5>
+                        <select class="form-select" name="motor" required>
+                                <option value="" select>Seleccione...</option>
+                                <option value="SQL SERVER">SQL SERVER</option>
+                                <option value="POSTGRESQL">POSTGRESQL</option>
+                        </select>
+                    <h5 class="Titulo-tarjeta">Ip del servidor</h5>
+                        <input class="form-control" name="ip_servidor" type="text" required>
+                    <h5 class="Titulo-tarjeta">Puerto</h5>
+                        <input class="form-control" name="puerto" type="text" required>
+                    <h5 class="Titulo-tarjeta">Tipo de autenticacion</h5>
+                        <select class="form-select" name="autenticacion" required>
+                                <option value="Database Authentication" select>Database Authentication</option>
+                        </select>
+                    <h5 class="Titulo-tarjeta">Usuario</h5>
+                        <input class="form-control" name="usuario" type="text" required>                
+                    <h5 class="Titulo-tarjeta">Contraseña</h5>
+                        <input class="form-control" name="contraseña" type="password" required>
+                    <button type="submit" class="btn btn-primary" style="margin: 10px 0 0 0">
+                        Registrar Conexion
+                    </button>   
+        </div>
+    </div>
+    </form>
+
+    <div class="tabla-conexiones">
+            <table class="tabla-personalizada">
+                <thead>
+                    <tr>
+                        <th>Motor</th>
+                        <th>Ip</th>
+                        <th>Puerto</th>
+                        <th>Usuario</th>
+                        <th>Accion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conexion in conexiones %}
+                    <tr>
+                        <td>{{conexion.motor}}</td>
+                        <td>{{conexion.ip_servidor}}</td>
+                        <td>{{conexion.puerto}}</td>
+                        <td>{{conexion.usuario}}</td>
+                        <td>                          
+                            <form method="POST" action="{% url 'eliminar_conexion' conexion.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger" style="margin: 2.5px">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>      
+    </div>
+
+</div>
+{% endblock %}

@@ -18,8 +18,100 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    align-items: start;
-    justify-content: start;
+    align-items: center;
+    justify-content: center;
     margin: 0 0 20px 0;
     width: 100%;
+}
+
+/* ===== ALERTAS ===== */
+.contenedor-alerta {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    padding: 0 24px;
+}
+
+.alert-custom {
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.4s ease;
+    border: 1px solid transparent;
+}
+
+.alert-custom.alert-danger {
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-color: rgba(248, 81, 73, 0.2);
+}
+
+.alert-custom.alert-success {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: rgba(63, 185, 80, 0.2);
+}
+
+.alert-custom svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ALERTA PARA INVENTARIO */
+
+.alert-custom {
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.4s ease;
+    border: 1px solid transparent;
+    margin-bottom: 12px;
+}
+
+.alert-custom svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.alert-success-custom {
+    background: rgba(63, 185, 80, 0.1);
+    color: #3fb950;
+    border-color: rgba(63, 185, 80, 0.2);
+}
+
+.alert-danger-custom {
+    background: rgba(248, 81, 73, 0.1);
+    color: #f85149;
+    border-color: rgba(248, 81, 73, 0.2);
+}
+
+.alert-warning-custom {
+    background: rgba(210, 153, 34, 0.1);
+    color: #d29922;
+    border-color: rgba(210, 153, 34, 0.2);
+}
+
+.alert-info-custom {
+    background: rgba(88, 166, 255, 0.1);
+    color: #58a6ff;
+    border-color: rgba(88, 166, 255, 0.2);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
 }

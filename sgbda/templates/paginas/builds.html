@@ -8,21 +8,30 @@
 
 
 
-<div class="titulo-personalizado">
-    <h2 style="margin: 0">Actualizaciones SQL Server</h2>
-    {% if messages %}
-        {% for message in messages %}
-            {% if message.tags == 'error' %}
-                <div id="mi-alerta" class="alert alert-danger fade" role="alert">
-                    {{ message }}
-                </div>
-            {% else %}
-                <div id="mi-alerta" class="alert alert-success fade" role="alert">
-                    {{ message }}
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
+<!-- ALERTAS -->
+<div class="contenedor-alerta">
+{% if messages %}
+    {% for message in messages %}
+        {% if message.tags == 'error' %}
+            <div class="alert-custom alert-danger" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                {{ message }}
+            </div>
+        {% else %}
+            <div class="alert-custom alert-success" role="alert">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                {{ message }}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
 </div>
 
 <form class="filtro-busqueda" method="GET">

@@ -19,7 +19,7 @@
 .tabla-personalizada th,
 .tabla-personalizada td {
     padding: 8px 10px;
-    border: 1px solid #dee2e6;
+    /*border: 1px solid #dee2e6;*/
     text-align: center;
     justify-content: center;
 }
@@ -47,4 +47,97 @@
 
 .Titulo-tarjeta{
     margin: 10px 0 5px 0
+}
+
+
+/* KIMI */
+
+.tabla-personalizada {
+    width: auto;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabla-personalizada thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.tabla-personalizada th {
+    background: var(--surface-hover);
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 20px;
+    /*border-bottom: 1px solid var(--border);*/
+    white-space: nowrap;
+}
+
+.tabla-personalizada th svg {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 6px;
+    margin-bottom: 2px;
+}
+
+.tabla-personalizada td {
+    padding: 16px 20px;
+    color: var(--text);
+    /*border-bottom: 1px solid #dee2e6;*/
+    transition: var(--transition);
+}
+
+.tabla-personalizada tbody tr {
+    transition: var(--transition);
+}
+
+.tabla-personalizada tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.tabla-personalizada tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* KIMI PART 2 */
+.registro-header {
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.registro-header-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--accent), #1f6feb);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 12px rgba(88, 166, 255, 0.25);
+}
+
+.registro-header-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.registro-header-text h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+}
+
+.registro-header-text span {
+    font-size: 12px;
+    color: var(--text-muted);
 }
