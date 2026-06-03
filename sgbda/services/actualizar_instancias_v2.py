@@ -11,6 +11,7 @@ def conectar_sqlserver(ip, puerto, usuario, password):
         f"UID={usuario};"
         f"PWD={password};"
         "TrustServerCertificate=yes;"
+        "Connection Timeout=60;"
     )
     return pyodbc.connect(conn_str)
 
@@ -34,31 +35,51 @@ def conectar_postgresql(ip, puerto, usuario, password):
 def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
     conn = None
     cursor = None
+
     try:
-        conn = conectar_sqlserver(c.ip_servidor, c.puerto, c.usuario, c.password_encriptado)
+        print(f"Conectando a {c.ip_servidor}...")
+
+        conn = conectar_sqlserver(
+            c.ip_servidor,
+            c.puerto,
+            c.usuario,
+            c.password_encriptado
+        )
+
         cursor = conn.cursor()
 
+        print(f"Consultando metadata en {c.ip_servidor}...")
+
+        # PRIMERA CONSULTA
+        print("Ejecutando metadata...")
         cursor.execute("""
             DECLARE @version VARCHAR(MAX);
             SET @version = @@VERSION;
+
             SELECT
                 CAST(SERVERPROPERTY('MachineName') AS NVARCHAR(200)),
                 CAST(CONNECTIONPROPERTY('local_tcp_port') AS INT),
                 CAST(LEFT(@version, CHARINDEX('(', @version + '(') - 2) AS NVARCHAR(128)),
                 CAST(SERVERPROPERTY('Edition') AS NVARCHAR(128)),
                 CAST(REPLACE(REPLACE(servicename, 'SQL Server (',''), ')','') AS NVARCHAR(128)),
-                CAST(SUBSTRING(@version, CHARINDEX(' - ', @version) + 3, CHARINDEX('(X64)', @version) - CHARINDEX(' - ', @version) - 4) AS NVARCHAR(128)),
+                CAST(SUBSTRING(@version,
+                    CHARINDEX(' - ', @version) + 3,
+                    CHARINDEX('(X64)', @version) - CHARINDEX(' - ', @version) - 4
+                ) AS NVARCHAR(128)),
                 CAST(LTRIM(RTRIM(
-                    SUBSTRING(@version, CHARINDEX('Windows', @version),
-                    CHARINDEX('(Build', @version) - CHARINDEX('Windows', @version))
+                    SUBSTRING(
+                        @version,
+                        CHARINDEX('Windows', @version),
+                        CHARINDEX('(Build', @version) - CHARINDEX('Windows', @version)
+                    )
                 )) AS NVARCHAR(128))
             FROM sys.dm_server_services
             WHERE servicename LIKE 'SQL Server (%';
-
-            EXEC xp_cmdshell 'powershell.exe -Command "Get-Service | Where-Object {$_.DisplayName -like ''*SQL*''} | ForEach-Object { $_.DisplayName, $_.Status, $_.StartType -join ''|'' }"';
         """)
+        print("Metadata OK")
 
         row = cursor.fetchone()
+
         if not row:
             errores.append(f"Sin datos de metadata en {c.ip_servidor}")
             return nuevos_servidores, nuevas_instancias
@@ -67,8 +88,12 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
 
         srv, created_srv = servidor.objects.update_or_create(
             ip=c.ip_servidor,
-            defaults={"hostname": hostname or c.ip_servidor, "sistema_operativo": sistema_op}
+            defaults={
+                "hostname": hostname or c.ip_servidor,
+                "sistema_operativo": sistema_op
+            }
         )
+
         if created_srv:
             nuevos_servidores += 1
 
@@ -82,31 +107,79 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
                 "puerto": puerto_sql or c.puerto,
             }
         )
+
         if created_inst:
             nuevas_instancias += 1
 
-        print(f"OK (SQL Server) {c.ip_servidor} → {nombre_instancia}")
+        print(f"Metadata OK en {c.ip_servidor}")
 
-        if cursor.nextset():
+        # SEGUNDA CONSULTA
+        print(f"Consultando servicios vía xp_cmdshell en {c.ip_servidor}...")
+
+        try:
+            print("Ejecutando xp_cmdshell...")
+            cursor.execute("""
+                EXEC xp_cmdshell '
+                powershell.exe -Command
+                "Get-Service |
+                 Where-Object {$_.DisplayName -like ''*SQL*''} |
+                 ForEach-Object {
+                    $_.DisplayName + ''|'' +
+                    $_.Status + ''|'' +
+                    $_.StartType
+                 }"
+                '
+            """)
+            print("xp_cmdshell OK")
+
             for row in cursor.fetchall():
-                if row and row[0]:
-                    datos = row[0].split("|")
-                    if len(datos) == 3:
-                        nombre, estado, inicio = [d.strip() for d in datos]
-                        servicio.objects.update_or_create(
-                            instancia=inst,
-                            nombre_servicio=nombre,
-                            defaults={"estado_servicio": estado, "tipo_inicio": inicio}
-                        )
-        else:
-            print("No hay segundo resultset")
+
+                if not row or not row[0]:
+                    continue
+
+                datos = row[0].split("|")
+
+                if len(datos) != 3:
+                    continue
+
+                nombre, estado, inicio = [x.strip() for x in datos]
+
+                servicio.objects.update_or_create(
+                    instancia=inst,
+                    nombre_servicio=nombre,
+                    defaults={
+                        "estado_servicio": estado,
+                        "tipo_inicio": inicio
+                    }
+                )
+
+            print(f"Servicios OK en {c.ip_servidor}")
+
+        except Exception as e:
+            errores.append(
+                f"Error obteniendo servicios en {c.ip_servidor}: {e}"
+            )
+            print(
+                f"Error obteniendo servicios en {c.ip_servidor}: {e}"
+            )
 
     except Exception as e:
-        errores.append(f"Error con {c.ip_servidor} (SQL Server): {e}")
-        print(f"Error con {c.ip_servidor}: {e}")
+
+        errores.append(
+            f"Error obteniendo metadata en {c.ip_servidor}: {e}"
+        )
+
+        print(
+            f"Error obteniendo metadata en {c.ip_servidor}: {e}"
+        )
+
     finally:
-        if cursor: cursor.close()
-        if conn: conn.close()
+
+        if cursor:
+            cursor.close()
+
+        if conn:
+            conn.close()
 
     return nuevos_servidores, nuevas_instancias
 
