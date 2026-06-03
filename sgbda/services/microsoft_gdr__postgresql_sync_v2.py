@@ -2,6 +2,7 @@ import requests
 from datetime import datetime
 from sgbda.models import actualizaciones
 import re
+from datetime import datetime, date
 
 
 def sync_gdr():
@@ -9,6 +10,7 @@ def sync_gdr():
 
     # ── SQL Server ────────────────────────────────────────────────────────────
     URLS_SQL = {
+        "2012": "https://raw.githubusercontent.com/ktaranov/sqlserver-kit/master/SQL%20Server%20Version.md",
         "2014": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2014/build-versions.md",
         "2016": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2016/build-versions.md",
         "2017": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2017/build-versions.md",
@@ -35,11 +37,27 @@ def sync_gdr():
         )
 
     def parsear_fila(cols, version):
-        if version in ("2014", "2016"):
+
+        if version == "2012":
+            # | Build | File version | Branch | Type | Info | KB | Description/Link | Release Date | ...
+            if len(cols) < 8:
+                return None
+            build       = cols[0]
+            branch      = cols[2]  # SP4, SP3, etc.
+            tipo        = cols[3]  # GDR, CU, SP, COD
+            kb_raw      = cols[5]
+            fecha_raw   = cols[7]
+            # Normalizar a formato que es_gdr() sí entiende: "SP4 GDR", "SP3 GDR", etc.
+            descripcion = f"SQL SERVER 2012 {branch} {tipo}".strip()
+            return descripcion, build, kb_raw, fecha_raw
+
+        elif version in ("2014", "2016"):
+            # MicrosoftDocs formato antiguo: CU Name | Build | KB | Release Date
             if len(cols) < 4:
                 return None
             return cols[0], cols[1], cols[2], cols[3]
         else:
+            # MicrosoftDocs formato nuevo (2017+): ... col5=KB, col6=Release Date
             if len(cols) < 7:
                 return None
             return cols[0], cols[1], cols[5], cols[6]
@@ -96,6 +114,7 @@ def sync_gdr():
 
             print(f"  ✅ [SQL {version}] {descripcion} | Build: {build} | KB: {kb} | Fecha: {fecha_obj}")
 
+
             try:
                 obj, created = actualizaciones.objects.update_or_create(
                     kb=kb,
@@ -112,6 +131,44 @@ def sync_gdr():
                     nuevos += 1
             except Exception as e:
                 print(f"  ❌ Error guardando KB{kb}: {e}")
+#=====================================================================================
+#=====================================================================================
+#                ANEXO MANUAL DE ULTIMA BUILD PARA SQL SERVER 2012                   #
+#=====================================================================================
+#=====================================================================================
+
+    # Parches post-EOL de 2012 no incluidos en ktaranov
+    BUILDS_2012_EXTRA = [
+        {
+            "descripcion": "SQL SERVER 2012 SP4 GDR",
+            "build":       "11.0.7512.11",
+            "kb":          "5021123",
+            "fecha":       date(2023, 2, 14),
+        },
+    ]
+
+    print("\nProcesando builds manuales SQL Server 2012...")
+    for entry in BUILDS_2012_EXTRA:
+        print(f"  ✅ [SQL 2012] {entry['descripcion']} | Build: {entry['build']} | KB: {entry['kb']} | Fecha: {entry['fecha']}")
+        try:
+            obj, created = actualizaciones.objects.update_or_create(
+                kb=entry["kb"],
+                defaults={
+                    "motor":         "SQL SERVER",
+                    "major_version": "2012",
+                    "build":         entry["build"],
+                    "descripcion":   entry["descripcion"],
+                    "release_date":  entry["fecha"],
+                }
+            )
+            if created:
+                nuevos += 1
+        except Exception as e:
+            print(f"  ❌ Error guardando KB{entry['kb']}: {e}")  
+#=====================================================================================
+#=====================================================================================
+#=====================================================================================
+#=====================================================================================
 
     # ── Sincronización PostgreSQL vía API endoflife.date ─────────────────────────
 

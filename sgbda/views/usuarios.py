@@ -26,17 +26,21 @@ def registro_usuarios(request):
         ]):
             messages.error(request, "Todos los campos son obligatorios")
             return redirect("listar_usuarios")
+        
+        try:
+            usuario.objects.get(nombre=nombre)
+            messages.error(request, "El usuario ya existe")
+            return redirect("listar_usuarios")
 
-        # crear usuario en base de datos
-        usuario.objects.create_user(
-            nombre=nombre,
-            rol=rol,
-            password=password
-        )
+        except usuario.DoesNotExist:
+            usuario.objects.create_user(
+                nombre=nombre,
+                rol=rol,
+                password=password
+            )
 
-        messages.success(request, "Usuario registrado correctamente")
-        return redirect("listar_usuarios")
-    
+            messages.success(request, "Usuario registrado correctamente")
+            return redirect("listar_usuarios")
     
     return render(request, 'paginas/usuarios.html')
 
