@@ -56,7 +56,7 @@
 /*========================================================*/
 
 .tabla-personalizada {
-    width: auto;
+    width: 100%;
     border-collapse: collapse;
     font-size: 14px;
 }
