@@ -119,16 +119,7 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
         try:
             print("Ejecutando xp_cmdshell...")
             cursor.execute("""
-                EXEC xp_cmdshell '
-                powershell.exe -Command
-                "Get-Service |
-                 Where-Object {$_.DisplayName -like ''*SQL*''} |
-                 ForEach-Object {
-                    $_.DisplayName + ''|'' +
-                    $_.Status + ''|'' +
-                    $_.StartType
-                 }"
-                '
+                EXEC xp_cmdshell 'powershell.exe -Command "Get-Service | Where-Object {$_.DisplayName -like ''*SQL*''} | ForEach-Object {$_.DisplayName + ''|'' + $_.Status + ''|'' + $_.StartType}"'
             """)
             print("xp_cmdshell OK")
 
