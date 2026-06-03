@@ -48,8 +48,15 @@ def registro_conexion(request):
                 )
 
                 return redirect('listar_conexiones')
-
-
+            
+        if conexion.objects.filter(
+            ip_servidor=ip_servidor, 
+            puerto=puerto, 
+            motor=motor
+        ).exists():
+            messages.error(request, "Esta conexion ya existe en la base de datos")
+            return redirect ('listar_conexiones')
+        
         try:
 
             # =====================================================

@@ -20,6 +20,7 @@
                 <h5 style="margin: 0; margin: 5px">Versiones SQL</h5>
                 <select class="form-select form-select-lg filtro-auto" name="versiones_sql" id="">
                     <option value="" {% if versiones_sql == "" %}selected{% endif %}>Todas las versiones</option>
+                    <option value="2012" {% if versiones_sql == "2012" %}selected{% endif %}>SQL Server 2012</option>
                     <option value="2014" {% if versiones_sql == "2014" %}selected{% endif %}>SQL Server 2014</option>
                     <option value="2016" {% if versiones_sql == "2016" %}selected{% endif %}>SQL Server 2016</option>
                     <option value="2017" {% if versiones_sql == "2017" %}selected{% endif %}>SQL Server 2017</option>
