@@ -185,17 +185,14 @@
 
 .tabla-servicios {
     width: auto;
-    border-collapse: collapse;
+    /*border-collapse: collapse;*/
     font-size: 14px;
     box-shadow: var(--shadow);
     border: 1px solid var(--text-dim);
 }
 
 .tabla-servicios thead {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    
+    position: static;
 }
 
 .tabla-servicios th {
