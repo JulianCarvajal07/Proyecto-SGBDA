@@ -49,8 +49,11 @@
     margin: 10px 0 5px 0
 }
 
-
-/* KIMI */
+/*========================================================*/
+/*========================================================*/
+/*           PERSONALIZACION TABLAS EN GENERAL            */
+/*========================================================*/
+/*========================================================*/
 
 .tabla-personalizada {
     width: auto;
@@ -102,6 +105,12 @@
 .tabla-personalizada tbody tr:last-child td {
     border-bottom: none;
 }
+
+/*========================================================*/
+/*========================================================*/
+/*   PERSONALIZACION DE TARJETAS PARA HACER REGISTROS     */
+/*========================================================*/
+/*========================================================*/
 
 /* KIMI PART 2 */
 .registro-header {
@@ -166,4 +175,64 @@
 .page-header p {
     font-size: 14px;
     color: var(--text-muted);
+}
+
+/*========================================================*/
+/*========================================================*/
+/*   PERSONALIZACION TABLA SERVICIOS DE CADA INSTANCIA    */
+/*========================================================*/
+/*========================================================*/
+
+.tabla-servicios {
+    width: auto;
+    border-collapse: collapse;
+    font-size: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--text-dim);
+}
+
+.tabla-servicios thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    
+}
+
+.tabla-servicios th {
+    background: rgb(15, 82, 170);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 14px 20px;
+    border-left: 1px solid var(--text-dim);
+    white-space: nowrap;
+}
+
+.tabla-servicios th svg {
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    margin-right: 6px;
+    margin-bottom: 2px;
+}
+
+.tabla-servicios td {
+    padding: 16px 20px;
+    color: var(--text);
+    border-left: 1px solid var(--text-dim);
+    transition: var(--transition);
+}
+
+.tabla-servicios tbody tr {
+    transition: var(--transition);
+}
+
+.tabla-servicios tbody tr:hover {
+    background: var(--surface-hover);
+}
+
+.tabla-servicios tbody tr:last-child td {
+    border-bottom: none;
 }
