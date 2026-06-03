@@ -1,6 +1,6 @@
 import pyodbc
 from sgbda.models import conexion, instancia, servidor, servicio
-
+import time
 
 # ─── Conexión ────────────────────────────────────────────────────────────────
 
@@ -118,10 +118,12 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
 
         try:
             print("Ejecutando xp_cmdshell...")
+            inicio = time.time()
             #NOTA: Esta consulta SQL debe dejarse en una sola linea para ejecutarse correctamente
             cursor.execute("""
-                EXEC xp_cmdshell 'powershell.exe -Command "Get-Service | Where-Object {$_.DisplayName -like ''*SQL*''} | ForEach-Object {$_.DisplayName + ''|'' + $_.Status + ''|'' + $_.StartType}"'
+                EXEC xp_cmdshell 'powershell.exe -Command "Get-Service -Name ''SQL*'',''MSSQL*'',''MSDTS*'' | ForEach-Object {$_.DisplayName + ''|'' + $_.Status + ''|'' + $_.StartType}"'
             """)
+            print(f"Tiempo consulta: {time.time() - inicio:.2f} segundos")
             print("xp_cmdshell OK")
 
             for row in cursor.fetchall():
