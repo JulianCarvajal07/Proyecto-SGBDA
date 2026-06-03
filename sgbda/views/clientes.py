@@ -13,9 +13,13 @@ def listar_clientes(request):
 def registro_cliente(request):
 
     if request.method == 'POST':
-        nombre_cliente = request.POST.get('nombre').strip()
+        nombre_cliente = request.POST.get('nombre','').strip().upper()
 
         if nombre_cliente:
+
+            if cliente.objects.filter(nombre=nombre_cliente).exists():
+                messages.error(request,"El cliente ya existe")
+                return redirect ("listar_clientes")
             
             cliente.objects.create(
                 nombre = nombre_cliente 
