@@ -2,7 +2,7 @@ import re
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from sgbda.models import instancia, cliente, servidor, checkSQL, actualizaciones
-from sgbda.services.actualizar_instancias_v2 import actualizar_instancias_desde_conexiones
+from sgbda.services.actualizar_instancias_v3 import actualizar_instancias_desde_conexiones
 from django.utils import timezone
 from django.db.models import Q
 
@@ -129,7 +129,7 @@ def actualizar_inventario(request):
                 match = re.search(r'\d+', inst.major_version)
                 version_normalizada = match.group() if match else inst.major_version
                             
-            print(version_normalizada)
+            #print(version_normalizada)
 
             # 1. Buscar la actualización más reciente para esa major_version
             ultima_actualizacion = actualizaciones.objects.filter(
