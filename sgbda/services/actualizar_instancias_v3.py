@@ -59,7 +59,7 @@ def conectar_con_reintentos(fn_conectar, ip, puerto, usuario, password, max_inte
 
 # ─── Procesadores por motor ──────────────────────────────────────────────────
 
-def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
+def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores, log):
 
     # ── FASE 1: Metadata ─────────────────────────────────────────────────────
     conn = None
@@ -67,15 +67,15 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
     inst = None
 
     try:
-        print(f"Conectando a {c.ip_servidor}...")
+        log(f"Conectando a {c.ip_servidor}...")
         conn = conectar_con_reintentos(
             conectar_sqlserver,
             c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
         )
         cursor = conn.cursor()
 
-        print(f"Consultando metadata en {c.ip_servidor}...")
-        print("Ejecutando metadata...")
+        log(f"Consultando metadata en {c.ip_servidor}...")
+        log("Ejecutando metadata...")
 
         cursor.execute("""
             DECLARE @version VARCHAR(MAX);
@@ -101,7 +101,7 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
             FROM sys.dm_server_services
             WHERE servicename LIKE 'SQL Server (%';
         """)
-        print("Metadata OK")
+        log("Metadata OK")
 
         row = cursor.fetchone()
 
@@ -113,7 +113,7 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
 
     except Exception as e:
         errores.append(f"Error obteniendo metadata en {c.ip_servidor}: {e}")
-        print(f"Error obteniendo metadata en {c.ip_servidor}: {e}")
+        log(f"Error obteniendo metadata en {c.ip_servidor}: {e}")
         return nuevos_servidores, nuevas_instancias
 
     finally:
@@ -149,11 +149,11 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
         if created_inst:
             nuevas_instancias += 1
 
-        print(f"Metadata OK en {c.ip_servidor}")
+        log(f"Metadata OK en {c.ip_servidor}")
 
     except Exception as e:
         errores.append(f"Error guardando metadata de {c.ip_servidor}: {e}")
-        print(f"Error guardando metadata de {c.ip_servidor}: {e}")
+        log(f"Error guardando metadata de {c.ip_servidor}: {e}")
         return nuevos_servidores, nuevas_instancias
 
 # ── FASE 2: Servicios ────────────────────────────────────────────────────
@@ -165,7 +165,7 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
         conn = None
         cursor = None
         try:
-            print(f"  Intento {intento}/4 obteniendo servicios en {c.ip_servidor}...")
+            log(f"  Intento {intento}/4 obteniendo servicios en {c.ip_servidor}...")
             conn = conectar_con_reintentos(
                 conectar_sqlserver,
                 c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
@@ -177,8 +177,8 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
             cursor.execute("""
                 EXEC xp_cmdshell 'powershell.exe -Command "Get-Service -Name ''SQL*'',''MSSQL*'',''MSDTS*'' | ForEach-Object {$_.DisplayName + ''|'' + $_.Status + ''|'' + $_.StartType}"'
             """)
-            print(f"Tiempo consulta xp_cmdshell: {time.time() - inicio:.2f} segundos")
-            print("xp_cmdshell OK")
+            log(f"Tiempo consulta xp_cmdshell: {time.time() - inicio:.2f} segundos")
+            log("xp_cmdshell OK")
 
             for row in cursor.fetchall():
                 if not row or not row[0]:
@@ -196,16 +196,16 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
                     }
                 )
 
-            print(f"Servicios OK en {c.ip_servidor}")
+            log(f"Servicios OK en {c.ip_servidor}")
             break  # éxito, salir del loop
 
         except Exception as e:
             ultimo_error_servicios = e
-            print(f"  Intento {intento} fallido obteniendo servicios en {c.ip_servidor}: {e}")
+            log(f"  Intento {intento} fallido obteniendo servicios en {c.ip_servidor}: {e}")
 
             if intento < 4:
                 espera = 3 * intento  # 3s, 6s, 9s
-                print(f"  Esperando {espera}s antes del siguiente intento...")
+                log(f"  Esperando {espera}s antes del siguiente intento...")
                 time.sleep(espera)
 
         finally:
@@ -217,12 +217,12 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores):
     else:
         # Se agotaron los 4 intentos sin un break exitoso
         errores.append(f"Error obteniendo servicios en {c.ip_servidor} (4 intentos agotados): {ultimo_error_servicios}")
-        print(f"Error obteniendo servicios en {c.ip_servidor}: {ultimo_error_servicios}")
+        log(f"Error obteniendo servicios en {c.ip_servidor}: {ultimo_error_servicios}")
 
     return nuevos_servidores, nuevas_instancias
 
 
-def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores):
+def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores, log):
 
     # ── FASE 1: Metadata ─────────────────────────────────────────────────────
     conn = None
@@ -267,7 +267,7 @@ def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores):
 
     except Exception as e:
         errores.append(f"Error obteniendo metadata en {c.ip_servidor} (PostgreSQL): {e}")
-        print(f"Error con {c.ip_servidor}: {e}")
+        log(f"Error con {c.ip_servidor}: {e}")
         return nuevos_servidores, nuevas_instancias
 
     finally:
@@ -306,11 +306,11 @@ def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores):
         if created_inst:
             nuevas_instancias += 1
 
-        print(f"OK (PostgreSQL) {c.ip_servidor} → {nombre_instancia}")
+        log(f"OK (PostgreSQL) {c.ip_servidor} → {nombre_instancia}")
 
     except Exception as e:
         errores.append(f"Error guardando metadata de {c.ip_servidor} (PostgreSQL): {e}")
-        print(f"Error guardando metadata de {c.ip_servidor}: {e}")
+        log(f"Error guardando metadata de {c.ip_servidor}: {e}")
         return nuevos_servidores, nuevas_instancias
 
     # ── FASE 2: Servicios ────────────────────────────────────────────────────
@@ -346,11 +346,11 @@ def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores):
                 }
             )
 
-        print(f"Servicios OK en {c.ip_servidor}")
+        log(f"Servicios OK en {c.ip_servidor}")
 
     except Exception as e:
         errores.append(f"Error obteniendo servicios en {c.ip_servidor} (PostgreSQL): {e}")
-        print(f"Error obteniendo servicios en {c.ip_servidor}: {e}")
+        log(f"Error obteniendo servicios en {c.ip_servidor}: {e}")
 
     finally:
         if cursor:
@@ -377,9 +377,14 @@ def normalizar_motor(motor):
     return m
 
 
-def actualizar_instancias_desde_conexiones():
-    conexiones = conexion.objects.all()
+def actualizar_instancias_desde_conexiones(log_queue=None):
 
+    def log(msg):
+        print(msg)
+        if log_queue:
+            log_queue.put(msg)
+
+    conexiones = conexion.objects.all()
     nuevos_servidores = 0
     nuevas_instancias = 0
     errores = []
@@ -391,12 +396,18 @@ def actualizar_instancias_desde_conexiones():
         if procesador is None:
             msg = f"Motor desconocido '{c.motor}' en conexión {c.ip_servidor} — omitido."
             errores.append(msg)
-            print(msg)
+            log(msg)
             continue
 
         nuevos_servidores, nuevas_instancias = procesador(
-            c, nuevos_servidores, nuevas_instancias, errores
+            c, nuevos_servidores, nuevas_instancias, errores, log
         )
+
+    log(f"✔ Finalizado — Servidores nuevos: {nuevos_servidores} | Instancias nuevas: {nuevas_instancias}")
+
+    if errores:
+        for e in errores:
+            log(f"✘ {e}")
 
     return {
         "servidores_nuevos": nuevos_servidores,

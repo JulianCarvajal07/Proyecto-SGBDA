@@ -26,3 +26,9 @@
     align-items: center;
     justify-content: center;
 }
+
+.contenedor-filtro-y-logs{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}

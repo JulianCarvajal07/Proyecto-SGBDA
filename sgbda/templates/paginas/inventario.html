@@ -10,55 +10,72 @@
     <h2 style="margin: 0">Inventario SQL Server</h2>
 </div>
 
-<form class="filtro-busqueda" method="GET">
-        <div class="busqueda-texto">
-            <input type="text" class="form-control" value="{{buscar}}" name="buscar" id="" aria-describedby="helpId" placeholder="">
-            <button type="submit" class="btn btn-secondary">Buscar</button>
-        </div>
-        <div class="opciones-sql">
-            <div class="filtro-versiones">
-                <h5 style="margin: 0; margin: 5px">Versiones SQL</h5>
-                <select class="form-select form-select-lg filtro-auto" name="versiones_sql" id="">
-                    <option value="" {% if versiones_sql == "" %}selected{% endif %}>Todas las versiones</option>
-                    <option value="2012" {% if versiones_sql == "2012" %}selected{% endif %}>SQL Server 2012</option>
-                    <option value="2014" {% if versiones_sql == "2014" %}selected{% endif %}>SQL Server 2014</option>
-                    <option value="2016" {% if versiones_sql == "2016" %}selected{% endif %}>SQL Server 2016</option>
-                    <option value="2017" {% if versiones_sql == "2017" %}selected{% endif %}>SQL Server 2017</option>
-                    <option value="2019" {% if versiones_sql == "2019" %}selected{% endif %}>SQL Server 2019</option>
-                    <option value="2022" {% if versiones_sql == "2022" %}selected{% endif %}>SQL Server 2022</option>
-                    <option value="2025" {% if versiones_sql == "2025" %}selected{% endif %}>SQL Server 2025</option>
-                </select>
+
+<div class="contenedor-filtro-y-logs">
+    <form class="filtro-busqueda" method="GET">
+            <div class="busqueda-texto">
+                <input type="text" class="form-control" value="{{buscar}}" name="buscar" id="" aria-describedby="helpId" placeholder="">
+                <button type="submit" class="btn btn-secondary">Buscar</button>
             </div>
-            <div class="filtro-versiones">
-                <h5 style="margin: 0; margin: 5px">Versiones PG</h5>
-                <select class="form-select form-select-lg filtro-auto" name="versiones_pg" id="">
-                    <option value="" {% if versiones_pg == "" %}selected{% endif %}>Todas las versiones</option>
-                    <option value="PostgreSQL 14" {% if versiones_pg == "PostgreSQL 14" %}selected{% endif %}>PostgreSQL 14</option>
-                    <option value="PostgreSQL 15" {% if versiones_pg == "PostgreSQL 15" %}selected{% endif %}>PostgreSQL 15</option>
-                    <option value="PostgreSQL 16" {% if versiones_pg == "PostgreSQL 16" %}selected{% endif %}>PostgreSQL 16</option>
-                    <option value="PostgreSQL 17" {% if versiones_pg == "PostgreSQL 17" %}selected{% endif %}>PostgreSQL 17</option>
-                    <option value="PostgreSQL 18" {% if versiones_pg == "PostgreSQL 18" %}selected{% endif %}>PostgreSQL 18</option>
-                </select>
+            <div class="opciones-sql">
+                <div class="filtro-versiones">
+                    <h5 style="margin: 0; margin: 5px">Versiones SQL</h5>
+                    <select class="form-select form-select-lg filtro-auto" name="versiones_sql" id="">
+                        <option value="" {% if versiones_sql == "" %}selected{% endif %}>Todas las versiones</option>
+                        <option value="2012" {% if versiones_sql == "2012" %}selected{% endif %}>SQL Server 2012</option>
+                        <option value="2014" {% if versiones_sql == "2014" %}selected{% endif %}>SQL Server 2014</option>
+                        <option value="2016" {% if versiones_sql == "2016" %}selected{% endif %}>SQL Server 2016</option>
+                        <option value="2017" {% if versiones_sql == "2017" %}selected{% endif %}>SQL Server 2017</option>
+                        <option value="2019" {% if versiones_sql == "2019" %}selected{% endif %}>SQL Server 2019</option>
+                        <option value="2022" {% if versiones_sql == "2022" %}selected{% endif %}>SQL Server 2022</option>
+                        <option value="2025" {% if versiones_sql == "2025" %}selected{% endif %}>SQL Server 2025</option>
+                    </select>
+                </div>
+                <div class="filtro-versiones">
+                    <h5 style="margin: 0; margin: 5px">Versiones PG</h5>
+                    <select class="form-select form-select-lg filtro-auto" name="versiones_pg" id="">
+                        <option value="" {% if versiones_pg == "" %}selected{% endif %}>Todas las versiones</option>
+                        <option value="PostgreSQL 14" {% if versiones_pg == "PostgreSQL 14" %}selected{% endif %}>PostgreSQL 14</option>
+                        <option value="PostgreSQL 15" {% if versiones_pg == "PostgreSQL 15" %}selected{% endif %}>PostgreSQL 15</option>
+                        <option value="PostgreSQL 16" {% if versiones_pg == "PostgreSQL 16" %}selected{% endif %}>PostgreSQL 16</option>
+                        <option value="PostgreSQL 17" {% if versiones_pg == "PostgreSQL 17" %}selected{% endif %}>PostgreSQL 17</option>
+                        <option value="PostgreSQL 18" {% if versiones_pg == "PostgreSQL 18" %}selected{% endif %}>PostgreSQL 18</option>
+                    </select>
+                </div>
+                <div class="filtro-cliente">
+                    <h5 style="margin: 0; margin: 5px">Clientes</h5>
+                    <select class="form-select form-select-lg filtro-auto" name="cliente_actual" id="">
+                        <option value="" {% if cliente_actual == "" %}selected{% endif %}>Todos los Clientes</option>
+                        {% for cli in clientes %}
+                            <option value="{{cli.nombre}}" {% if cliente_actual == cli.nombre %}selected{% endif %}>{{cli.nombre}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filtro-administrados">
+                    <h5 style="margin: 0; margin: 5px">Administrados</h5>
+                    <select class="form-select form-select-lg filtro-auto" name="administrados" id="">
+                        <option value="" {% if administrados == "" %}selected{% endif %}>Todos</option>
+                        <option value="True" {% if administrados == "True" %}selected{% endif %}>Si</option>
+                        <option value="False" {% if administrados == "False" %}selected{% endif %}>No</option>
+                    </select>
+                </div>
             </div>
-            <div class="filtro-cliente">
-                <h5 style="margin: 0; margin: 5px">Clientes</h5>
-                <select class="form-select form-select-lg filtro-auto" name="cliente_actual" id="">
-                    <option value="" {% if cliente_actual == "" %}selected{% endif %}>Todos los Clientes</option>
-                    {% for cli in clientes %}
-                        <option value="{{cli.nombre}}" {% if cliente_actual == cli.nombre %}selected{% endif %}>{{cli.nombre}}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="filtro-administrados">
-                <h5 style="margin: 0; margin: 5px">Administrados</h5>
-                <select class="form-select form-select-lg filtro-auto" name="administrados" id="">
-                    <option value="" {% if administrados == "" %}selected{% endif %}>Todos</option>
-                    <option value="True" {% if administrados == "True" %}selected{% endif %}>Si</option>
-                    <option value="False" {% if administrados == "False" %}selected{% endif %}>No</option>
-                </select>
-            </div>
-        </div>
-</form>
+    </form>
+
+
+    <div id="log-container" style="
+        background:#1e1e1e;
+        color:#d4d4d4;
+        font-family:monospace;
+        font-size:13px;
+        padding:16px;
+        height:500px;
+        overflow-y:auto;
+        border-radius:8px;
+    ">
+        <div id="log-output"></div>
+    </div>
+</div>
 
 
 
@@ -100,10 +117,12 @@
 {% endif %}
 </div>
 
-<form method="POST" action="{% url 'actualizar_inventario' %}">
+<!--<form method="POST" action="{% url 'actualizar_inventario' %}">
     {% csrf_token %}
-    <button type="submit" class="btn btn-primary">Actualizar</button>
-</form>
+    <button type="submit" id="btn-actualizar" class="btn btn-primary">Actualizar</button>
+</form>-->
+
+<button type="submit" id="btn-actualizar" class="btn btn-primary">Actualizar</button>
 
 <div class="tabla-inventario">
 
@@ -330,4 +349,5 @@
 
 <script src="{% static 'js/llamado_cliente.js' %}"></script>
 <script src="{% static 'js/filtro_automatico.js' %}"></script>
+<script src="{% static 'js/logs.js' %}"></script>
 {% endblock %}
