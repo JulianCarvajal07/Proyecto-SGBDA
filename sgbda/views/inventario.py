@@ -5,6 +5,11 @@ from sgbda.models import instancia, cliente, servidor, checkSQL, actualizaciones
 from sgbda.services.actualizar_instancias_v3 import actualizar_instancias_desde_conexiones
 from django.utils import timezone
 from django.db.models import Q
+import queue
+import threading
+import re
+from django.http import StreamingHttpResponse
+from django.views.decorators.http import require_GET
 
 
 #=================================================================================
@@ -65,6 +70,16 @@ def listar_inventario(request):
             servidor__cliente__nombre__icontains=clientes_obj
         )
 
+    # leer resultados de actualización si existen
+    success_msgs = request.session.pop("actualizacion_success", [])
+    error_msgs   = request.session.pop("actualizacion_errors", [])
+
+    for msg in success_msgs:
+        messages.success(request, msg)
+
+    for msg in error_msgs:
+        messages.error(request, msg)
+
     return render(request, 'paginas/inventario.html',{
         'instancias': all_inventario,
         'clientes': all_clientes,
@@ -81,112 +96,144 @@ def listar_inventario(request):
 #=================================================================================
 #=================================================================================
 
-def actualizar_inventario(request):
+def stream_actualizacion(request):
+    log_queue    = queue.Queue()
+    session_key  = request.session.session_key
 
-    try:
+    # asegurar que la sesión existe antes de pasarla al hilo
+    if not session_key:
+        request.session.create()
+        session_key = request.session.session_key
 
-        result = actualizar_instancias_desde_conexiones()
-
-        nuevos_servidores = result["servidores_nuevos"]
-        nuevas_instancias = result["instancias_nuevas"]
-        errores = result["errores"]
-
-        messages.success(
-            request,
-            f"Servidores nuevos: {nuevos_servidores} | Instancias nuevas: {nuevas_instancias}"
-        )
-
-        for error in errores:
-            messages.error(request, error)
-
-        # ✅ opcional: avisar si todo salió limpio
-        if not errores:
-            messages.success(request, "Inventario actualizado sin errores.")
-
-    except Exception as e:
-        messages.error(request, f"Error inesperado: {str(e)}")
-
-#===================================================================
-#               PASO PARA VERIFICAR SI LAS INSTANCIAS
-#               CUENTAN CON LA ULTIMA ACTUALIZACION
-#===================================================================
-    instancias = instancia.objects.all()
-    
-    checks_realizados = 0
-    errores = []
-
-    for inst in instancias:
+    def run():
+        errores_sync      = []
+        errores_check     = []
+        nuevos_servidores = 0
+        nuevas_instancias = 0
+        checks_realizados = 0
 
         try:
-            if inst.edition != 'PostgreSQL':
-                # Extraer solo el año de la major_version de la instancia
-                # la major_version en SQL SERVER se guarda como 'Microsoft SQL Server 2019'
-                match = re.search(r'\d{4}', inst.major_version)
-                version_normalizada = match.group() if match else inst.major_version
+            result = actualizar_instancias_desde_conexiones(log_queue)
+
+            nuevos_servidores = result["servidores_nuevos"]
+            nuevas_instancias = result["instancias_nuevas"]
+            errores_sync      = result["errores"]
+
+            log_queue.put(f"✔ Servidores nuevos: {nuevos_servidores} | Instancias nuevas: {nuevas_instancias}")
+
+            if not errores_sync:
+                log_queue.put("✔ Sincronización completada sin errores.")
             else:
-                # Extraer la version de postgresql
-                # la major version en PostgreSQL se guarda como 'Postgresql 16'
-                match = re.search(r'\d+', inst.major_version)
-                version_normalizada = match.group() if match else inst.major_version
-                            
-            #print(version_normalizada)
+                for e in errores_sync:
+                    log_queue.put(f"✘ {e}")
 
-            # 1. Buscar la actualización más reciente para esa major_version
-            ultima_actualizacion = actualizaciones.objects.filter(
-                major_version=version_normalizada,
-            ).order_by(
-                '-release_date',
-                '-build'
-            ).first()
+            log_queue.put("─── Iniciando verificación de builds ───")
 
-            if not ultima_actualizacion:
-                errores.append(f"No se encontró referencia para versión {inst.major_version} en instancia {inst.nombre_instancia}")
-                continue
+            instancias_qs = instancia.objects.all()
 
-            build_instancia   = inst.build
-            build_referencia  = ultima_actualizacion.build
-            nombre_ultima_update = ultima_actualizacion.descripcion
-            fecha_publicacion = ultima_actualizacion.release_date
+            for inst in instancias_qs:
+                try:
+                    if inst.edition != 'PostgreSQL':
+                        match = re.search(r'\d{4}', inst.major_version)
+                        version_normalizada = match.group() if match else inst.major_version
+                    else:
+                        match = re.search(r'\d+', inst.major_version)
+                        version_normalizada = match.group() if match else inst.major_version
 
-            # 2. Comparar builds
-            if build_instancia == build_referencia:
-                estado  = "Actualizado"
-                detalle = f"La instancia está en el build más reciente ({build_referencia})"
+                    ultima_actualizacion = actualizaciones.objects.filter(
+                        major_version=version_normalizada,
+                    ).order_by('-release_date', '-build').first()
 
-            else:
-                estado  = "Desactualizado"
-                detalle = f"Build actual: {build_instancia} | Build más reciente: {build_referencia} ({ultima_actualizacion.kb})"
+                    if not ultima_actualizacion:
+                        msg = f"Sin referencia para versión {inst.major_version} en {inst.nombre_instancia}"
+                        errores_check.append(msg)
+                        log_queue.put(f"✘ {msg}")
+                        continue
 
-            # 3. Guardar resultado en checkSQL
-            checkSQL.objects.update_or_create(
-                instancia=inst, #clave de busquedad
-                defaults={
-                    "build_detectado":     build_instancia,
-                    "build_referencia":    build_referencia,
-                    "estado":              estado,
-                    "nombre_ultima_update": nombre_ultima_update,
-                    "fecha_publicacion":   fecha_publicacion,
-                    "fecha_check":         timezone.now(),
-                    "detalle":             detalle
-                }
-            )
+                    build_instancia      = inst.build
+                    build_referencia     = ultima_actualizacion.build
+                    nombre_ultima_update = ultima_actualizacion.descripcion
+                    fecha_publicacion    = ultima_actualizacion.release_date
 
-            checks_realizados += 1
+                    if build_instancia == build_referencia:
+                        estado  = "Actualizado"
+                        detalle = f"La instancia está en el build más reciente ({build_referencia})"
+                    else:
+                        estado  = "Desactualizado"
+                        detalle = f"Build actual: {build_instancia} | Build más reciente: {build_referencia} ({ultima_actualizacion.kb})"
+
+                    checkSQL.objects.update_or_create(
+                        instancia=inst,
+                        defaults={
+                            "build_detectado":      build_instancia,
+                            "build_referencia":     build_referencia,
+                            "estado":               estado,
+                            "nombre_ultima_update": nombre_ultima_update,
+                            "fecha_publicacion":    fecha_publicacion,
+                            "fecha_check":          timezone.now(),
+                            "detalle":              detalle
+                        }
+                    )
+
+                    log_queue.put(f"✔ {inst.nombre_instancia} — {estado} (build {build_instancia})")
+                    checks_realizados += 1
+
+                except Exception as e:
+                    msg = f"Error en {inst.nombre_instancia}: {str(e)}"
+                    errores_check.append(msg)
+                    log_queue.put(f"✘ {msg}")
+
+            log_queue.put(f"✔ Checks realizados: {checks_realizados} | Errores: {len(errores_check)}")
 
         except Exception as e:
-            errores.append(f"Error en instancia {inst.nombre_instancia}: {str(e)}")
+            log_queue.put(f"✘ Error inesperado: {str(e)}")
+            errores_check.append(f"Error inesperado: {str(e)}")
 
-    for error in errores:
-        messages.error(request, error)
+        finally:
+            # ── Guardar en sesión directamente desde el hilo ──────────────
+            try:
+                from importlib import import_module
+                from django.conf import settings
 
-    return redirect('listar_inventario')
+                SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
+                session = SessionStore(session_key)
 
+                success_msgs = [
+                    f"Servidores nuevos: {nuevos_servidores} | Instancias nuevas: {nuevas_instancias}",
+                    f"Checks realizados: {checks_realizados}",
+                ]
+                if not errores_sync and not errores_check:
+                    success_msgs.append("Inventario actualizado sin errores.")
+
+                session["actualizacion_success"] = success_msgs
+                session["actualizacion_errors"]  = errores_sync + errores_check
+                session.save()
+
+            except Exception as e_session:
+                print(f"Error guardando sesión: {e_session}")
+
+            finally:
+                log_queue.put(None)  # señal de fin
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+
+    def event_stream():
+        while True:
+            mensaje = log_queue.get()
+            if mensaje is None:
+                yield "event: fin\ndata: Proceso completado\n\n"
+                break
+            yield f"data: {mensaje}\n\n"
+
+    response = StreamingHttpResponse(event_stream(), content_type="text/event-stream")
+    response["Cache-Control"] = "no-cache"
+    response["X-Accel-Buffering"] = "no"
+    return response
 #=================================================================================
 #=================================================================================
 #=================================================================================
 #=================================================================================
-
-
 def detalles_instancia(request):
 
     if request.method == "POST":
@@ -250,3 +297,4 @@ def eliminar_instancia(request):
 #=================================================================================
 #=================================================================================
 #=================================================================================
+

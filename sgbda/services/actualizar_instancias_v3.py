@@ -35,23 +35,23 @@ def conectar_postgresql(ip, puerto, usuario, password):
 
 # ─── Utilidad de reintentos ──────────────────────────────────────────────────
 
-def conectar_con_reintentos(fn_conectar, ip, puerto, usuario, password, max_intentos=4, pausa=3):
+def conectar_con_reintentos(fn_conectar, ip, puerto, usuario, password, log, max_intentos=4, pausa=3):
     ultimo_error = None
 
     for intento in range(1, max_intentos + 1):
         try:
-            print(f"  Intento {intento}/{max_intentos} conectando a {ip}...")
+            log(f"  Intento {intento}/{max_intentos} conectando a {ip}...")
             conn = fn_conectar(ip, puerto, usuario, password)
-            print(f"  Conexión establecida en intento {intento}")
+            log(f"  Conexión establecida en intento {intento}")
             return conn
 
         except Exception as e:
             ultimo_error = e
-            print(f"  Intento {intento} fallido en {ip}: {e}")
+            log(f"  Intento {intento} fallido en {ip}: {e}")
 
             if intento < max_intentos:
                 espera = pausa * intento  # 3s, 6s, 9s
-                print(f"  Esperando {espera}s antes del siguiente intento...")
+                log(f"  Esperando {espera}s antes del siguiente intento...")
                 time.sleep(espera)
 
     raise ultimo_error
@@ -70,7 +70,8 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores, log):
         log(f"Conectando a {c.ip_servidor}...")
         conn = conectar_con_reintentos(
             conectar_sqlserver,
-            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
+            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado,
+            log
         )
         cursor = conn.cursor()
 
@@ -157,8 +158,6 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores, log):
         return nuevos_servidores, nuevas_instancias
 
 # ── FASE 2: Servicios ────────────────────────────────────────────────────
-    conn = None
-    cursor = None
     ultimo_error_servicios = None
 
     for intento in range(1, 5):
@@ -168,7 +167,8 @@ def procesar_sqlserver(c, nuevos_servidores, nuevas_instancias, errores, log):
             log(f"  Intento {intento}/4 obteniendo servicios en {c.ip_servidor}...")
             conn = conectar_con_reintentos(
                 conectar_sqlserver,
-                c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
+                c.ip_servidor, c.puerto, c.usuario, c.password_encriptado,
+                log
             )
             cursor = conn.cursor()
 
@@ -231,7 +231,8 @@ def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores, log):
     try:
         conn = conectar_con_reintentos(
             conectar_postgresql,
-            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
+            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado,
+            log
         )
         cursor = conn.cursor()
 
@@ -320,7 +321,8 @@ def procesar_postgresql(c, nuevos_servidores, nuevas_instancias, errores, log):
     try:
         conn = conectar_con_reintentos(
             conectar_postgresql,
-            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado
+            c.ip_servidor, c.puerto, c.usuario, c.password_encriptado,
+            log
         )
         cursor = conn.cursor()
 

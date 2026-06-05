@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // recargar la tabla después de 2s para reflejar los datos nuevos
             setTimeout(function () {
                 window.location.reload();
-            }, 2000);
+            }, 6000);
         });
 
         source.onerror = function () {
