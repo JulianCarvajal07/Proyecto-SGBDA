@@ -10,7 +10,7 @@ def sync_gdr():
 
     # ── SQL Server ────────────────────────────────────────────────────────────
     URLS_SQL = {
-        "2012": "https://raw.githubusercontent.com/ktaranov/sqlserver-kit/master/SQL%20Server%20Version.md",
+        #"2012": "https://raw.githubusercontent.com/ktaranov/sqlserver-kit/master/SQL%20Server%20Version.md",
         "2014": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2014/build-versions.md",
         "2016": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2016/build-versions.md",
         "2017": "https://raw.githubusercontent.com/MicrosoftDocs/SupportArticles-docs/main/support/sql/releases/sqlserver-2017/build-versions.md",
