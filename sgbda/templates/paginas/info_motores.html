@@ -1,0 +1,459 @@
+{% extends "base.html" %}
+
+{% block titulo %} Motores {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <div class="eyebrow">Guía de traducción arquitectónica</div>
+        <h1 class="title"><span class="a">SQL Server</span><span class="arrow">→</span><span class="b">Oracle</span></h1>
+        <p class="lead">No estás aprendiendo un motor nuevo, estás <b>re-mapeando vocabulario</b>. Cada concepto que ya dominás en SQL Server existe en Oracle, pero las piezas están cortadas en otro lugar. Este mapa recorre las siete capas donde ese corte ocurre.</p>
+        <div class="badge-row">
+        <span class="badge">instancias &amp; bases</span>
+        <span class="badge">schemas &amp; usuarios</span>
+        <span class="badge">tablespaces &amp; datafiles</span>
+        <span class="badge" style="border-color:rgba(217,80,58,.4); color:#E3AFA3;">deep-dive: CDB / PDB</span>
+        <span class="badge">seguridad</span>
+        <span class="badge" style="border-color:rgba(217,80,58,.4); color:#E3AFA3;">deep-dive: RMAN</span>
+        <span class="badge">alta disponibilidad</span>
+        <span class="badge">cheat-sheet T-SQL / PL-SQL</span>
+        </div>
+    </div>
+
+    <div class="legend reveal">
+        <div class="legend-side left"><span class="dot mssql"></span><b>SQL Server</b><span style="color:var(--muted); font-size:13px;">— lo que ya sabés</span></div>
+        <div class="legend-mid">equivale a</div>
+        <div class="legend-side right"><span style="color:var(--muted); font-size:13px;">— lo que estás aprendiendo</span><b>Oracle</b><span class="dot oracle"></span></div>
+    </div>
+
+    <!-- ================= LAYER 1 — INSTANCE MODEL ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">El choque conceptual más grande: instancia ≠ base de datos</h3>
+        </div>
+        <p class="layer-sub">En SQL Server, una instancia es un servidor lógico que hospeda <i>muchas</i> bases de datos independientes. Oracle separa "instancia" (memoria + procesos) de "base de datos" (los archivos físicos) de una forma que no tiene equivalente directo.</p>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Instancia</div>
+            <h4>1 instancia → N bases de datos</h4>
+            <p>Un servicio de Windows (<code>MSSQLSERVER</code> o nombrada) levanta un motor que administra múltiples bases (<code>master</code>, <code>tempdb</code>, y tus bases de usuario) todas visibles desde la misma conexión.</p>
+        </div>
+        <div class="connector"><div class="eq">≠</div></div>
+        <div class="card oracle">
+            <div class="k">Instance + Database</div>
+            <h4>1 instancia ↔ 1 base (o 1 CDB)</h4>
+            <p>La <b>instancia</b> es el conjunto de memoria (SGA/PGA) y procesos en background (PMON, SMON, DBWn, LGWR...). La <b>database</b> es el conjunto físico de datafiles. Normalmente van pegadas 1 a 1 — salvo en RAC, donde varias instancias comparten una sola base.</p>
+        </div>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Desde Oracle 12c</div>
+        <p>El modelo default ya no es "una base = un batch de schemas". Es <b>multitenant</b>: una <b>CDB</b> (Container Database, la "instancia física") contiene varias <b>PDB</b> (Pluggable Databases). Cada PDB es lo más parecido a "una base de datos de usuario" en tu mundo SQL Server — es la unidad que conectás, respaldás y clonás de forma independiente.</p>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — SCHEMA = USER ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">Schema y usuario: en Oracle son la misma cosa</h3>
+        </div>
+        <p class="layer-sub">Esta es la trampa más común para un DBA de SQL Server. En tu mundo, <code>Login</code> y <code>Schema</code> son conceptos separados. En Oracle, no.</p>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Login / User / Schema</div>
+            <h4>Tres capas independientes</h4>
+            <p>El <code>LOGIN</code> vive a nivel servidor. Se mapea a un <code>USER</code> dentro de cada base. El <code>SCHEMA</code> (<code>dbo</code>, <code>ventas</code>...) es solo un namespace de objetos — varios usuarios pueden compartir un schema.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">User = Schema</div>
+            <h4>Una sola entidad</h4>
+            <p>Cuando hacés <code>CREATE USER juan</code>, automáticamente existe el schema <code>JUAN</code>. No hay forma de separarlos: si el usuario existe, el schema existe, y todo objeto que crea le pertenece a ese schema homónimo.</p>
+        </div>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Nombrado de objetos</div>
+            <h4>Tres partes</h4>
+            <p><code>[Base].[Schema].[Objeto]</code><br>ej: <code>Ventas.dbo.Clientes</code></p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Nombrado de objetos</div>
+            <h4>Dos partes</h4>
+            <p><code>[Schema].[Objeto]</code><br>ej: <code>VENTAS.CLIENTES</code> — no hay prefijo de base porque una sesión ya está conectada a una sola (PDB).</p>
+        </div>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Falso amigo</div>
+        <p>No busques un comando tipo <code>CREATE SCHEMA</code> separado de un usuario en Oracle — existe la sintaxis <code>CREATE SCHEMA AUTHORIZATION</code>, pero solo agrupa varias sentencias DDL en una transacción; no crea un namespace independiente del usuario como en SQL Server.</p>
+        </div>
+    </section>
+
+    <!-- ================= DEEP DIVE — MULTITENANT ================= -->
+    <section class="layer reveal deepdive">
+        <div class="layer-head">
+        <span class="layer-num deepdive-num">01.5 — profundización</span>
+        <h3 class="layer-title">Multitenant a fondo: CDB y PDB</h3>
+        </div>
+        <p class="layer-sub">Esto es lo que más rompe la intuición de un DBA de SQL Server, así que vale detenerse. Desde Oracle 12c (y obligatorio desde 20c en Enterprise), toda instalación nueva usa este modelo por defecto.</p>
+
+        <div class="stack-diagram" style="grid-template-columns:1fr;">
+        <div class="stack-col oracle">
+            <div class="head">Anatomía de una instancia Oracle multitenant<span style="font-family:var(--mono); font-size:11px; color:var(--muted); font-weight:400;">1 instancia</span></div>
+            <div class="tier"><div class="t1">CDB — Container Database</div><div class="t2">la "base física" que la instancia monta. Contiene el diccionario de datos compartido y los metadatos comunes a todo el contenedor.</div></div>
+            <div class="tier-arrow">↓ contiene</div>
+            <div class="tier indent"><div class="t1">CDB$ROOT</div><div class="t2">metadatos y objetos comunes de Oracle (paquetes PL/SQL del sistema, vistas del diccionario). No guardás datos de aplicación acá.</div></div>
+            <div class="tier indent"><div class="t1">PDB$SEED</div><div class="t2">plantilla read-only usada para clonar PDBs nuevas rápidamente — nunca la tocás directamente.</div></div>
+            <div class="tier indent"><div class="t1">PDB (1..N) — Pluggable Database</div><div class="t2">acá es donde vive tu "base de datos de negocio". Cada PDB tiene sus propios usuarios, schemas, tablespaces y datafiles — es lo más parecido a una base de usuario de SQL Server.</div></div>
+        </div>
+        </div>
+
+        <div class="pair" style="margin-top:22px;">
+        <div class="card mssql">
+            <div class="k">Tu equivalente mental en SQL Server</div>
+            <h4>Instancia con varias bases</h4>
+            <p>Cuando conectás a un servidor y ves <code>master</code>, <code>tempdb</code>, <code>Ventas</code>, <code>CRM</code> como bases separadas dentro de la misma instancia — esa sensación de "aislamiento lógico, motor compartido" es la que replica el par CDB/PDB.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Diferencia clave</div>
+            <h4>Portabilidad como PK del diseño</h4>
+            <p>Una PDB se puede <code>UNPLUG</code> de una CDB y <code>PLUG</code> en otra — literalmente "enchufar" una base entera en otro servidor físico, algo sin equivalente nativo en SQL Server (lo más cercano: detach/attach de archivos, pero sin el nivel de aislamiento ni portabilidad entre versiones que da Oracle).</p>
+        </div>
+        </div>
+
+        <div class="cheat-wrap" style="margin-top:20px;">
+        <table class="cheat">
+            <thead>
+            <tr><th class="task">Tarea</th><th class="oracle" colspan="2">Comando (SQL*Plus / RMAN)</th></tr>
+            </thead>
+            <tbody>
+            <tr><td class="task">Ver en qué contenedor estoy</td><td colspan="2"><code>SHOW CON_NAME;</code></td></tr>
+            <tr><td class="task">Listar todas las PDBs de la CDB</td><td colspan="2"><code>SELECT name, open_mode FROM v$pdbs;</code></td></tr>
+            <tr><td class="task">Cambiar de contenedor</td><td colspan="2"><code>ALTER SESSION SET CONTAINER = ventas_pdb;</code></td></tr>
+            <tr><td class="task">Crear una PDB nueva desde la seed</td><td colspan="2"><code>CREATE PLUGGABLE DATABASE ventas_pdb ADMIN USER pdbadmin IDENTIFIED BY "...";</code></td></tr>
+            <tr><td class="task">Abrir / cerrar una PDB</td><td colspan="2"><code>ALTER PLUGGABLE DATABASE ventas_pdb OPEN;<br>ALTER PLUGGABLE DATABASE ventas_pdb CLOSE;</code></td></tr>
+            <tr><td class="task">Clonar una PDB existente</td><td colspan="2"><code>CREATE PLUGGABLE DATABASE ventas_qa FROM ventas_pdb;</code></td></tr>
+            <tr><td class="task">Desenchufar / enchufar (migrar)</td><td colspan="2"><code>ALTER PLUGGABLE DATABASE ventas_pdb UNPLUG INTO '...xml';</code><br><code>CREATE PLUGGABLE DATABASE ventas_pdb USING '...xml';</code></td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Por qué existe esto</div>
+        <p>El modelo nació para <b>consolidación</b>: en vez de N instancias completas (cada una con su propio SGA, procesos background, overhead de memoria) para N bases pequeñas, corrés <b>una sola instancia grande</b> con N PDBs livianas adentro — parecido en motivación a por qué vos consolidás varias bases chicas en una sola instancia de SQL Server, pero con aislamiento mucho más fuerte entre "bases".</p>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — STORAGE ================= -->
+
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">Almacenamiento: filegroups vs tablespaces</h3>
+        </div>
+        <p class="layer-sub">La jerarquía física es similar en espíritu, pero Oracle agrega un tablespace obligatorio que no tiene equivalente limpio: UNDO.</p>
+
+        <div class="stack-diagram">
+        <div class="stack-col mssql">
+            <div class="head">SQL Server</div>
+            <div class="tier"><div class="t1">Database</div><div class="t2">unidad lógica</div></div>
+            <div class="tier-arrow">↓</div>
+            <div class="tier indent"><div class="t1">Filegroup (PRIMARY, custom)</div><div class="t2">agrupa archivos de datos</div></div>
+            <div class="tier-arrow">↓</div>
+            <div class="tier indent"><div class="t1">Data files (.mdf / .ndf)</div><div class="t2">archivos físicos de datos</div></div>
+            <div class="tier"><div class="t1">Log file (.ldf)</div><div class="t2">un único transaction log por base, escritura secuencial</div></div>
+            <div class="tier"><div class="t1">tempdb</div><div class="t2">base global compartida: work tables, sorts, versión de filas (RCSI)</div></div>
+        </div>
+        <div class="stack-col oracle">
+            <div class="head">Oracle</div>
+            <div class="tier"><div class="t1">Database / PDB</div><div class="t2">unidad lógica</div></div>
+            <div class="tier-arrow">↓</div>
+            <div class="tier indent"><div class="t1">Tablespace (SYSTEM, SYSAUX, USERS...)</div><div class="t2">agrupa datafiles, análogo a un filegroup</div></div>
+            <div class="tier-arrow">↓</div>
+            <div class="tier indent"><div class="t1">Datafiles (.dbf)</div><div class="t2">archivos físicos de datos</div></div>
+            <div class="tier"><div class="t1">Redo log groups (multiplexados)</div><div class="t2">reemplazan al .ldf; rotan en círculo, se archivan si ARCHIVELOG está activo</div></div>
+            <div class="tier"><div class="t1">UNDO tablespace</div><div class="t2">sin equivalente 1:1 — guarda la imagen "antes" de cada cambio para rollback y lecturas consistentes</div></div>
+            <div class="tier"><div class="t1">TEMP tablespace</div><div class="t2">lo más parecido a tempdb: sorts, hash joins, global temp tables</div></div>
+        </div>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Ajustá tu mapa mental</div>
+        <p>El log de SQL Server es <b>un archivo lineal</b> que truncás con backups de log. En Oracle son <b>grupos de redo logs que rotan</b> (log switch) y, si la base está en modo <code>ARCHIVELOG</code>, cada uno se copia a un archived redo log antes de sobrescribirse — eso es lo que te da recuperación point-in-time, jugando un rol parecido al de tus backups de log pero con una mecánica distinta.</p>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — SECURITY ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">Seguridad y conexión</h3>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Autenticación</div>
+            <h4>Windows Auth o SQL Auth</h4>
+            <p>Te conectás a <code>servidor\instancia</code>. El login puede ser de dominio (Kerberos/NTLM) o SQL nativo.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Autenticación</div>
+            <h4>TNS / Service Name</h4>
+            <p>Te conectás a un <b>service name</b> o SID definido en <code>tnsnames.ora</code>, resuelto por el listener de red (puerto 1521 por defecto). El acceso <code>SYSDBA</code> usa un password file separado, no una cuenta "sa".</p>
+        </div>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Cuenta "todopoderosa"</div>
+            <h4><code>sa</code></h4>
+            <p>Login con sysadmin a nivel instancia. Casi siempre recomendás deshabilitarlo.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Cuenta "todopoderosa"</div>
+            <h4><code>SYS</code> / <code>SYSTEM</code></h4>
+            <p><code>SYS</code> es dueño del diccionario de datos (equivalente a los catálogos del sistema); <code>SYSTEM</code> es la cuenta administrativa de uso diario. Conectarse como <code>SYS</code> exige <code>AS SYSDBA</code>.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — BACKUP ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">Backup &amp; recovery</h3>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Herramienta nativa</div>
+            <h4><code>BACKUP DATABASE</code> / <code>BACKUP LOG</code></h4>
+            <p>Full, Differential, Log — según el recovery model (Simple / Full / Bulk-logged). Restore encadena Full → Diff → Logs.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Herramienta nativa</div>
+            <h4>RMAN (Recovery Manager)</h4>
+            <p>Motor de backup incremental integrado con catálogo propio. Restore usa <code>RESTORE</code> + <code>RECOVER</code> aplicando archived redo logs, conceptualmente similar a tu cadena Full+Log.</p>
+        </div>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Export lógico</div>
+            <h4>Scripts / BCP / bacpac</h4>
+            <p>Para mover solo datos u objetos, no todo el archivo físico.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Export lógico</div>
+            <h4>Data Pump (<code>expdp</code> / <code>impdp</code>)</h4>
+            <p>Exporta schemas, tablas o la base completa a un formato lógico portable — tu herramienta de referencia cuando no querés mover datafiles enteros.</p>
+        </div>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Concepto sin equivalente directo</div>
+        <p><b>Flashback</b>: Oracle permite "retroceder" una tabla o la base entera a un punto anterior sin restaurar backups, usando la información de UNDO. SQL Server no tiene un análogo nativo tan directo (lo más cercano son snapshots de base de datos, que funcionan distinto).</p>
+        </div>
+    </section>
+
+    <!-- ================= DEEP DIVE — RMAN ================= -->
+    <section class="layer reveal deepdive">
+        <div class="layer-head">
+        <span class="layer-num deepdive-num">05.5 — profundización</span>
+        <h3 class="layer-title">RMAN a fondo</h3>
+        </div>
+        <p class="layer-sub">RMAN no es un comando suelto como <code>BACKUP DATABASE</code>: es una <b>herramienta cliente con su propia consola</b> que se conecta a la instancia objetivo (y opcionalmente a un catálogo separado) para orquestar todo el ciclo de backup/recovery.</p>
+
+        <div class="stack-diagram" style="grid-template-columns:1fr;">
+        <div class="stack-col oracle">
+            <div class="head">Cómo se arma un flujo de RMAN</div>
+            <div class="tier"><div class="t1">Conexión</div><div class="t2"><code>rman TARGET / </code> (o <code>TARGET sys/pwd@servicio</code>) — te conectás a la base sobre la que operás, el "target".</div></div>
+            <div class="tier-arrow">↓ opcional</div>
+            <div class="tier indent"><div class="t1">Recovery Catalog</div><div class="t2">una base separada (o schema) donde RMAN guarda metadatos de todos los backups históricos de varias bases. Sin catálogo, usa el <b>control file</b> de la propia base — suficiente en la mayoría de los casos, igual que vos confiás en <code>msdb</code> para el historial de backups en SQL Server.</div></div>
+            <div class="tier"><div class="t1">Channels</div><div class="t2">canales de E/S paralelos hacia disco o cinta — es lo que te da paralelismo en el backup, conceptualmente similar a usar múltiples archivos de destino en <code>BACKUP DATABASE ... TO DISK</code> con varios <code>.bak</code>.</div></div>
+            <div class="tier"><div class="t1">Backup incremental nivel 0 / 1</div><div class="t2">nivel 0 = full baseline. Nivel 1 = solo bloques modificados desde el último backup — el verdadero equivalente a tu Differential, pero acumulable en cadena, no solo contra el último full.</div></div>
+        </div>
+        </div>
+
+        <div class="pair" style="margin-top:22px;">
+        <div class="card mssql">
+            <div class="k">Concepto SQL Server</div>
+            <h4>Recovery Model</h4>
+            <p>Simple / Full / Bulk-logged define si podés hacer backups de log y point-in-time recovery.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Concepto Oracle</div>
+            <h4>ARCHIVELOG mode</h4>
+            <p>Con <code>ARCHIVELOG</code> activado, los redo logs se archivan antes de reciclarse, habilitando recovery a un punto exacto en el tiempo — es el interruptor equivalente a elegir Full en vez de Simple.</p>
+        </div>
+        </div>
+
+        <div class="cheat-wrap" style="margin-top:20px;">
+        <table class="cheat">
+            <thead>
+            <tr><th class="task">Tarea</th><th class="oracle" colspan="2">Comando RMAN</th></tr>
+            </thead>
+            <tbody>
+            <tr><td class="task">Entrar a la consola</td><td colspan="2"><code>rman TARGET /</code></td></tr>
+            <tr><td class="task">Backup full (nivel 0)</td><td colspan="2"><code>BACKUP INCREMENTAL LEVEL 0 DATABASE;</code></td></tr>
+            <tr><td class="task">Backup incremental (nivel 1)</td><td colspan="2"><code>BACKUP INCREMENTAL LEVEL 1 DATABASE;</code></td></tr>
+            <tr><td class="task">Backup de archived redo logs</td><td colspan="2"><code>BACKUP ARCHIVELOG ALL;</code></td></tr>
+            <tr><td class="task">Ver backups existentes</td><td colspan="2"><code>LIST BACKUP SUMMARY;</code></td></tr>
+            <tr><td class="task">Validar integridad sin restaurar</td><td colspan="2"><code>RESTORE DATABASE VALIDATE;</code></td></tr>
+            <tr><td class="task">Restore + recover completo</td><td colspan="2"><code>RESTORE DATABASE;<br>RECOVER DATABASE;</code></td></tr>
+            <tr><td class="task">Point-in-time recovery</td><td colspan="2"><code>RUN {<br>&nbsp;&nbsp;SET UNTIL TIME "TO_DATE('...','YYYY-MM-DD HH24:MI:SS')";<br>&nbsp;&nbsp;RESTORE DATABASE;<br>&nbsp;&nbsp;RECOVER DATABASE;<br>}</code></td></tr>
+            <tr><td class="task">Borrar backups obsoletos según política</td><td colspan="2"><code>DELETE OBSOLETE;</code></td></tr>
+            </tbody>
+        </table>
+        </div>
+
+        <div class="callout">
+        <div class="flag">Mapa mental rápido</div>
+        <p><code>BACKUP INCREMENTAL LEVEL 0</code> ≈ tu <code>BACKUP DATABASE</code> (Full). <code>BACKUP INCREMENTAL LEVEL 1</code> ≈ tu <code>BACKUP DATABASE ... WITH DIFFERENTIAL</code>. <code>BACKUP ARCHIVELOG ALL</code> ≈ tu <code>BACKUP LOG</code>. La diferencia mayor: RMAN sabe automáticamente qué bloques cambiaron a nivel de motor (no depende de un bitmap de cambios como el que usa SQL Server para los diferenciales), y todo el catálogo de qué-se-respaldó-cuándo lo mantiene RMAN mismo, no vos a mano.</p>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 6 — HA ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">06</span>
+        <h3 class="layer-title">Alta disponibilidad</h3>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Clustering activo-activo</div>
+            <h4>— (no existe activo-activo real)</h4>
+            <p>AlwaysOn FCI es activo-pasivo a nivel instancia (almacenamiento compartido).</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Clustering activo-activo</div>
+            <h4>RAC (Real Application Clusters)</h4>
+            <p>Varias <i>instancias</i> en distintos nodos acceden a la <i>misma</i> base compartida simultáneamente. Esto es posible justamente porque instancia y base están desacopladas (capa 01).</p>
+        </div>
+        </div>
+
+        <div class="pair">
+        <div class="card mssql">
+            <div class="k">Réplica / DR</div>
+            <h4>AlwaysOn Availability Groups</h4>
+            <p>Réplicas síncronas/asíncronas a nivel base de datos, con failover automático.</p>
+        </div>
+        <div class="connector"><div class="eq">≈</div></div>
+        <div class="card oracle">
+            <div class="k">Réplica / DR</div>
+            <h4>Data Guard</h4>
+            <p>Base primaria + standby(s) físicas o lógicas, aplicando redo en modo síncrono o asíncrono. El rol más parecido conceptualmente a un Availability Group.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 7 — CHEATSHEET ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">07</span>
+        <h3 class="layer-title">Cheat-sheet rápido: T-SQL vs PL/SQL</h3>
+        </div>
+        <p class="layer-sub">Para las tareas que hacés todos los días como DBA.</p>
+
+        <div class="cheat-wrap">
+        <table class="cheat">
+            <thead>
+            <tr>
+                <th class="task">Tarea</th>
+                <th class="mssql">SQL Server</th>
+                <th class="oracle">Oracle</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="task">Ver instancia actual</td>
+                <td><code>SELECT @@SERVERNAME</code></td>
+                <td><code>SELECT instance_name FROM v$instance;</code></td>
+            </tr>
+            <tr>
+                <td class="task">Listar bases / PDBs</td>
+                <td><code>SELECT name FROM sys.databases;</code></td>
+                <td><code>SELECT name FROM v$pdbs;</code></td>
+            </tr>
+            <tr>
+                <td class="task">Crear login + usuario</td>
+                <td><code>CREATE LOGIN juan WITH PASSWORD='...';<br>CREATE USER juan FOR LOGIN juan;</code></td>
+                <td><code>CREATE USER juan IDENTIFIED BY "...";</code></td>
+            </tr>
+            <tr>
+                <td class="task">Dar permiso de lectura</td>
+                <td><code>GRANT SELECT ON dbo.Clientes TO juan;</code></td>
+                <td><code>GRANT SELECT ON ventas.clientes TO juan;</code></td>
+            </tr>
+            <tr>
+                <td class="task">Ver sesiones activas</td>
+                <td><code>SELECT * FROM sys.dm_exec_sessions;</code></td>
+                <td><code>SELECT * FROM v$session;</code></td>
+            </tr>
+            <tr>
+                <td class="task">Matar una sesión</td>
+                <td><code>KILL 62;</code></td>
+                <td><code>ALTER SYSTEM KILL SESSION '62,451';</code></td>
+            </tr>
+            <tr>
+                <td class="task">Espacio usado por objeto</td>
+                <td><code>EXEC sp_spaceused 'dbo.Clientes';</code></td>
+                <td><code>SELECT bytes FROM dba_segments WHERE segment_name='CLIENTES';</code></td>
+            </tr>
+            <tr>
+                <td class="task">Autoincremento</td>
+                <td><code>id INT IDENTITY(1,1)</code></td>
+                <td><code>id NUMBER GENERATED AS IDENTITY</code> <span style="color:var(--muted)">(12c+)</span></td>
+            </tr>
+            <tr>
+                <td class="task">Paginación</td>
+                <td><code>ORDER BY id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY</code></td>
+                <td><code>ORDER BY id OFFSET 20 ROWS FETCH NEXT 10 ROWS ONLY</code> <span style="color:var(--muted)">(12c+, ya casi idéntico)</span></td>
+            </tr>
+            <tr>
+                <td class="task">Backup completo</td>
+                <td><code>BACKUP DATABASE Ventas TO DISK='...';</code></td>
+                <td><code>RMAN&gt; BACKUP DATABASE;</code></td>
+            </tr>
+            <tr>
+                <td class="task">Bloque de código ad-hoc</td>
+                <td><code>DECLARE @x INT = 1;<br>PRINT @x;</code></td>
+                <td><code>DECLARE x NUMBER := 1;<br>BEGIN<br>&nbsp;&nbsp;DBMS_OUTPUT.PUT_LINE(x);<br>END;</code></td>
+            </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <div class="foot">
+        generado para un DBA de SQL Server aprendiendo Oracle — próximos pasos sugeridos: v$ views, RMAN catalog, y multitenant (CDB/PDB)
+    </div>
+
+    </div>
+
+</div>
+
+<script src="{% static 'js/desvanecimiento_texto.js' %}"></script>
+
+{%endblock%}
