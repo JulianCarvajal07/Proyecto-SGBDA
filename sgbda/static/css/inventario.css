@@ -32,3 +32,9 @@
     display: flex;
     justify-content: space-between;
 }
+
+.btn-actualizar-inventario{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
