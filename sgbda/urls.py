@@ -3,7 +3,7 @@ from .views.bienvenida import bienvenida, inicio
 from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 from .views.conexiones import registro_conexion, listar_conexiones, eliminar_conexion
-from .views.inventario import listar_inventario, detalles_instancia, eliminar_instancia, stream_actualizacion
+from .views.inventario import listar_inventario, detalles_instancia, eliminar_instancia, stream_actualizacion, exportar_excel
 from .views.builds import listar_builds, actualizar_builds
 from .views.clientes import listar_clientes, registro_cliente, modificar_cliente, eliminar_cliente
 from .views.info_motores import informacion_motores
@@ -39,4 +39,6 @@ urlpatterns = [
     path("actualizacion/stream/", stream_actualizacion, name="stream_actualizacion"),
 
     path("informacion_motores/", informacion_motores, name="info_motores"),
+
+    path("generar_excel/", exportar_excel, name="generar_excel"),
 ]

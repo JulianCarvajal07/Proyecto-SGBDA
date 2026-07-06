@@ -119,6 +119,10 @@
 
 <div class="btn-actualizar-inventario">
 <button type="submit" id="btn-actualizar" class="btn btn-primary">Actualizar</button>
+
+<form action="{% url 'generar_excel' %}">
+    <button type="submit" class="btn btn-secondary">Generar Excel</button>
+</form>
 </div>
 
 <div class="tabla-inventario">

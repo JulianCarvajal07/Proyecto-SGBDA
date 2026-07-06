@@ -9,7 +9,9 @@ import queue
 import threading
 import re
 from django.http import StreamingHttpResponse
-from django.views.decorators.http import require_GET
+# from django.views.decorators.http import require_GET
+from django.http import HttpResponse
+from openpyxl import Workbook
 
 
 #=================================================================================
@@ -298,3 +300,85 @@ def eliminar_instancia(request):
 #=================================================================================
 #=================================================================================
 
+def exportar_excel(request):
+
+    instancias_obj = instancia.objects.select_related(
+        'servidor', 
+        'servidor__cliente'
+    ).prefetch_related(
+        'servicios',
+        'checksql'
+    ).all()
+
+    wb = Workbook()
+    ws = wb.active
+
+    ws.title = "Instancias de Bases de datos"
+
+    # Encabezados
+    ws.append([
+        "CLIENTE",
+        "IP",
+        "HOSTNAME",
+        "INSTANCIA",
+        "PUERTO",
+        "S.O",
+        "BUILD",
+        "ULTIMA ACTUALIZACION",
+        "CHECK",
+        "EDICION",
+        "ADMINISTRADO",
+        "OBSERVACIONES",
+        "SERVICIOS"
+    ])
+
+    # Datos
+
+    for inst in instancias_obj:
+
+        # Obtiene el único registro de checkSQL asociado a la instancia
+        check = inst.checksql.first()
+
+        # Si no existe un registro, deja los campos vacíos
+        if check:
+            checks = f"{check.nombre_ultima_update} | {check.build_referencia} | {check.fecha_publicacion}"
+            estado = check.estado
+        else:
+            checks = ""
+            estado = ""
+
+        servicios = "\n".join(
+            f"{s.nombre_servicio} | {s.estado_servicio} | {s.tipo_inicio}"
+            for s in inst.servicios.all()
+        )
+
+        nombre_cliente = ""
+        
+        if inst.servidor.cliente:
+            nombre_cliente = inst.servidor.cliente.nombre
+
+        ws.append([
+            nombre_cliente,
+            inst.servidor.ip,
+            inst.servidor.hostname,
+            inst.nombre_instancia,
+            inst.puerto,
+            inst.servidor.sistema_operativo,
+            inst.build,
+            checks,
+            estado,
+            inst.major_version,
+            inst.administrado,
+            inst.observaciones,
+            servicios
+        ])
+
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response["Content-Disposition"] = 'attachment; filename="Inventario_BDS.xlsx"'
+
+    wb.save(response)
+
+    return response
