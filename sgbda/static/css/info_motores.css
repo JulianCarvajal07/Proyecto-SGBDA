@@ -26,6 +26,8 @@
     --mssql-dim:#2C4B70;
     --oracle:#D9503A;
     --oracle-dim:#6E3227;
+    --postgres:#6EB0DA;
+    --postgres-dim:#1C3548;
     --link:#5FC98A;
     --warn:#E0B84B;
     --mono: 'JetBrains Mono', monospace;
@@ -38,14 +40,15 @@
     margin:0;
     background:
       radial-gradient(ellipse at 15% 0%, rgba(76,143,214,0.08), transparent 45%),
-      radial-gradient(ellipse at 85% 15%, rgba(217,80,58,0.08), transparent 45%),
+      radial-gradient(ellipse at 50% 10%, rgba(217,80,58,0.06), transparent 45%),
+      radial-gradient(ellipse at 85% 15%, rgba(110,176,218,0.06), transparent 45%),
       var(--bg);
     color:var(--text);
     font-family:var(--sans);
     line-height:1.55;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:1180px;margin:0 auto;padding:0 28px;}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 28px;}
 
   /* ---------- HERO ---------- */
   .hero{padding:72px 0 40px;}
@@ -69,9 +72,10 @@
   }
   h1.title .a{color:var(--mssql);}
   h1.title .b{color:var(--oracle);}
-  h1.title .arrow{color:var(--muted); font-weight:500; padding:0 6px;}
+  h1.title .c{color:var(--postgres);}
+  h1.title .sep{color:var(--muted); font-weight:500; padding:0 10px; font-size:0.7em; vertical-align:middle;}
   .hero p.lead{
-    max-width:680px;
+    max-width:780px;
     color:var(--muted);
     font-size:17px;
     margin:0 0 8px;
@@ -85,33 +89,33 @@
     padding:6px 14px; background:var(--panel);
   }
 
-  /* ---------- COLUMN HEADER LEGEND (sticky-ish visual anchor) ---------- */
+  /* ---------- LEGEND (3 columns) ---------- */
   .legend{
-    display:grid; grid-template-columns:1fr 52px 1fr;
-    align-items:center; gap:0;
+    display:grid; grid-template-columns:1fr 1fr 1fr;
+    align-items:center; gap:16px;
     margin:56px 0 0;
   }
   .legend-side{
     display:flex; align-items:center; gap:12px;
     padding:14px 20px; border-radius:12px;
   }
-  .legend-side.left{background:linear-gradient(90deg, rgba(76,143,214,.14), transparent); justify-content:flex-start;}
-  .legend-side.right{background:linear-gradient(270deg, rgba(217,80,58,.14), transparent); justify-content:flex-end; text-align:right;}
+  .legend-side.mssql{background:linear-gradient(90deg, rgba(76,143,214,.14), transparent);}
+  .legend-side.oracle{background:linear-gradient(180deg, rgba(217,80,58,.14), transparent);}
+  .legend-side.postgres{background:linear-gradient(270deg, rgba(110,176,218,.14), transparent);}
   .dot{width:11px;height:11px;border-radius:50%;flex:none;}
   .dot.mssql{background:var(--mssql); box-shadow:0 0 12px rgba(76,143,214,.7);}
   .dot.oracle{background:var(--oracle); box-shadow:0 0 12px rgba(217,80,58,.7);}
+  .dot.postgres{background:var(--postgres); box-shadow:0 0 12px rgba(110,176,218,.7);}
   .legend-side b{font-family:var(--disp); font-size:16px;}
-  .legend-side.left b{color:var(--mssql);}
-  .legend-side.right b{color:var(--oracle);}
-  .legend-mid{
-    font-family:var(--mono); color:var(--muted); font-size:11px;
-    text-align:center; letter-spacing:.05em;
-  }
+  .legend-side.mssql b{color:var(--mssql);}
+  .legend-side.oracle b{color:var(--oracle);}
+  .legend-side.postgres b{color:var(--postgres);}
+  .legend-side span.desc{color:var(--muted); font-size:13px;}
 
   /* ---------- SECTION SCAFFOLD ---------- */
   section.layer{margin:64px 0;}
   .layer-head{
-    display:flex; align-items:baseline; gap:14px; margin-bottom:22px;
+    display:flex; align-items:baseline; gap:14px;
     border-bottom:1px solid var(--line); padding-bottom:16px;
   }
   .layer-num{
@@ -121,14 +125,14 @@
     font-family:var(--disp); font-weight:600; font-size:23px; margin:0;
   }
   .layer-sub{
-    color:var(--muted); font-size:14.5px; margin:8px 0 0; max-width:760px;
+    color:var(--muted); font-size:14.5px; margin:18px 0 18px; max-width:860px;
   }
 
-  /* two-panel comparison row with center connector */
-  .pair{
+  /* three-panel comparison row */
+  .triple{
     display:grid;
-    grid-template-columns:1fr 40px 1fr;
-    gap:0;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:14px;
     align-items:stretch;
     margin-bottom:14px;
   }
@@ -139,36 +143,21 @@
     padding:20px 22px;
     position:relative;
   }
-  .card.mssql{border-left:3px solid var(--mssql);}
-  .card.oracle{border-left:3px solid var(--oracle); border-right:3px solid var(--oracle); border-left:1px solid var(--line);}
+  .card.mssql{border-top:3px solid var(--mssql);}
+  .card.oracle{border-top:3px solid var(--oracle);}
+  .card.postgres{border-top:3px solid var(--postgres);}
   .card .k{
     font-family:var(--mono); font-size:11.5px; letter-spacing:.06em;
     text-transform:uppercase; color:var(--muted); margin-bottom:6px;
   }
   .card.mssql .k{color:var(--mssql);}
   .card.oracle .k{color:var(--oracle);}
-  .card h4{margin:0 0 8px; font-family:var(--disp); font-size:17px; font-weight:600;}
-  .card p{margin:0; color:#B9C3D6; font-size:14.5px;}
-  .card code, .card .code-block{font-family:var(--mono);}
-  .connector{
-    display:flex; align-items:center; justify-content:center;
-    position:relative;
-  }
-  .connector::before, .connector::after{
-    content:""; position:absolute; top:50%; height:1px; width:20px;
-    background:linear-gradient(90deg, var(--mssql), var(--oracle));
-    opacity:.55;
-  }
-  .connector::before{left:-20px;}
-  .connector::after{right:-20px;}
-  .connector .eq{
-    width:26px; height:26px; border-radius:50%;
-    background:var(--panel-2); border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
-    font-family:var(--mono); font-size:12px; color:var(--link); z-index:2;
-  }
+  .card.postgres .k{color:var(--postgres);}
+  .card h4{margin:0 0 8px; font-family:var(--disp); font-size:16px; font-weight:600;}
+  .card p{margin:0; color:#B9C3D6; font-size:14px; line-height:1.6;}
+  .card code, .card .code-block{font-family:var(--mono); font-size:12.5px;}
 
-  /* callout / false friends */
+  /* callout */
   .callout{
     margin-top:18px; padding:16px 20px;
     background:rgba(224,184,75,.07);
@@ -179,44 +168,6 @@
   .callout .flag{font-family:var(--mono); color:var(--warn); font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; flex:none; padding-top:2px;}
   .callout p{margin:0; font-size:14px; color:#D9CFB0;}
   .callout b{color:var(--warn);}
-
-  /* ---------- DEEP DIVE SECTIONS ---------- */
-  section.deepdive{
-    background:linear-gradient(180deg, rgba(217,80,58,.05), transparent 220px);
-    border:1px solid rgba(217,80,58,.22);
-    border-radius:20px;
-    padding:32px 32px 8px;
-    margin:48px 0 64px;
-  }
-  section.deepdive .layer-head{border-bottom-color:rgba(217,80,58,.25);}
-  .deepdive-num{
-    font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase;
-    color:var(--oracle); background:rgba(217,80,58,.12);
-    padding:4px 10px; border-radius:100px; border:1px solid rgba(217,80,58,.3);
-  }
-
-  /* ---------- STORAGE DIAGRAM ---------- */
-  .stack-diagram{
-    display:grid; grid-template-columns:1fr 1fr; gap:26px;
-    margin-top:8px;
-  }
-  .stack-col{
-    background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:22px; display:flex; flex-direction:column; gap:10px;
-  }
-  .stack-col.mssql{border-top:3px solid var(--mssql);}
-  .stack-col.oracle{border-top:3px solid var(--oracle);}
-  .stack-col .head{font-family:var(--disp); font-weight:600; font-size:15px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center;}
-  .stack-col.mssql .head{color:var(--mssql);}
-  .stack-col.oracle .head{color:var(--oracle);}
-  .tier{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:9px;
-    padding:11px 14px;
-  }
-  .tier .t1{font-family:var(--mono); font-size:13px; font-weight:600; color:var(--text);}
-  .tier .t2{font-size:12.5px; color:var(--muted); margin-top:2px;}
-  .tier-arrow{text-align:center; color:var(--muted); font-size:12px; font-family:var(--mono);}
-  .tier.indent{margin-left:16px; width:calc(100% - 16px);}
 
   /* ---------- CHEATSHEET TABLE ---------- */
   .cheat-wrap{
@@ -231,13 +182,14 @@
   table.cheat thead th.task{color:var(--muted); font-family:var(--mono); font-weight:500; font-size:11.5px; text-transform:uppercase; letter-spacing:.06em;}
   table.cheat thead th.mssql{color:var(--mssql);}
   table.cheat thead th.oracle{color:var(--oracle);}
+  table.cheat thead th.postgres{color:var(--postgres);}
   table.cheat td{
     padding:14px 20px; border-bottom:1px solid var(--line); vertical-align:top;
     font-size:13.5px;
   }
-  table.cheat td.task{color:var(--muted); font-family:var(--sans); font-size:13px; width:180px;}
+  table.cheat td.task{color:var(--muted); font-family:var(--sans); font-size:13px; width:200px;}
   table.cheat td code{
-    font-family:var(--mono); font-size:12.5px; color:#CBD5E6;
+    font-family:var(--mono); font-size:12px; color:#CBD5E6;
     background:rgba(255,255,255,.03); padding:2px 6px; border-radius:5px;
     display:inline-block; line-height:1.5;
   }
@@ -250,16 +202,9 @@
     color:var(--muted); font-size:13px; font-family:var(--mono);
   }
 
-  @media (max-width:820px){
-    .pair{grid-template-columns:1fr;}
-    .connector{display:none;}
-    .card.mssql, .card.oracle{border-radius:14px; border:1px solid var(--line);}
-    .card.mssql{border-left:3px solid var(--mssql);}
-    .card.oracle{border-left:3px solid var(--oracle); border-right:1px solid var(--line);}
-    .stack-diagram{grid-template-columns:1fr;}
+  @media (max-width:960px){
+    .triple{grid-template-columns:1fr;}
     .legend{grid-template-columns:1fr; gap:10px;}
-    .legend-side.right{justify-content:flex-start; text-align:left;}
-    .legend-mid{display:none;}
     table.cheat{font-size:12px;}
     td.task{width:auto !important;}
   }
@@ -267,14 +212,11 @@
   .reveal{opacity:0; transform:translateY(14px); transition:opacity .5s ease, transform .5s ease;}
   .reveal.in{opacity:1; transform:none;}
 
-  /* ---------- PRINT / PDF PAGINATION ---------- */
-  .card, .tier, .callout, .stack-col, .legend, .hero,
+  /* print */
+  .card, .callout, .legend, .hero,
   table.cheat tr, .cheat-wrap, .badge-row{
-    break-inside: avoid;
-    page-break-inside: avoid;
+    break-inside: avoid; page-break-inside: avoid;
   }
-  .pair{ break-inside: avoid; page-break-inside: avoid; }
   .layer-head{ break-after: avoid; page-break-after: avoid; }
   section.layer{ break-inside: avoid-page; }
-  section.deepdive{ break-inside: auto; }
   h1.title, .eyebrow{ break-after: avoid; page-break-after: avoid; }
