@@ -95,3 +95,37 @@ body {
     background: #212529 !important;
     border-bottom: 1px solid #2d3239;
 }
+
+/* TRANSICION CARGAR PAGINA */
+
+.transicion-pagina {
+    opacity: 1; /* estado inicial del elemento 1 = visible --> 0 = invisible */
+    transition: opacity .30s ease; /* toda transicion de opacity dura 0.35 segundos */
+}
+
+.transicion-pagina.fade-out {
+    opacity: 0; /* aca el elemento es invisible */
+}
+
+/* 
+el flujo de este codigo funciona asi:
+1) El elemento ya tiene opacity: 1 
+2) se agrega la clase fade-out
+3) opacity cambia de 1 → 0
+4) transition detecta el cambio y lo hace gradualmente durante 0.35s
+5) Resultado: el elemento se desvanece
+*/
+
+.transicion-pagina.fade-enter {
+    opacity: 0; /* aca el elemento es invisible */
+}
+
+/* 
+el flujo de este codigo funciona asi:
+1) El elemento ya tiene opacity: 0 (invisible)
+2) se quita la clase fade-enter
+3) Vuelve al estado base: opacity: 1
+4) transition detecta el cambio y lo hace gradualmente durante 0.35s
+5) Resultado: el elemento aparece gradualmente
+*/
+

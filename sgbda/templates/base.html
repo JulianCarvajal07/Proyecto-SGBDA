@@ -35,12 +35,12 @@
             </div>
             
             <ul class="nav flex-column">
-                <li class="nav-item mb-1"><a href="{% url 'listar_clientes' %}" class="nav-link"><i class="bi bi-building"></i> clientes</a></li>
-                <li class="nav-item mb-1"><a href="{% url 'listar_inventario' %}" class="nav-link"><i class="bi bi-box"></i> Inventario</a></li>
-                <li class="nav-item mb-1"><a href="{% url 'listar_builds' %}" class="nav-link"><i class="bi bi-arrow-clockwise"></i> Builds</a></li>
-                <li class="nav-item mb-1"><a href="{% url 'listar_conexiones' %}" class="nav-link"><i class="bi bi-plug"></i> Conexiones</a></li>
-                <li class="nav-item mb-1"><a href="{% url 'listar_usuarios' %}" class="nav-link"><i class="bi bi-people-fill"></i></i> Usuarios</a></li>
-                <li class="nav-item mb-1"><a href="{% url 'info_motores' %}" class="nav-link"><i class="bi bi-book"></i></i> Informacion motores BD</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_clientes' %}" class="nav-link page-transition"><i class="bi bi-building"></i> Clientes</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_inventario' %}" class="nav-link page-transition"><i class="bi bi-box"></i> Inventario</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_builds' %}" class="nav-link page-transition"><i class="bi bi-arrow-clockwise"></i> Builds</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_conexiones' %}" class="nav-link page-transition"><i class="bi bi-plug"></i> Conexiones</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'listar_usuarios' %}" class="nav-link page-transition"><i class="bi bi-people-fill"></i></i> Usuarios</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'info_motores' %}" class="nav-link page-transition"><i class="bi bi-book"></i></i> Informacion motores BD</a></li>
             </ul>
         </div>
     </div>
@@ -67,8 +67,10 @@
             </div>
         </nav>   
         <div class="contenido-principal">
-            {% block contenido %}
-            {% endblock %}
+            <div class="transicion-pagina fade-enter">
+                {% block contenido %}
+                {% endblock %}
+            </div>
         </div>
     </div>
     
@@ -78,6 +80,7 @@
 <script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'js/mensajes-personalizados.js' %}"></script>
 <script src="{% static 'js/ocultar-opciones.js' %}"></script>
+<script src="{% static 'js/transicion_pagina.js' %}"></script>
 
 </body>
 </html>
