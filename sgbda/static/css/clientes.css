@@ -1,7 +1,7 @@
 .contenedor-clientes{
     display: flex;
     width: 100%;
-    justify-content: center;
+    justify-content: space-between;
     align-items: top;
     gap: 150px;
 }
