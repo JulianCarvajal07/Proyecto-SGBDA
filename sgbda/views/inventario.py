@@ -291,10 +291,10 @@ def eliminar_instancia(request):
         
         if instancia_id and instancia_obj:
             instancia_obj.delete()
-            messages.success(request,"sea eliminado la instancia correctamente")
+            messages.success(request,"se ha eliminado la instancia correctamente")
             return redirect('listar_inventario')
         else:
-            messages.error(request,"Error, al eliminar la instancia")
+            messages.error(request,"Error, la instancia no existe")
             return redirect('listar_inventario')
 
 #=================================================================================

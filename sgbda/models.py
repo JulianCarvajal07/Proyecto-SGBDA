@@ -173,33 +173,16 @@ class actualizaciones(models.Model):
 
 class Asignacion(models.Model):
     """
-    Registra trabajos asignados a clientes.
+    Registra trabajos asignados a clientes en una fecha concreta.
     Dos tipos:
-      - mantenimiento: recurrente mensual por posicion de dia de semana
-      - soporte: trabajo esporadico en fecha exacta
+      - mantenimiento: mantenimiento mensual registrado manualmente cada mes
+      - soporte: trabajo esporadico
+    Cada registro representa un hecho puntual, no una regla recurrente.
     """
 
     MOTIVO_CHOICES = [
         ('mantenimiento', 'Mantenimiento mensual'),
         ('soporte', 'Soporte esporadico'),
-    ]
-
-    DIAS_SEMANA = [
-        (0, 'Lunes'),
-        (1, 'Martes'),
-        (2, 'Miercoles'),
-        (3, 'Jueves'),
-        (4, 'Viernes'),
-        (5, 'Sabado'),
-        (6, 'Domingo'),
-    ]
-
-    POSICIONES = [
-        (1, '1°'),
-        (2, '2°'),
-        (3, '3°'),
-        (4, '4°'),
-        (5, '5° (ultimo)'),
     ]
 
     cliente = models.ForeignKey(
@@ -215,23 +198,7 @@ class Asignacion(models.Model):
         verbose_name='motivo'
     )
 
-    dia_semana = models.PositiveSmallIntegerField(
-        choices=DIAS_SEMANA,
-        null=True,
-        blank=True,
-        verbose_name='dia de la semana'
-    )
-
-    posicion_mes = models.PositiveSmallIntegerField(
-        choices=POSICIONES,
-        null=True,
-        blank=True,
-        verbose_name='posicion en el mes'
-    )
-
     fecha_exacta = models.DateField(
-        null=True,
-        blank=True,
         verbose_name='fecha exacta'
     )
 
@@ -241,47 +208,8 @@ class Asignacion(models.Model):
         verbose_name_plural = 'asignaciones'
         indexes = [
             models.Index(fields=['cliente', 'motivo']),
-            models.Index(fields=['motivo', 'dia_semana', 'posicion_mes']),
             models.Index(fields=['motivo', 'fecha_exacta']),
         ]
 
     def __str__(self):
-        if self.motivo == 'mantenimiento':
-            return f"{self.cliente} - {self.get_posicion_mes_display()} {self.get_dia_semana_display()}"
-        return f"{self.cliente} - soporte {self.fecha_exacta}"
-
-    def clean(self):
-        """
-        Valida que los campos correspondan al motivo.
-        """
-        if self.motivo == 'mantenimiento':
-            if self.dia_semana is None:
-                raise ValidationError({
-                    'dia_semana': 'El dia de la semana es obligatorio para mantenimiento.'
-                })
-            if self.posicion_mes is None:
-                raise ValidationError({
-                    'posicion_mes': 'La posicion en el mes es obligatoria para mantenimiento.'
-                })
-            if self.fecha_exacta is not None:
-                raise ValidationError({
-                    'fecha_exacta': 'La fecha exacta no aplica para mantenimiento.'
-                })
-
-        elif self.motivo == 'soporte':
-            if self.fecha_exacta is None:
-                raise ValidationError({
-                    'fecha_exacta': 'La fecha exacta es obligatoria para soporte.'
-                })
-            if self.dia_semana is not None:
-                raise ValidationError({
-                    'dia_semana': 'El dia de la semana no aplica para soporte.'
-                })
-            if self.posicion_mes is not None:
-                raise ValidationError({
-                    'posicion_mes': 'La posicion en el mes no aplica para soporte.'
-                })
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
+        return f"{self.cliente} - {self.get_motivo_display()} {self.fecha_exacta}"

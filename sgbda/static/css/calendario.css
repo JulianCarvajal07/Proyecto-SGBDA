@@ -1,0 +1,174 @@
+/* sgdba/static/css/calendario.css */
+
+/* Contenedor principal */
+.calendario-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header con navegación */
+.calendario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px 12px 0 0;
+}
+
+.calendario-header h2 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.calendario-header button {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.calendario-header button:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Tabla del calendario */
+.calendario-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 0 0 12px 12px;
+    overflow: hidden;
+}
+
+/* Encabezados de días */
+.calendario-table th {
+    background: #f8f9fa;
+    padding: 18px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Celdas de días */
+.calendario-table td {
+    width: 14.28%;
+    height: 140px;
+    min-height: 140px;
+    vertical-align: top;
+    padding: 12px;
+    border: 1px solid #e9ecef;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.calendario-table td:hover {
+    background: #f8f9ff;
+}
+
+/* Celdas vacías (días de otro mes) */
+.calendario-table td.empty {
+    background: #fafbfc;
+}
+
+/* Número del día */
+.day-number {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Día actual */
+.day-number.today {
+    background: #667eea;
+    color: white;
+}
+
+/* Asignaciones dentro
+
+
+/* Ajustes para Bootstrap */
+.calendario-table td {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.calendario-table td:hover {
+    background-color: #e9ecef;
+}
+
+.asignamiento-cliente{
+    margin: 0;
+}
+
+.assignment.mantenimiento {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    background: #fff3cd;
+    border-left: 3px solid #ffc107;
+    color: #856404;
+    margin-bottom: 5px;
+    padding: 5px;
+}
+
+.assignment.soporte {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    background: #d1ecf1;
+    border-left: 3px solid #17a2b8;
+    color: #0c5460;
+    margin-bottom: 5px;
+    padding: 5px;
+}
+
+.assignment strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.assignment small {
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Boton para eliminar registro de nota */
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-icon-sm {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+}
+
+.btn-icon-sm i {
+  font-size: 11px;
+}

@@ -1,0 +1,61 @@
+<div class="calendario-header">
+    <button hx-get="{% url 'calendario_mes' ano_ant mes_ant %}"
+            hx-target="#calendario-body"
+            hx-swap="innerHTML">
+        ◀ Anterior
+    </button>
+    
+    <h2 data-year="{{ year }}" data-month="{{ month }}">{{ month_name }} {{ year }}</h2>
+    
+    <button hx-get="{% url 'calendario_mes' ano_sig mes_sig %}"
+            hx-target="#calendario-body"
+            hx-swap="innerHTML">
+        Siguiente ▶
+    </button>
+</div>
+
+<table class="calendario-table">
+    <thead>
+        <tr>
+            <th>Lun</th><th>Mar</th><th>Mié</th>
+            <th>Jue</th><th>Vie</th><th>Sáb</th><th>Dom</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for semana in semanas %}
+        <tr>
+            {% for dia_info in semana %}
+                {% if dia_info.dia == 0 %}
+                    <td class="empty"></td>
+                {% else %}
+                    <td onclick="abrirModal('{{ year }}', '{{ month|stringformat:"02d" }}', '{{ dia_info.dia|stringformat:"02d" }}', {{ dia_info.dia_semana }}, {{ dia_info.posicion_mes }})" 
+                        style="cursor: pointer;">
+                        
+                        <span class="day-number {% if dia_info.dia == hoy.day and year == hoy.year and month == hoy.month %}today{% endif %}">
+                            {{ dia_info.dia }}
+                        </span>
+                        
+                        {% for asig in dia_info.asignaciones %}
+                            <div class="assignment {{ asig.motivo }}">
+                                <p class="asignamiento-cliente">{{ asig.cliente.nombre }}</p>
+                                <form 
+                                    hx-post="{% url 'eliminar_asignacion' %}" 
+                                    hx-target="#calendario-body"
+                                    hx-swap="innerHTML"
+                                    onclick="event.stopPropagation()">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="asignacion-id" value="{{asig.id}}">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm btn-icon btn-icon-sm">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+

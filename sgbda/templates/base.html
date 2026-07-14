@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{% static 'css/filtro-personalizado.css' %}">
     <link rel="stylesheet" href="{% static 'css/root.css' %}">
     <link rel="stylesheet" href="{% static 'css/info_motores.css' %}">
+    <link rel="stylesheet" href="{% static 'css/calendario.css' %}">
 </head>
 
 <body>
@@ -41,6 +42,7 @@
                 <li class="nav-item mb-1"><a href="{% url 'listar_conexiones' %}" class="nav-link page-transition"><i class="bi bi-plug"></i> Conexiones</a></li>
                 <li class="nav-item mb-1"><a href="{% url 'listar_usuarios' %}" class="nav-link page-transition"><i class="bi bi-people-fill"></i></i> Usuarios</a></li>
                 <li class="nav-item mb-1"><a href="{% url 'info_motores' %}" class="nav-link page-transition"><i class="bi bi-book"></i></i> Informacion motores BD</a></li>
+                <li class="nav-item mb-1"><a href="{% url 'calendario' %}" class="nav-link page-transition"><i class="bi bi-calendar-week"></i> Calendario</a></li>
             </ul>
         </div>
     </div>
@@ -76,11 +78,15 @@
     
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/base.js' %}"></script>
 <script src="{% static 'js/mensajes-personalizados.js' %}"></script>
 <script src="{% static 'js/ocultar-opciones.js' %}"></script>
 <script src="{% static 'js/transicion_pagina.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/htmx.min.js' %}"></script>
+
+<!-- Tu script al final -->
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>

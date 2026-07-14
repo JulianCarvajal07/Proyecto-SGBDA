@@ -7,6 +7,7 @@ from .views.inventario import listar_inventario, detalles_instancia, eliminar_in
 from .views.builds import listar_builds, actualizar_builds
 from .views.clientes import listar_clientes, registro_cliente, modificar_cliente, eliminar_cliente
 from .views.info_motores import informacion_motores
+from .views.calendario import calendario_view, crear_asignacion, eliminar_asignacion
 from django.contrib.auth.views import LogoutView
 
 
@@ -41,4 +42,14 @@ urlpatterns = [
     path("informacion_motores/", informacion_motores, name="info_motores"),
 
     path("generar_excel/", exportar_excel, name="generar_excel"),
+
+    # Carga inicial (mes actual)
+    path('calendario/', calendario_view, name='calendario'),
+    # Navegación entre meses
+    path('calendario/<int:year>/<int:month>/', calendario_view, name='calendario_mes'),
+
+    # API para crear asignaciones
+    path('crea_asignacion/', crear_asignacion, name='crear_asignacion'),
+    path('eliminar_calendario/', eliminar_asignacion, name='eliminar_asignacion'),
+
 ]

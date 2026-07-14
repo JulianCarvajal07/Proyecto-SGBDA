@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block titulo %} Calendario {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+<div class="contenedor-alerta">
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert-custom 
+            {% if message.tags == 'success' %}alert-success-custom
+            {% elif message.tags == 'error' %}alert-danger-custom
+            {% elif message.tags == 'warning' %}alert-warning-custom
+            {% else %}alert-info-custom{% endif %}">
+            {% if message.tags == 'success' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                    <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+            {% elif message.tags == 'error' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+            {% elif message.tags == 'warning' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+            {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+            {% endif %}
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+
+<div id="calendario-container">
+    <div id="calendario-body">
+        {% include 'paginas/calendario_fragmento.html' %}
+    </div>
+</div>
+
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="modalAsignacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nueva Asignación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form 
+            id="form-asignacion"
+            hx-post="{% url 'crear_asignacion' %}"
+            hx-target="#calendario-body"
+            hx-swap="innerHTML">
+            <div class="modal-body">
+
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Cliente</label>
+                        <select name="cliente" class="form-select" required>
+                            <option value="">Seleccione...</option>
+                            {% for cliente in clientes %}
+                            <option value="{{ cliente.id_cliente }}">{{ cliente.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Motivo</label>
+                        <select name="motivo" id="modal-motivo" class="form-select" required>
+                            <option value="mantenimiento">Mantenimiento</option>
+                            <option value="soporte">Soporte</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" name="fecha_exacta" id="modal-fecha-exacta" class="form-control" required>
+                    </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/asignacion_MTTO.js' %}"></script>
+{% endblock %}
