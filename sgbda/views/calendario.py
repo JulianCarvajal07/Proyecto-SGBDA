@@ -15,7 +15,11 @@ def calendario_view(request, year=None, month=None):
     context = obtener_contexto_calendario(year, month)
  
     if request.headers.get('HX-Request') == 'true':
-        html = render_to_string('paginas/calendario_fragmento.html', context)
+        html = render_to_string(
+            'paginas/calendario_fragmento.html', 
+            context,
+            request=request
+            )
         return HttpResponse(html)
  
     return render(request, 'paginas/calendario.html', context)
