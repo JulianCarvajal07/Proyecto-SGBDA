@@ -26,6 +26,22 @@ def obtener_contexto_calendario (year=None, month=None):
     hoy = date.today()
     year = year or hoy.year
     month = month or hoy.month
+
+    MESES = [
+    "",
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+    ]
  
     # === ASIGNACIONES DEL MES ===
     # Ya no hay cálculo de patrones: todo registro tiene fecha_exacta,
@@ -78,7 +94,7 @@ def obtener_contexto_calendario (year=None, month=None):
     context = {
         'year': year,
         'month': month,
-        'month_name': calendar.month_name[month],
+        'month_name': MESES[month],
         'semanas': semanas,
         'hoy': hoy,
         'mes_ant': mes_ant,
