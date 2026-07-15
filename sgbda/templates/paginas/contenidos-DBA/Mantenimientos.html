@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block titulo %} Motores BD {% endblock %} 
+{% block titulo %} Mantenimientos {% endblock %} 
 
 {% load static %}
 
@@ -21,56 +21,42 @@
     <div class="wrap">
 
     <div class="hero">
-        <div class="eyebrow">Comparativa de arquitectura</div>
-        <h1 class="title"><span class="a">SQL Server</span><span class="sep">·</span><span class="b">Oracle</span><span class="sep">·</span><span class="c">PostgreSQL</span></h1>
-        <p class="lead">Esta guía presenta un <b>mapeo arquitectónico comparativo</b> de los tres motores de base de datos relacionales más utilizados en entornos empresariales. Su propósito es ofrecer al administrador de bases de datos una visión sintetizada de las equivalencias conceptuales, las diferencias estructurales y los puntos de atención críticos para la administración diaria de cada sistema.</p>
-        <div class="badge-row">
-        <span class="badge">instancias y bases de datos</span>
-        <span class="badge">usuarios y schemas</span>
-        <span class="badge">tablespaces y almacenamiento</span>
-        <span class="badge">red y conectividad</span>
-        <span class="badge">backups y recuperación</span>
-        <span class="badge">alta disponibilidad</span>
-        <span class="badge">memoria y concurrencia</span>
-        <span class="badge">referencia rápida</span>
-        </div>
-    </div>
-
-    <div class="legend reveal">
-        <div class="legend-side mssql"><span class="dot mssql"></span><b>SQL Server</b><span class="desc">— arquitectura basada en hilos</span></div>
-        <div class="legend-side oracle"><span class="dot oracle"></span><b>Oracle</b><span class="desc">— arquitectura multi-proceso</span></div>
-        <div class="legend-side postgres"><span class="dot postgres"></span><b>PostgreSQL</b><span class="desc">— arquitectura por procesos</span></div>
+        <h1 class="title"><span class="a">Guia Mantenimiento</span></h1>
+        <p class="lead">Esta guía presenta un <b>la ejecucion de un mantenimiento</b> para los diferentes clientes con motores de bases de datos sql server. a continuacion se mostra el paso a paso a tener presente:</p>
     </div>
 
     <!-- ================= LAYER 1 — INSTANCE MODEL ================= -->
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">01</span>
-        <h3 class="layer-title">Modelo de instancia y base de datos</h3>
+        <h3 class="layer-title">Chequeo de Integridad</h3>
         </div>
-        <p class="layer-sub">La relación entre instancia y base de datos constituye la diferencia arquitectónica más profunda entre los tres motores. Comprender esta separación resulta esencial para planificar la consolidación, el aislamiento y la recuperación ante desastres.</p>
+        <p class="layer-sub">El primer paso para realizar un manteniminento sera ejecutar un chequeo de integridad para cada base de datos presente en la instancia
+            debemos tener presente que dicho paso se encuentra automatizado con un archivo ".bat":
+        </p>
 
-        <div class="triple">
+
+        <div class="doble">
         <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Una instancia, múltiples bases</h4>
-            <p>Un único servicio (<code>sqlservr.exe</code>) gestiona múltiples bases de datos independientes (<code>master</code>, <code>msdb</code>, <code>tempdb</code> y las bases de usuario). Todas las bases comparten el mismo motor de ejecución, el buffer pool y el plan cache, pero mantienen catálogos y archivos físicos separados.</p>
+            <h4>Verificar Bases de Datos</h4>
+            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>chequeo_integridad.bat</code> o <code>chequeo.bat</code>
+                antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
+                registradas en dicho archivo.
+            </p>
         </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Instancia y base desacoplables</h4>
-            <p>La <b>instancia</b> (memoria SGA/PGA + procesos background: PMON, SMON, DBWn, LGWR) se desacopla de la <b>base de datos</b> (conjunto de datafiles). Tradicionalmente 1:1, salvo en RAC donde múltiples instancias acceden a una misma base. Desde Oracle 12c, el modelo multitenant (CDB/PDB) permite que una instancia albergue múltiples bases pluggables.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Un cluster, múltiples bases</h4>
-            <p>Una instancia de PostgreSQL se denomina <b>cluster</b> y gestiona múltiples bases de datos independientes. Cada conexión se establece contra una base específica; no es posible realizar consultas cruzadas entre bases sin utilizar extensiones como <code>dblink</code> o <code>postgres_fdw</code>.</p>
+        <div class="card mssql">
+            <h4>Ejecutar Archivo .bat</h4>
+            <p> luego de la verificacion del archivo <code>chequeo_integridad.bat</code>. debemos dar click derecho
+                en dicho archivo y ejecutar como <b>administrador</b>, se abrira una <code>terminal</code> en el cual empezara a ejecutar dicho
+                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con el <b>chequeo</b> teniendo presente
+                la ruta establecida. 
+            </p>
         </div>
         </div>
 
-        <div class="callout">
-        <div class="flag">Punto de atención</div>
-        <p>En Oracle, el concepto de <b>instancia</b> no equivale al de SQL Server. Una instancia Oracle puede arrancar (<code>NOMOUNT</code>), montar (<code>MOUNT</code>) o abrir (<code>OPEN</code>) una base de datos, lo que permite realizar tareas de recuperación sin exponer datos al usuario. En SQL Server, el servicio y la base se levantan de forma conjunta.</p>
+        <div class="images">
+            <img src="{% static 'contenidos/mantenimientos/paso_2.png' %}" alt="imagen"> 
+            <img src="{% static 'contenidos/mantenimientos/paso_1.png' %}" alt="imagen"> 
         </div>
     </section>
 
@@ -78,32 +64,263 @@
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">02</span>
-        <h3 class="layer-title">Usuarios, roles y schemas</h3>
+        <h3 class="layer-title">Reconstruccion y Reorganizacion de Indices</h3>
         </div>
-        <p class="layer-sub">La gestión de identidades y espacios de nombres varía significativamente entre los tres motores. El administrador debe comprender estas diferencias para evitar errores de seguridad y de diseño de esquemas.</p>
+        <p class="layer-sub">luego de llevar a cabo el chequeo de integridad, se procedera a realizar la <code>Reorganizacion</code> y <code>Reconstruccion</code> de indices para cada instancia presentada en la maquina,
+        debemos tener presente que, para dicho paso, se utilizara otro <b>script</b> para automatizar y optimizar dicho proceso. este script tomara todos los indices creados por el cliente, y dependiento la fragmentacion
+        de cada uno, el script ejecutara una reorganizacion o una Reconstruccion</p>
 
-        <div class="triple">
+        <div class="simple">
         <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Tres capas independientes</h4>
-            <p>El <code>LOGIN</code> reside a nivel de servidor. Se mapea a un <code>USER</code> dentro de cada base de datos. El <code>SCHEMA</code> (<code>dbo</code>, <code>ventas</code>) es un namespace de objetos que puede ser compartido por múltiples usuarios. La nomenclatura de tres partes es <code>[Base].[Schema].[Objeto]</code>.</p>
-        </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Usuario y schema son la misma entidad</h4>
-            <p>Al ejecutar <code>CREATE USER juan</code>, Oracle crea automáticamente el schema homónimo <code>JUAN</code>. No existe la separación entre usuario y schema que caracteriza a SQL Server. La nomenclatura es de dos partes: <code>[Schema].[Objeto]</code>, ya que la sesión ya está vinculada a una única base (o PDB).</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Roles con atributos diferenciados</h4>
-            <p>PostgreSQL unifica logins y usuarios bajo el concepto de <code>ROLE</code>. Un role con el atributo <code>LOGIN</code> equivale a un usuario de conexión. Los schemas son independientes de los roles, aunque por defecto cada role posee un schema homónimo. La nomenclatura es <code>[Schema].[Objeto]</code> dentro de la base conectada.</p>
+            <h4>Reglas</h4>
+            <p><code>-</code> Se <code>Organizara</code> el indice si su fragmentacion es <b>MENOR</b> a <code>30</code>.</p>
+            <p><code>-</code> Se <code>Reconstruira</code> el indice si su fragmentacion es <b>MAYOR</b> a <code>30</code>.</p>
+            <p><code>-</code> En el caso de presentar error con la <code>Reorganizacion</code> debido a un bloqueo a nivel de página por estar deshabilitado 
+                              se reconstruira el indice de forma <code>Manual</code>.</p>
         </div>
         </div>
 
-        <div class="callout">
-        <div class="flag">Falso amigo</div>
-        <p>En Oracle, la sentencia <code>CREATE SCHEMA AUTHORIZATION</code> no crea un namespace independiente del usuario, como ocurre en SQL Server. Solo agrupa múltiples sentencias DDL en una transacción atómica. En PostgreSQL, los roles son globales al cluster, no a una base de datos específica.</p>
+        <div class="code-container">
+            <!-- Barra de título estilo VS Code -->
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Reorganizacion_y_Reconstruccion.sql</span>
+            </div>
+            
+            <!-- Tu código aquí -->
+            <pre class="line-numbers"><code class="language-javascript">
+            -- =====================================================================
+            -- Script combinado: escaneo de fragmentación + ejecución secuencial por lotes
+            -- Ajusta los parámetros al inicio: @reportOnly, @databaseToCheck, @fragmentationThreshold,
+            -- @indexFillFactor, @indexStatisticsScanningMode, @sortInTempdb, @verboseMode, @batchSize
+            -- =====================================================================
+
+            SET NOCOUNT ON;
+            -------------------------------------------------------------
+            -- Parámetros de control (ajusta a tu gusto)
+            -------------------------------------------------------------
+            DECLARE @reportOnly BIT = 0;               -- 1 = solo reporte, 0 = ejecutar
+            DECLARE @databaseToCheck SYSNAME = NULL;   -- NULL = todas (o 'TuDB')
+            DECLARE @fragmentationThreshold INT = 15;  -- umbral para considerar fragmentado
+            DECLARE @indexFillFactor VARCHAR(5) = '90';
+            DECLARE @indexStatisticsScanningMode VARCHAR(20) = 'SAMPLED'; -- 'DEFAULT','LIMITED','SAMPLED','DETAILED'
+            DECLARE @sortInTempdb VARCHAR(3) = 'ON';
+            DECLARE @verboseMode BIT = 0;               -- 1 = prints detallados
+            DECLARE @batchSize INT = 1000;             -- "de mil en mil" -> número de comandos por lote
+            -------------------------------------------------------------
+
+            -- Validaciones simples
+            IF @sortInTempdb NOT IN ('ON','OFF') SET @sortInTempdb='ON';
+
+            -- Preparar tabla temporal de resultados
+            IF OBJECT_ID('tempdb..#tmpFragmentedIndexes') IS NOT NULL DROP TABLE #tmpFragmentedIndexes;
+            CREATE TABLE #tmpFragmentedIndexes
+            (
+                [Id] INT IDENTITY(1,1) PRIMARY KEY,
+                [dbName] sysname,
+                [tableName] sysname,
+                [schemaName] sysname,
+                [indexName] sysname,
+                [databaseID] SMALLINT,
+                [objectID] INT,
+                [indexID] INT,
+                [AvgFragmentationPercentage] FLOAT,
+                [reorganizationOrRebuildCommand] NVARCHAR(MAX),
+                [Executed] BIT DEFAULT(0),
+                [ExecutionResult] NVARCHAR(4000) NULL,
+                [ExecutionDate] DATETIME NULL
+            );
+
+            -- Variables para validaciones
+            DECLARE @isSysAdmin INT;
+            DECLARE @SQLServerVersion INT;
+            SET @isSysAdmin = (SELECT IS_SRVROLEMEMBER('sysadmin'));
+            SET @SQLServerVersion = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50)), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50))) - 1) AS INT));
+
+            IF @isSysAdmin != 1 OR @SQLServerVersion < 9
+            BEGIN
+                PRINT 'Error: requiere ser sysadmin y SQL Server 2005 o superior.';
+                RETURN;
+            END
+
+            -- Revisar si AlwaysOn AGs está habilitado
+            DECLARE @isHadrEnabled BIT = CAST(ISNULL(SERVERPROPERTY('IsHadrEnabled'),0) AS BIT);
+
+            -- Cursor para bases a escanear (respeta AGs si aplica)
+            DECLARE dbNames_cursor CURSOR LOCAL FAST_FORWARD FOR
+            SELECT s.[name] AS dbName, s.database_id
+            FROM master.sys.databases s
+            LEFT JOIN master.sys.dm_hadr_availability_replica_states r ON s.replica_id = r.replica_id
+            WHERE s.state_desc = 'ONLINE'
+            AND s.is_read_only != 1
+            AND s.[name] NOT IN ('master','model','tempdb')
+            AND s.[compatibility_level] >= 90
+            AND (@databaseToCheck IS NULL OR s.[name] = @databaseToCheck)
+            AND (
+                    @isHadrEnabled = 0
+                    OR (@isHadrEnabled = 1 AND UPPER(ISNULL(r.role_desc,'NonHadrEnabled')) NOT LIKE 'SECONDARY')
+                )
+            ORDER BY s.database_id;
+
+            OPEN dbNames_cursor;
+
+            DECLARE @dbname sysname;
+            DECLARE @dbid INT;
+            FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
+            WHILE @@FETCH_STATUS = 0
+            BEGIN
+                IF @verboseMode = 1 PRINT 'Scan: ' + @dbname;
+
+                DECLARE @dynamic_command_get_tables NVARCHAR(MAX) = N'
+                USE ' + QUOTENAME(@dbname) + N';
+                INSERT INTO #tmpFragmentedIndexes (
+                [dbName],[tableName],[schemaName],[indexName],[databaseID],[objectID],[indexID],[AvgFragmentationPercentage],[reorganizationOrRebuildCommand]
+                )
+                SELECT
+                DB_NAME() as [dbName],
+                tbl.name as [tableName],
+                SCHEMA_NAME(tbl.schema_id) as schemaName,
+                idx.name as [indexName],
+                pst.database_id as [databaseID],
+                pst.object_id as [objectID],
+                pst.index_id as [indexID],
+                pst.avg_fragmentation_in_percent as [AvgFragmentationPercentage],
+                CASE 
+                    WHEN pst.avg_fragmentation_in_percent > 30 THEN 
+                    ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REBUILD WITH (FILLFACTOR = ' + @indexFillFactor + ', SORT_IN_TEMPDB = ' + @sortInTempdb + ', STATISTICS_NORECOMPUTE = OFF);''
+                    WHEN pst.avg_fragmentation_in_percent > 5 AND pst.avg_fragmentation_in_percent <= 30 THEN
+                    ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REORGANIZE;''
+                    ELSE
+                    NULL
+                END
+                FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, ''' + @indexStatisticsScanningMode + ''') AS pst
+                INNER JOIN sys.tables AS tbl ON pst.object_id = tbl.object_id
+                INNER JOIN sys.indexes idx ON pst.object_id = idx.object_id AND pst.index_id = idx.index_id
+                WHERE pst.index_id <> 0
+                AND pst.alloc_unit_type_desc IN (N''IN_ROW_DATA'', N''ROW_OVERFLOW_DATA'')
+                AND pst.avg_fragmentation_in_percent >= ' + CAST(@fragmentationThreshold AS VARCHAR(10)) + ';';
+
+                IF @verboseMode = 1
+                BEGIN
+                    PRINT @dynamic_command_get_tables;
+                END
+
+                EXEC (@dynamic_command_get_tables);
+
+                FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
+            END
+
+            CLOSE dbNames_cursor;
+            DEALLOCATE dbNames_cursor;
+
+            -- Si solo reporte (no ejecutar), mostrar y salir
+            IF @reportOnly = 1
+            BEGIN
+                SELECT dbName, tableName, schemaName, indexName, AvgFragmentationPercentage, reorganizationOrRebuildCommand
+                FROM #tmpFragmentedIndexes
+                WHERE reorganizationOrRebuildCommand IS NOT NULL
+                ORDER BY AvgFragmentationPercentage DESC;
+                RETURN;
+            END
+
+            -- Si no hay comandos a ejecutar, informar y salir
+            IF NOT EXISTS (SELECT 1 FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL)
+            BEGIN
+                PRINT 'No se encontraron índices que requieran reorganize/rebuild según los parámetros.';
+                RETURN;
+            END
+
+            -- Ejecutar en lotes de @batchSize. Dentro de cada lote, cada comando se ejecuta secuencialmente.
+            DECLARE @totalCommands INT = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL);
+            DECLARE @processed INT = 0;
+
+            PRINT 'Total de comandos a ejecutar: ' + CAST(@totalCommands AS VARCHAR(10));
+
+            WHILE @processed < @totalCommands
+            BEGIN
+                -- Obtener lote de comandos no ejecutados (ordenados por frag desc)
+                ;WITH cteBatch AS
+                (
+                    SELECT TOP (@batchSize) Id, reorganizationOrRebuildCommand
+                    FROM #tmpFragmentedIndexes
+                    WHERE reorganizationOrRebuildCommand IS NOT NULL AND Executed = 0
+                    ORDER BY AvgFragmentationPercentage DESC, Id
+                )
+                SELECT * INTO #BatchTemp FROM cteBatch; -- tabla temporal por lote
+
+                DECLARE @cntThisBatch INT = (SELECT COUNT(*) FROM #BatchTemp);
+                IF @cntThisBatch = 0
+                BEGIN
+                    DROP TABLE #BatchTemp;
+                    BREAK;
+                END
+
+                PRINT '----------------------------------------------------';
+                PRINT 'Iniciando lote: procesando ' + CAST(@cntThisBatch AS VARCHAR(10)) + ' comandos. Ya procesados: ' + CAST(@processed AS VARCHAR(10));
+
+                -- Cursor local para ejecutar cada comando dentro del lote (uno a uno)
+                DECLARE batch_cursor CURSOR LOCAL FAST_FORWARD FOR
+                SELECT Id, reorganizationOrRebuildCommand FROM #BatchTemp ORDER BY Id;
+
+                DECLARE @cmdId INT;
+                DECLARE @cmd NVARCHAR(MAX);
+
+                OPEN batch_cursor;
+                FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
+                WHILE @@FETCH_STATUS = 0
+                BEGIN
+                    PRINT '--- Ejecutando Id=' + CAST(@cmdId AS VARCHAR(10)) + ' ---';
+                    PRINT LEFT(@cmd, 200); -- primeros 200 chars para identificar
+
+                    BEGIN TRY
+                        EXEC (@cmd);
+
+                        UPDATE #tmpFragmentedIndexes
+                        SET Executed = 1,
+                            ExecutionResult = 'OK',
+                            ExecutionDate = GETDATE()
+                        WHERE Id = @cmdId;
+
+                        PRINT '✔ OK Id=' + CAST(@cmdId AS VARCHAR(10)) + ' - ' + CONVERT(VARCHAR(20), GETDATE(), 120);
+                    END TRY
+                    BEGIN CATCH
+                        DECLARE @errMsg NVARCHAR(4000) = ERROR_MESSAGE();
+                        PRINT '❌ Error Id=' + CAST(@cmdId AS VARCHAR(10)) + ': ' + @errMsg;
+
+                        -- Marcar como procesado para no bloquear siguiente lote.
+                        -- Si prefieres reintentar los fallidos en un futuro, cambia Executed a 0 aquí.
+                        UPDATE #tmpFragmentedIndexes
+                        SET Executed = 1,
+                            ExecutionResult = LEFT('ERROR: ' + @errMsg, 4000),
+                            ExecutionDate = GETDATE()
+                        WHERE Id = @cmdId;
+                    END CATCH;
+
+                    FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
+                END
+
+                CLOSE batch_cursor;
+                DEALLOCATE batch_cursor;
+
+                SET @processed = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE Executed = 1);
+                PRINT 'Lote finalizado. Total procesados hasta ahora: ' + CAST(@processed AS VARCHAR(10)) + '/' + CAST(@totalCommands AS VARCHAR(10));
+
+                DROP TABLE #BatchTemp;
+            END
+
+            PRINT '----------------------------------------------------';
+            PRINT 'Ejecución completa. Resumen:';
+            SELECT Id, dbName, schemaName, tableName, indexName, AvgFragmentationPercentage, Executed, ExecutionResult, ExecutionDate
+            FROM #tmpFragmentedIndexes
+            ORDER BY AvgFragmentationPercentage DESC, Id;
+
+            -- Fin del script
+
+            </code></pre>
         </div>
+
     </section>
 
     <!-- ================= LAYER 3 — STORAGE ================= -->
@@ -402,5 +619,8 @@
 </div>
 
 <script src="{% static 'js/desvanecimiento_texto.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 
 {% endblock %}

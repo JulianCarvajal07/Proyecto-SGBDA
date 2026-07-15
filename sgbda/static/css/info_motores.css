@@ -1,3 +1,20 @@
+.contents{
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.contenido-opciones{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
+}
+
 .contenedor-informacion{
     display: flex;
     flex-direction: column;
@@ -11,6 +28,24 @@
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+}
+
+.images{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    padding: 20px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    gap: 30px;
+}
+
+.images img{
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');
@@ -51,7 +86,7 @@
   .wrap{max-width:1280px;margin:0 auto;padding:0 28px;}
 
   /* ---------- HERO ---------- */
-  .hero{padding:72px 0 40px;}
+  .hero{padding:30px 0 10px;}
   .eyebrow{
     font-family:var(--mono);
     font-size:12.5px;
@@ -93,7 +128,7 @@
   .legend{
     display:grid; grid-template-columns:1fr 1fr 1fr;
     align-items:center; gap:16px;
-    margin:56px 0 0;
+    margin:30px 0 0;
   }
   .legend-side{
     display:flex; align-items:center; gap:12px;
@@ -113,7 +148,7 @@
   .legend-side span.desc{color:var(--muted); font-size:13px;}
 
   /* ---------- SECTION SCAFFOLD ---------- */
-  section.layer{margin:64px 0;}
+  section.layer{margin:30px 0;}
   .layer-head{
     display:flex; align-items:baseline; gap:14px;
     border-bottom:1px solid var(--line); padding-bottom:16px;
@@ -129,11 +164,28 @@
   }
 
   /* three-panel comparison row */
+  .simple{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:14px;
+    align-items:stretch;
+    justify-content: center;
+    margin-bottom:14px;
+  }
+  .doble{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    align-items:stretch;
+    justify-content: center;
+    margin-bottom:14px;
+  }
   .triple{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
     gap:14px;
     align-items:stretch;
+    justify-content: center;
     margin-bottom:14px;
   }
   .card{
@@ -220,3 +272,51 @@
   .layer-head{ break-after: avoid; page-break-after: avoid; }
   section.layer{ break-inside: avoid-page; }
   h1.title, .eyebrow{ break-after: avoid; page-break-after: avoid; }
+
+
+  /* ---------- Diseño para mostrar codigo ---------- */
+
+.code-container {
+    width: 100%;
+    margin: 2rem auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Barra de título estilo VS Code */
+.code-header {
+    background: #2d2d2d;
+    color: #cccccc;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.code-header .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-red { background: #ff5f56; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green { background: #27c93f; }
+
+.code-header .filename {
+    margin-left: 8px;
+    color: #fff;
+}
+
+/* Ajustes para que parezca VS Code */
+pre[class*="language-"] {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    background: #1e1e1e !important; /* Color exacto de VS Code */
+    padding: 1rem !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+}
