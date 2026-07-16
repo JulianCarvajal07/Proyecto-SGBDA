@@ -8,7 +8,7 @@
 
 <div class="contents">
     
-        <h1 style="margin: 0; padding: 0px 10px">Contenidos</h1>
+    <h1 class="title-text">Contenidos</h1>
 
     <div class="contenido-opciones">
         <a href="{% url 'info_motores' %}" class="btn-options nav-link page-transition"> Motores de Bases de Datos</a></li>
@@ -21,8 +21,8 @@
     <div class="wrap">
 
     <div class="hero">
-        <h1 class="title"><span class="a">Guia Mantenimiento</span></h1>
-        <p class="lead">Esta guía presenta un <b>la ejecucion de un mantenimiento</b> para los diferentes clientes con motores de bases de datos sql server. a continuacion se mostra el paso a paso a tener presente:</p>
+        <h1 class="title"><span class="a">Guía Mantenimiento</span></h1>
+        <p class="lead">Esta guía presenta un <b>la ejecución de un mantenimiento</b> para los diferentes clientes con motores de bases de datos SQL Server. A continuación se mostrará el paso a paso a tener presente:</p>
     </div>
 
     <!-- ================= LAYER 1 — INSTANCE MODEL ================= -->
@@ -31,7 +31,7 @@
         <span class="layer-num">01</span>
         <h3 class="layer-title">Chequeo de Integridad</h3>
         </div>
-        <p class="layer-sub">El primer paso para realizar un manteniminento sera ejecutar un chequeo de integridad para cada base de datos presente en la instancia
+        <p class="layer-sub">El primer paso para realizar un mantenimiento será ejecutar un chequeo de integridad para cada base de datos presente en la instancia
             debemos tener presente que dicho paso se encuentra automatizado con un archivo ".bat":
         </p>
 
@@ -50,8 +50,8 @@
         </div>
         <div class="card mssql">
             <h4>Ejecutar Archivo .bat</h4>
-            <p> luego de la verificacion del archivo <code>chequeo_integridad.bat</code>. debemos dar click derecho
-                en dicho archivo y ejecutar como <b>administrador</b>, se abrira una <code>terminal</code> en el cual empezara a ejecutar dicho
+            <p> luego de la verificación del archivo <code>chequeo_integridad.bat</code>. debemos hacer clic derecho
+                en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
                 archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con el <b>chequeo</b> teniendo presente
                 la ruta establecida. 
             </p>
@@ -68,18 +68,18 @@
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">02</span>
-        <h3 class="layer-title">Reconstruccion y Reorganizacion de Indices</h3>
+        <h3 class="layer-title">Reconstrucción y Reorganización de Índices</h3>
         </div>
-        <p class="layer-sub">luego de llevar a cabo el chequeo de integridad, se procedera a realizar la <code>Reorganizacion</code> y <code>Reconstruccion</code> de indices para cada instancia presentada en la maquina,
-        debemos tener presente que, para dicho paso, se utilizara otro <b>script</b> para automatizar y optimizar dicho proceso. este script tomara todos los indices creados por el cliente, y dependiento la fragmentacion
-        de cada uno, el script ejecutara una reorganizacion o una Reconstruccion</p>
+        <p class="layer-sub">luego de llevar a cabo el chequeo de integridad, se procedera a realizar la <code>Reorganización</code> y <code>Reconstrucción</code> de índices para cada instancia presentada en la maquina,
+        debemos tener presente que, para dicho paso, se utilizara otro <b>script</b> para automatizar y optimizar dicho proceso. este script tomara todos los índices creados por el cliente, y dependiento la fragmentacion
+        de cada uno, el script ejecutara una reorganizacion o una Reconstrucción</p>
 
         <div class="simple">
         <div class="card mssql">
             <h4>Reglas</h4>
             <p><code>-</code> Se <code>Organizara</code> el indice si su fragmentacion es <b>MENOR</b> a <code>30</code>.</p>
             <p><code>-</code> Se <code>Reconstruira</code> el indice si su fragmentacion es <b>MAYOR</b> a <code>30</code>.</p>
-            <p><code>-</code> En el caso de presentar error con la <code>Reorganizacion</code> debido a un bloqueo a nivel de página por estar deshabilitado 
+            <p><code>-</code> En el caso de presentar error con la <code>Reorganización</code> debido a un bloqueo a nivel de página por estar deshabilitado 
                               se reconstruira el indice de forma <code>Manual</code>.</p>
         </div>
         </div>
@@ -90,7 +90,7 @@
                 <span class="dot dot-red"></span>
                 <span class="dot dot-yellow"></span>
                 <span class="dot dot-green"></span>
-                <span class="filename">Reorganizacion_y_Reconstruccion.sql</span>
+                <span class="filename">Reorganización_y_Reconstrucción.sql</span>
             </div>
             
             <!-- Tu código aquí -->
@@ -331,29 +331,29 @@
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">03</span>
-        <h3 class="layer-title">Actualizacion de Estadisticas</h3>
+        <h3 class="layer-title">Actualización de Estadisticas</h3>
         </div>
-        <p class="layer-sub">En este paso se realizara la actualizacion de estadisticas la cual,
+        <p class="layer-sub">En este paso se realizará la actualización de estadisticas la cual,
             sirve para que el optimizador de consultas conozca la distribución exacta de los datos. 
             Esto le permite calcular el plan de ejecución más rápido y eficiente para recuperar información, 
             evitando tiempos de espera lentos en el sistema. </p>
 
-        <p class="layer-sub">Se tendra presente la ejecucion de un archivo <code>.bat</code> el cual ayudara a optimizar
+        <p class="layer-sub">Se tendra presente la ejecución de un archivo <code>.bat</code> el cual ayudara a optimizar
             dicho proceso:</p>
 
         <div class="doble">
         <div class="card mssql">
             <h4>Verificar Bases de Datos</h4>
-            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>Actualizacion_estadisticas.bat</code> o <code>Actualizacion.bat</code>
+            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>Actualización_estadisticas.bat</code> o <code>Actualización.bat</code>
                 antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
                 registradas en dicho archivo.
             </p>
         </div>
         <div class="card mssql">
             <h4>Ejecutar Archivo .bat</h4>
-            <p> luego de la verificacion del archivo <code>Actualizacion_estadisticas.bat</code>. debemos dar click derecho
-                en dicho archivo y ejecutar como <b>administrador</b>, se abrira una <code>terminal</code> en el cual empezara a ejecutar dicho
-                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con la <b>Actualizacion</b> teniendo presente
+            <p> luego de la verificación del archivo <code>Actualización_estadisticas.bat</code>. debemos hacer clic derecho
+                en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
+                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con la <b>Actualización</b> teniendo presente
                 la ruta establecida. 
             </p>
         </div>
@@ -370,12 +370,12 @@
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">04</span>
-        <h3 class="layer-title">Depuracion del Log</h3>
+        <h3 class="layer-title">Depuración del Log</h3>
         </div>
-        <p class="layer-sub">Luego de realizar la <b>Actualizacion de estadisticas</b> se procedera a realizar una depuracion del Log, utilizando el comando <code>SHINRKFILE</code>
+        <p class="layer-sub">Luego de realizar la <b>Actualización de estadisticas</b> se procedera a realizar una depuración del Log, utilizando el comando <code>SHRINKFILE</code>
             este comando se aplicara para archivos <code>.ldf</code> que tengan un tamaño grande que afecte el almacenamiento del disco</p>
         
-        <p class="layer-sub">Para realizar dicha depuracion se utilizara el siguiente <code>Script</code>:</p>
+        <p class="layer-sub">Para realizar dicha depuración se utilizara el siguiente <code>Script</code>:</p>
 
         <div class="code-container">
             <!-- Barra de título estilo VS Code -->
@@ -383,7 +383,7 @@
                 <span class="dot dot-red"></span>
                 <span class="dot dot-yellow"></span>
                 <span class="dot dot-green"></span>
-                <span class="filename">Depuracion_Log.sql</span>
+                <span class="filename">Depuración_Log.sql</span>
             </div>
             
             <!-- Tu código aquí -->
@@ -413,9 +413,9 @@
         <span class="layer-num">05</span>
         <h3 class="layer-title">Envio de Evidencia generada</h3>
         </div>
-        <p class="layer-sub">Como ultimo paso se enviaran los archivos generados por el <code>Chequeo de integridad</code> y la <code>Actualizacion de estadisticas</code>
+        <p class="layer-sub">Como último paso se enviaran los archivos generados por el <code>Chequeo de integridad</code> y la <code>Actualización de estadisticas</code>
             dichas rutas que se programan en estos archivos <code>.bat</code> apuntan al directorio <code>Temp</code>, en este directorio es posible que se encuentre
-            carpetas con el nombre de la instancia, o con la referencia <b>Chequeo de Integridad</b> o <b>Actualizacion de Estadisticas</b></p>
+            carpetas con el nombre de la instancia, o con la referencia <b>Chequeo de Integridad</b> o <b>Actualización de Estadisticas</b></p>
         
         <p class="layer-sub">Tener presente que si los archivos no se generan en el directorio <code>Temp</code>, se deben mover manualmente a dicha ruta y luego verificar los archivos
             <code>.bat</code> para configurar la ruta de generacion de los archivos.  
@@ -430,8 +430,8 @@
             <img src="{% static 'contenidos/mantenimientos/paso_5.2.png' %}" alt="imagen">  
         </div>
 
-        <p class="layer-sub"> Luego de verificar la ruta y la generacion de los archivos se seleccionara la carpetas que contienen el <code>chequeo de integridad</code> y la <code>actualizacion de
-            estadisticas</code> y se generara un archivo <code>.zid</code> el cual se le especificara el <b>nombre del mantenimiento</b> con la <b>fecha en que se realizo</b>
+        <p class="layer-sub"> Luego de verificar la ruta y la generacion de los archivos se seleccionara la carpetas que contienen el <code>chequeo de integridad</code> y la <code>actualización de
+            estadisticas</code> y se generara un archivo <code>.zip</code> el cual se le especificara el <b>nombre del mantenimiento</b> con la <b>fecha en que se realizó</b>
         </p>
 
         <p class="layer-sub"> Tener presente que muchas veces este archivo <code>.zip</code> se genera en el <b>Escritorio</b> de la maquina
@@ -443,7 +443,7 @@
             <img src="{% static 'contenidos/mantenimientos/paso_5.5.png' %}" alt="imagen">  
         </div>
         
-        <p class="layer-sub"> Por ultimo este archivo <code>.zip</code> se enviara por correo como evidencia, ademas se copiara en la ruta compartida
+        <p class="layer-sub"> Por último este archivo <code>.zip</code> se enviara por correo como evidencia, además se copiara en la ruta compartida
             <code>\\Port-dlenis\informacion de empresas\(nombre del DP)\(nombre de la empresa)\(MTTO o Mantenimiento)</code>
         </p>
         

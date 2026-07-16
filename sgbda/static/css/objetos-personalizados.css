@@ -250,12 +250,12 @@
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+  background: linear-gradient(135deg, var(--accent), #1f6feb);
   border: none;
   border-radius: 14px;
   cursor: pointer;
   box-shadow: 
-    0 4px 15px rgba(99, 102, 241, 0.4),
+    0 4px 15px rgba(19, 23, 228, 0.815),
     0 0 0 1px rgba(255,255,255,0.1) inset,
     0 -2px 0 rgba(0,0,0,0.2) inset;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -286,7 +286,7 @@
 .btn-options:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 8px 25px rgba(99, 102, 241, 0.5),
+    0 8px 25px rgba(29, 13, 248, 0.671),
     0 0 0 1px rgba(255,255,255,0.15) inset,
     0 -2px 0 rgba(0,0,0,0.2) inset;
 }
@@ -294,6 +294,91 @@
 .btn-options:active {
   transform: translateY(0) scale(0.98);
   box-shadow: 
-    0 2px 10px rgba(99, 102, 241, 0.3),
+    0 2px 10px rgba(16, 20, 240, 0.61),
     0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+
+
+/* ============================================
+   TÍTULO "CONTENIDOS" - ARMONIZADO CON BOTÓN
+   ============================================ */
+
+.title-text {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 32px;
+    font-family: 'Inter', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(110deg, var(--accent), #0a2041e3);
+    border-radius: 14px;
+    box-shadow: 
+        0 4px 15px rgba(19, 23, 228, 0.815),
+        0 0 0 1px rgba(255,255,255,0.1) inset,
+        0 -2px 0 rgba(0,0,0,0.2) inset;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    cursor: default;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Efecto de brillo al pasar el mouse (igual que el botón) */
+.title-text::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.title-text:hover::before {
+    left: 100%;
+}
+
+.title-text:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 8px 25px rgba(29, 13, 248, 0.671),
+        0 0 0 1px rgba(255,255,255,0.15) inset,
+        0 -2px 0 rgba(0,0,0,0.2) inset;
+}
+
+.title-text:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 
+        0 2px 10px rgba(16, 20, 240, 0.61),
+        0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+
+/* Icono decorativo antes del texto (opcional) */
+.title-text::after {
+    content: '📑';
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .title-text {
+        font-size: 1.6rem;
+        padding: 12px 24px;
+    }
+    .title-text::after {
+        font-size: 1.3rem;
+    }
 }
