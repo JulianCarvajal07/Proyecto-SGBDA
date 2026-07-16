@@ -35,6 +35,10 @@
             debemos tener presente que dicho paso se encuentra automatizado con un archivo ".bat":
         </p>
 
+        <p class="layer-sub">Este Chequeo sirve para validar la precisión, coherencia y fiabilidad de la información almacenada. Permite detectar corrupción de datos 
+            causada por fallas de hardware, errores de software o caídas del sistema, garantizando que la estructura y 
+            las relaciones entre los datos sigan intactas.
+        </p>
 
         <div class="doble">
         <div class="card mssql">
@@ -55,8 +59,8 @@
         </div>
 
         <div class="images">
-            <img src="{% static 'contenidos/mantenimientos/paso_2.png' %}" alt="imagen"> 
             <img src="{% static 'contenidos/mantenimientos/paso_1.png' %}" alt="imagen"> 
+            <img src="{% static 'contenidos/mantenimientos/paso_1.1.png' %}" alt="imagen"> 
         </div>
     </section>
 
@@ -327,291 +331,126 @@
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">03</span>
-        <h3 class="layer-title">Almacenamiento físico y lógico</h3>
+        <h3 class="layer-title">Actualizacion de Estadisticas</h3>
         </div>
-        <p class="layer-sub">La organización del almacenamiento determina cómo se distribuyen los datos en disco, cómo se gestiona el crecimiento y cómo se optimiza el rendimiento de I/O. Los tres motores comparten conceptos análogos con nomenclatura distinta.</p>
+        <p class="layer-sub">En este paso se realizara la actualizacion de estadisticas la cual,
+            sirve para que el optimizador de consultas conozca la distribución exacta de los datos. 
+            Esto le permite calcular el plan de ejecución más rápido y eficiente para recuperar información, 
+            evitando tiempos de espera lentos en el sistema. </p>
 
-        <div class="triple">
+        <p class="layer-sub">Se tendra presente la ejecucion de un archivo <code>.bat</code> el cual ayudara a optimizar
+            dicho proceso:</p>
+
+        <div class="doble">
         <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Filegroups y archivos de datos</h4>
-            <p>Los filegroups agrupan archivos de datos (<code>.mdf</code> primario, <code>.ndf</code> secundarios). Cada base posee un transaction log (<code>.ldf</code>) de escritura secuencial. La base <code>tempdb</code> actúa como área de trabajo global para sorts, tablas temporales y versionado de filas (RCSI).</p>
+            <h4>Verificar Bases de Datos</h4>
+            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>Actualizacion_estadisticas.bat</code> o <code>Actualizacion.bat</code>
+                antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
+                registradas en dicho archivo.
+            </p>
         </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Tablespaces y datafiles</h4>
-            <p>Los tablespaces agrupan datafiles (<code>.dbf</code>). Además de los tablespaces de datos (<code>SYSTEM</code>, <code>SYSAUX</code>, <code>USERS</code>), Oracle requiere tablespaces específicos: <b>UNDO</b> (imágenes previas para rollback y lectura consistente) y <b>TEMP</b> (equivalente a <code>tempdb</code>). Los redo logs rotan en grupos multiplexados.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Tablespaces sobre directorios</h4>
-            <p>Los tablespaces de PostgreSQL son directorios del sistema de archivos donde se almacenan los objetos de la base. Los archivos de datos no son visibles directamente por nombre; se identifican internamente por OID. El WAL (Write-Ahead Log) reside en <code>pg_wal/</code> y cumple la función del transaction log.</p>
+        <div class="card mssql">
+            <h4>Ejecutar Archivo .bat</h4>
+            <p> luego de la verificacion del archivo <code>Actualizacion_estadisticas.bat</code>. debemos dar click derecho
+                en dicho archivo y ejecutar como <b>administrador</b>, se abrira una <code>terminal</code> en el cual empezara a ejecutar dicho
+                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con la <b>Actualizacion</b> teniendo presente
+                la ruta establecida. 
+            </p>
         </div>
         </div>
 
-        <div class="callout">
-        <div class="flag">Ajuste del mapa mental</div>
-        <p>Filegroup (SQL Server) = Tablespace (Oracle) = Tablespace (PostgreSQL). El transaction log de SQL Server (<code>.ldf</code>), el redo log de Oracle y el WAL de PostgreSQL son conceptualmente la misma pieza: el registro de cambios previo a la escritura definitiva en el archivo de datos. En Oracle, el modo <code>ARCHIVELOG</code> archiva los redo logs antes de reciclarlos, habilitando la recuperación a un punto específico en el tiempo.</p>
+        <div class="images">
+            <img src="{% static 'contenidos/mantenimientos/paso_3.png' %}" alt="imagen"> 
+            <img src="{% static 'contenidos/mantenimientos/paso_3.1.png' %}" alt="imagen"> 
         </div>
+
     </section>
 
     <!-- ================= LAYER 4 — NETWORK ================= -->
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">04</span>
-        <h3 class="layer-title">Configuración de red y conectividad</h3>
+        <h3 class="layer-title">Depuracion del Log</h3>
         </div>
-        <p class="layer-sub">La gestión de la capa de red define quién puede conectarse, desde dónde y mediante qué protocolo. Cada motor implementa este control con herramientas y archivos de configuración propios.</p>
+        <p class="layer-sub">Luego de realizar la <b>Actualizacion de estadisticas</b> se procedera a realizar una depuracion del Log, utilizando el comando <code>SHINRKFILE</code>
+            este comando se aplicara para archivos <code>.ldf</code> que tengan un tamaño grande que afecte el almacenamiento del disco</p>
+        
+        <p class="layer-sub">Para realizar dicha depuracion se utilizara el siguiente <code>Script</code>:</p>
 
-        <div class="triple">
-        <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Configuration Manager</h4>
-            <p>La herramienta gráfica <code>SQL Server Configuration Manager</code> habilita protocolos (TCP/IP, Named Pipes), fija puertos (1433 por defecto) y gestiona servicios. El <code>SQL Browser</code> resuelve instancias nombradas. La autenticación puede ser de Windows (Kerberos/NTLM) o mixta (SQL Server).</p>
-        </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Listener y archivos de red</h4>
-            <p>El <b>Listener</b> es un proceso independiente que escucha en el puerto 1521. Se configura en <code>listener.ora</code>. El cliente resuelve conexiones mediante <code>tnsnames.ora</code>. Parámetros generales de red (como <code>DISABLE_OOB</code> para firewalls restrictivos) residen en <code>sqlnet.ora</code>. El diagnóstico de arranque se consulta en <code>listener.log</code>.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Archivos de configuración plana</h4>
-            <p><code>postgresql.conf</code> define la interfaz de escucha (<code>listen_addresses</code>) y el puerto (5432). <code>pg_hba.conf</code> (Host-Based Authentication) controla quién se conecta, desde qué dirección IP y con qué método de autenticación (md5, scram-sha-256, peer, etc.), regla por regla.</p>
-        </div>
-        </div>
+        <div class="code-container">
+            <!-- Barra de título estilo VS Code -->
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Depuracion_Log.sql</span>
+            </div>
+            
+            <!-- Tu código aquí -->
+            <pre class="line-numbers"><code class="language-javascript">
+                -- TRUNCAR LOG TRANSACCIONAL DE UNA BASE DE DATOS
+                -- PRIMERO SE DEBE REALIZAR BACKUP AL LOG SI ESTA EN MODELO DE RECUPERACION FULL
+                -- LUEGO DEL BACKUP PROCEDER A TRUNCAR LOG PARA ELLO REALIZAR LO SIGUIENTE
+
+                --TOMAR EL NOMBRE LOGICO DEL LOG
+                SP_HELPDB [NOMBRE_BASE_DE_DATOS]
+
+
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY SIMPLE
+
+                USE [NOMBRE_BASE_DE_DATOS]
+                DBCC SHRINKFILE(NOMBRE_LOGICO_ARCHIVO_LDF,1)
+
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY FULL
+
+            </code></pre>
+        </div>       
     </section>
 
     <!-- ================= LAYER 5 — BACKUP ================= -->
     <section class="layer reveal">
         <div class="layer-head">
         <span class="layer-num">05</span>
-        <h3 class="layer-title">Backups y recuperación</h3>
+        <h3 class="layer-title">Envio de Evidencia generada</h3>
         </div>
-        <p class="layer-sub">Las estrategias de respaldo y recuperación comparten objetivos idénticos — proteger la integridad de los datos y habilitar la recuperación a un punto específico — pero difieren en herramientas, nomenclatura y mecánica interna.</p>
+        <p class="layer-sub">Como ultimo paso se enviaran los archivos generados por el <code>Chequeo de integridad</code> y la <code>Actualizacion de estadisticas</code>
+            dichas rutas que se programan en estos archivos <code>.bat</code> apuntan al directorio <code>Temp</code>, en este directorio es posible que se encuentre
+            carpetas con el nombre de la instancia, o con la referencia <b>Chequeo de Integridad</b> o <b>Actualizacion de Estadisticas</b></p>
+        
+        <p class="layer-sub">Tener presente que si los archivos no se generan en el directorio <code>Temp</code>, se deben mover manualmente a dicha ruta y luego verificar los archivos
+            <code>.bat</code> para configurar la ruta de generacion de los archivos.  
+        </p>
 
-        <div class="triple">
-        <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>BACKUP DATABASE y BACKUP LOG</h4>
-            <p>El modelo de recuperación (Simple / Full / Bulk-logged) determina si es posible realizar backups de log y recuperación punto-a-punto. La cadena de restore sigue el orden: Full → Differential → Log. El historial de backups se almacena en <code>msdb</code>.</p>
-        </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>RMAN y Data Pump</h4>
-            <p><b>RMAN</b> (Recovery Manager) es una consola cliente dedicada que orquesta backups incrementales (nivel 0 = full, nivel 1 = diferencial) y gestiona el catálogo de backups. El modo <b>ARCHIVELOG</b> es el equivalente al modelo FULL de SQL Server. <b>Data Pump</b> (<code>expdp</code>/<code>impdp</code>) proporciona exportación lógica de schemas o bases completas.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>pg_dump y pg_basebackup</h4>
-            <p>Los backups se dividen en <i>lógicos</i> (<code>pg_dump</code>, <code>pg_dumpall</code>) y <i>físicos</i> (<code>pg_basebackup</code>). La recuperación punto-en-el-tiempo (PITR) requiere el archivado continuo del WAL. A diferencia de SQL Server y Oracle, PostgreSQL no dispone de una herramienta de backup integrada con catálogo propio; el seguimiento de backups es responsabilidad del administrador o de herramientas externas.</p>
-        </div>
+        <p class="layer-sub"> Verificar que los archivos generados con el <code>.bat</code> coincidan con los que se encuentran en la carpeta, para ello se debe observar <b>fecha de creacion</b>
+            y <b>nombre del archivo generado</b></p>
+
+        <div class="images">
+            <img src="{% static 'contenidos/mantenimientos/paso_5.png' %}" alt="imagen"> 
+            <img src="{% static 'contenidos/mantenimientos/paso_5.1.png' %}" alt="imagen">
+            <img src="{% static 'contenidos/mantenimientos/paso_5.2.png' %}" alt="imagen">  
         </div>
 
-        <div class="callout">
-        <div class="flag">Concepto sin equivalente directo</div>
-        <p><b>Flashback</b> de Oracle permite revertir una tabla o la base de datos completa a un estado anterior sin restaurar backups, utilizando la información del tablespace UNDO. SQL Server dispone de <b>Database Snapshots</b> (solo en Enterprise Edition) con mecánica distinta. PostgreSQL no ofrece una funcionalidad nativa análoga al flashback de Oracle.</p>
-        </div>
-    </section>
+        <p class="layer-sub"> Luego de verificar la ruta y la generacion de los archivos se seleccionara la carpetas que contienen el <code>chequeo de integridad</code> y la <code>actualizacion de
+            estadisticas</code> y se generara un archivo <code>.zid</code> el cual se le especificara el <b>nombre del mantenimiento</b> con la <b>fecha en que se realizo</b>
+        </p>
 
-    <!-- ================= LAYER 6 — HA ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">06</span>
-        <h3 class="layer-title">Alta disponibilidad</h3>
-        </div>
-        <p class="layer-sub">Las estrategias de alta disponibilidad responden al mismo requerimiento empresarial — minimizar el tiempo de indisponibilidad — pero se implementan con arquitecturas conceptualmente distintas.</p>
+        <p class="layer-sub"> Tener presente que muchas veces este archivo <code>.zip</code> se genera en el <b>Escritorio</b> de la maquina
+        </p>
 
-        <div class="triple">
-        <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Always On y FCI</h4>
-            <p><b>Always On Availability Groups</b> replica bases de datos de forma síncrona o asíncrona a réplicas secundarias con failover automático. <b>Failover Cluster Instance</b> (FCI) comparte almacenamiento entre nodos, operando en modo activo-pasivo a nivel de instancia.</p>
+        <div class="images">
+            <img src="{% static 'contenidos/mantenimientos/paso_5.3.png' %}" alt="imagen">
+            <img src="{% static 'contenidos/mantenimientos/paso_5.4.png' %}" alt="imagen"> 
+            <img src="{% static 'contenidos/mantenimientos/paso_5.5.png' %}" alt="imagen">  
         </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Data Guard y RAC</h4>
-            <p><b>Data Guard</b> mantiene una base standby (física o lógica) sincronizada mediante redo, con failover manual o automático (Fast-Start Failover). <b>RAC</b> (Real Application Clusters) permite que múltiples instancias accedan simultáneamente a una misma base compartida, operando en modo activo-activo real.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Streaming Replication</h4>
-            <p>La replicación por streaming transmite el WAL en tiempo real a un servidor standby, que puede operar en modo <i>hot standby</i> (solo lectura). Para failover automático se requieren herramientas externas como <b>Patroni</b> o <b>repmgr</b>. La replicación lógica permite replicar selectivamente tablas o bases entre servidores.</p>
-        </div>
-        </div>
-
-        <div class="callout">
-        <div class="flag">Diferencia clave</div>
-        <p>RAC de Oracle no equivale a Always On de SQL Server. RAC es conceptualmente más cercano a un <b>Failover Cluster Instance</b> (varias instancias, una base compartida), mientras que Data Guard es el análogo de Always On Availability Groups (bases separadas, sincronizadas). PostgreSQL no dispone de un equivalente nativo a RAC; su replicación se basa en standby de lectura.</p>
-        </div>
-    </section>
-
-    <!-- ================= LAYER 7 — MEMORY ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">07</span>
-        <h3 class="layer-title">Memoria, procesos y concurrencia</h3>
-        </div>
-        <p class="layer-sub">La arquitectura de procesos e hilos determina cómo cada motor atiende conexiones concurrentes, gestiona la memoria y responde ante cargas elevadas. Estas diferencias impactan directamente en la configuración del servidor y en el dimensionamiento de recursos.</p>
-
-        <div class="triple">
-        <div class="card mssql">
-            <div class="k">SQL Server</div>
-            <h4>Multi-hilo con SQLOS</h4>
-            <p>Un único proceso (<code>sqlservr.exe</code>) gestiona múltiples hilos mediante el scheduler de SQLOS. El <b>buffer pool</b> cachea páginas de datos en memoria compartida. El gestor de bloqueos (<b>Lock Manager</b>) controla la concurrencia. El motor administra el crecimiento elástico de hilos sin intervención del administrador.</p>
-        </div>
-        <div class="card oracle">
-            <div class="k">Oracle</div>
-            <h4>Multi-proceso con SGA compartida</h4>
-            <p>Múltiples procesos background (PMON, SMON, DBWn, LGWR, CKPT) comparten la <b>SGA</b> (System Global Area), una zona de memoria compartida que contiene el buffer cache, el shared pool y el redo log buffer. La concurrencia se gestiona mediante lectura consistente con UNDO, no con bloqueos de lectura.</p>
-        </div>
-        <div class="card postgres">
-            <div class="k">PostgreSQL</div>
-            <h4>Un proceso por conexión</h4>
-            <p>Cada conexión de cliente genera un <b>backend process</b> independiente del sistema operativo. La memoria compartida se utiliza para el buffer cache y el WAL. La concurrencia se implementa mediante <b>MVCC</b> (Multi-Version Concurrency Control): cada transacción ve una snapshot de la base en el momento de su inicio. Sin un pool de conexiones (PgBouncer), un elevado número de conexiones puede agotar rápidamente los recursos del servidor.</p>
-        </div>
-        </div>
-
-        <div class="callout">
-        <div class="flag">Implicación operativa</div>
-        <p>En PostgreSQL, el número de conexiones concurrentes debe dimensionarse cuidadosamente, ya que cada conexión consume memoria de proceso independiente. En SQL Server y Oracle, el crecimiento de conexiones es más elástico gracias a la arquitectura multi-hilo y multi-proceso con memoria compartida, respectivamente.</p>
-        </div>
-    </section>
-
-    <!-- ================= LAYER 8 — CHEATSHEET ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">08</span>
-        <h3 class="layer-title">Tabla de referencia rápida</h3>
-        </div>
-        <p class="layer-sub">Resumen comparativo de los conceptos fundamentales para la administración diaria de los tres motores.</p>
-
-        <div class="cheat-wrap">
-        <table class="cheat">
-            <thead>
-            <tr>
-                <th class="task">Concepto</th>
-                <th class="mssql">SQL Server</th>
-                <th class="oracle">Oracle</th>
-                <th class="postgres">PostgreSQL</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td class="task">Configuración de red</td>
-                <td><code>SQL Server Configuration Manager</code></td>
-                <td><code>listener.ora</code>, <code>tnsnames.ora</code>, <code>sqlnet.ora</code></td>
-                <td><code>postgresql.conf</code> + <code>pg_hba.conf</code></td>
-            </tr>
-            <tr>
-                <td class="task">Puerto por defecto</td>
-                <td>1433</td>
-                <td>1521</td>
-                <td>5432</td>
-            </tr>
-            <tr>
-                <td class="task">Usuario vs Schema</td>
-                <td>Separados (Login → User → Schema)</td>
-                <td>Son la misma entidad</td>
-                <td>Separados (Role con LOGIN → Schema)</td>
-            </tr>
-            <tr>
-                <td class="task">Almacenamiento lógico</td>
-                <td>Filegroup</td>
-                <td>Tablespace</td>
-                <td>Tablespace</td>
-            </tr>
-            <tr>
-                <td class="task">Archivo de datos</td>
-                <td><code>.mdf</code> / <code>.ndf</code></td>
-                <td><code>.dbf</code></td>
-                <td>Interno (OID en data directory)</td>
-            </tr>
-            <tr>
-                <td class="task">Log de transacciones</td>
-                <td><code>.ldf</code></td>
-                <td>Redo log / Archived redo log</td>
-                <td>WAL (<code>pg_wal/</code>)</td>
-            </tr>
-            <tr>
-                <td class="task">Área de trabajo temporal</td>
-                <td><code>tempdb</code></td>
-                <td>TEMP tablespace</td>
-                <td><code>pg_temp</code> (implícito)</td>
-            </tr>
-            <tr>
-                <td class="task">Backup nativo</td>
-                <td><code>BACKUP DATABASE</code></td>
-                <td>RMAN</td>
-                <td><code>pg_dump</code> / <code>pg_basebackup</code></td>
-            </tr>
-            <tr>
-                <td class="task">Modo para PITR</td>
-                <td>Modelo FULL</td>
-                <td>ARCHIVELOG</td>
-                <td>WAL archiving</td>
-            </tr>
-            <tr>
-                <td class="task">Export lógico</td>
-                <td>BCP / BACPAC</td>
-                <td>Data Pump (<code>expdp</code>/<code>impdp</code>)</td>
-                <td><code>pg_dump</code> / <code>pg_dumpall</code></td>
-            </tr>
-            <tr>
-                <td class="task">Alta disponibilidad</td>
-                <td>Always On AG / FCI</td>
-                <td>Data Guard / RAC</td>
-                <td>Streaming Replication + Patroni</td>
-            </tr>
-            <tr>
-                <td class="task">Cuenta administrativa</td>
-                <td><code>sa</code> (sysadmin)</td>
-                <td><code>SYS</code> / <code>SYSTEM</code> (AS SYSDBA)</td>
-                <td><code>postgres</code> (superuser)</td>
-            </tr>
-            <tr>
-                <td class="task">Arquitectura de procesos</td>
-                <td>Multi-hilo (1 proceso, N hilos)</td>
-                <td>Multi-proceso (SGA compartida)</td>
-                <td>1 proceso por conexión</td>
-            </tr>
-            <tr>
-                <td class="task">Concurrencia</td>
-                <td>Lock Manager + RCSI</td>
-                <td>MVCC con UNDO (no bloqueos de lectura)</td>
-                <td>MVCC nativo (snapshots por transacción)</td>
-            </tr>
-            <tr>
-                <td class="task">Ver sesiones activas</td>
-                <td><code>sys.dm_exec_sessions</code></td>
-                <td><code>v$session</code></td>
-                <td><code>pg_stat_activity</code></td>
-            </tr>
-            <tr>
-                <td class="task">Matar sesión</td>
-                <td><code>KILL &lt;spid&gt;</code></td>
-                <td><code>ALTER SYSTEM KILL SESSION '&lt;sid&gt;,&lt;serial&gt;'</code></td>
-                <td><code>SELECT pg_terminate_backend(&lt;pid&gt;)</code></td>
-            </tr>
-            <tr>
-                <td class="task">Autoincremento</td>
-                <td><code>IDENTITY(1,1)</code></td>
-                <td><code>GENERATED AS IDENTITY</code> (12c+)</td>
-                <td><code>SERIAL</code> / <code>GENERATED ALWAYS AS IDENTITY</code></td>
-            </tr>
-            <tr>
-                <td class="task">Paginación</td>
-                <td><code>OFFSET ... FETCH NEXT</code></td>
-                <td><code>OFFSET ... FETCH NEXT</code> (12c+)</td>
-                <td><code>LIMIT ... OFFSET</code></td>
-            </tr>
-            </tbody>
-        </table>
-        </div>
+        
+        <p class="layer-sub"> Por ultimo este archivo <code>.zip</code> se enviara por correo como evidencia, ademas se copiara en la ruta compartida
+            <code>\\Port-dlenis\informacion de empresas\(nombre del DP)\(nombre de la empresa)\(MTTO o Mantenimiento)</code>
+        </p>
+        
     </section>
 
     <div class="foot">
-        Guía para administradores de bases de datos — SQL Server 2025 · Oracle Database 19c/21c/23c · PostgreSQL 18
+        Guía de Mantenimiento para administradores de bases de datos — SQL Server
     </div>
 
     </div>
