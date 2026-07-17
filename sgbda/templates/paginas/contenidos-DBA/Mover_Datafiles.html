@@ -8,13 +8,15 @@
 
 <div class="contents">
     
-    <h1 class="title-text">Contenidos</h1>
-
-    <div class="contenido-opciones">
-        <a href="{% url 'info_motores' %}" class="btn-options nav-link page-transition"> Motores de Bases de Datos</a></li>
-        <a href="{% url 'mantenimientos_sqlserver' %}" class="btn-options nav-link page-transition"> Mantenimientos SQL Server</a></li>
-        <a href="{% url 'mover_datafiles' %}" class="btn-options nav-link page-transition"> Mover Datafiles SQL Server</a></li>
+    <div class="content-container">
+        <h1 class="title-text">Contenidos</h1>
+        <div class="contenido-opciones">
+            <a href="{% url 'info_motores' %}" class="btn-options nav-link page-transition"> Motores de Bases de Datos</a></li>
+            <a href="{% url 'mantenimientos_sqlserver' %}" class="btn-options nav-link page-transition"> Mantenimientos SQL Server</a></li>
+            <a href="{% url 'mover_datafiles' %}" class="btn-options nav-link page-transition"> Mover Datafiles SQL Server</a></li>
+        </div>
     </div>
+    
 </div>
 
 <div class="contenedor-informacion">
@@ -22,7 +24,7 @@
     <div class="wrap">
 
     <div class="hero">
-        <h1 class="title"><span class="a">Guía Movimiento de Datafiles</span></h1>
+        <h1 class="title"><span class="a">Como Mover Datafiles de un Disco a Otro</span></h1>
         <p class="lead">Esta guía presenta el <b>paso a paso para mover los archivos físicos</b> de una base de datos en SQL Server: los archivos <code>.mdf</code> y <code>.ndf</code> hacia el <b>Disco D</b> y el archivo <code>.ldf</code> hacia el <b>Disco L</b>, garantizando que no se pierda información y que la ventana de indisponibilidad sea mínima. A continuación se mostrará el paso a paso a tener presente:</p>
     </div>
 
