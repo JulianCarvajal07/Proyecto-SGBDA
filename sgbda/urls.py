@@ -6,7 +6,7 @@ from .views.conexiones import registro_conexion, listar_conexiones, eliminar_con
 from .views.inventario import listar_inventario, detalles_instancia, eliminar_instancia, stream_actualizacion, exportar_excel
 from .views.builds import listar_builds, actualizar_builds
 from .views.clientes import listar_clientes, registro_cliente, modificar_cliente, eliminar_cliente
-from .views.informacion import informacion_motores, mantenimientos_SqlServer
+from .views.informacion import informacion_motores, mantenimientos_SqlServer, Mover_datafiles
 from .views.calendario import calendario_view, crear_asignacion, eliminar_asignacion
 from django.contrib.auth.views import LogoutView
 
@@ -41,6 +41,7 @@ urlpatterns = [
 
     path("informacion_motores/", informacion_motores, name="info_motores"),
     path("mantenimientos_sqlserver/", mantenimientos_SqlServer, name="mantenimientos_sqlserver"),
+    path("mover_datafiles/", Mover_datafiles, name="mover_datafiles"),
 
     path("generar_excel/", exportar_excel, name="generar_excel"),
 

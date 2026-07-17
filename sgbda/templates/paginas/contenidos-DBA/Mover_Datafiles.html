@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block titulo %} Mover Datafiles {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+<div class="contents">
+    
+    <h1 class="title-text">Contenidos</h1>
+
+    <div class="contenido-opciones">
+        <a href="{% url 'info_motores' %}" class="btn-options nav-link page-transition"> Motores de Bases de Datos</a></li>
+        <a href="{% url 'mantenimientos_sqlserver' %}" class="btn-options nav-link page-transition"> Mantenimientos SQL Server</a></li>
+        <a href="{% url 'mover_datafiles' %}" class="btn-options nav-link page-transition"> Mover Datafiles SQL Server</a></li>
+    </div>
+</div>
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <h1 class="title"><span class="a">Guía Movimiento de Datafiles</span></h1>
+        <p class="lead">Esta guía presenta el <b>paso a paso para mover los archivos físicos</b> de una base de datos en SQL Server: los archivos <code>.mdf</code> y <code>.ndf</code> hacia el <b>Disco D</b> y el archivo <code>.ldf</code> hacia el <b>Disco L</b>, garantizando que no se pierda información y que la ventana de indisponibilidad sea mínima. A continuación se mostrará el paso a paso a tener presente:</p>
+    </div>
+
+    <!-- ================= LAYER 1 — IDENTIFICAR ARCHIVOS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">Identificar Archivos Lógicos y Rutas Actuales</h3>
+        </div>
+        <p class="layer-sub">Antes de mover cualquier archivo, se debe identificar el <code>nombre lógico</code> de cada datafile y la <code>ruta física</code> en la que se encuentra actualmente. Esta información es indispensable, ya que el nombre lógico es el que se usará para indicarle a SQL Server la nueva ubicación del archivo.
+        </p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Consultar desde T-SQL</h4>
+            <p> Ejecutar el procedimiento <code>sp_helpfile</code> sobre la base de datos, o consultar la vista <code>sys.master_files</code> para obtener el <b>nombre lógico</b>, la <b>ruta física</b> y el <b>tipo de archivo</b> (ROWS o LOG) de cada datafile.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Consultar desde SSMS</h4>
+            <p> Alternativamente, ingresar a <b>Object Explorer</b> &gt; clic derecho sobre la base de datos &gt; <code>Properties</code> &gt; pestaña <code>Files</code>, allí se listan los nombres lógicos y rutas de cada archivo.
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Identificar_Archivos.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+                -- Ver nombre lógico, tipo y ruta física de cada archivo de la base de datos
+                USE [NOMBRE_BASE_DE_DATOS]
+                GO
+
+                SP_HELPFILE
+
+                -- Alternativa usando catálogo del sistema
+                SELECT
+                    DB_NAME(database_id) AS BaseDatos,
+                    name                  AS NombreLogico,
+                    type_desc             AS TipoArchivo,   -- ROWS = MDF/NDF, LOG = LDF
+                    physical_name         AS RutaActual
+                FROM sys.master_files
+                WHERE database_id = DB_ID(N'NOMBRE_BASE_DE_DATOS');
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/mover_datafiles/paso_1.png' %}" alt="imagen asignar permisos al usuario sobre el disco">
+            <img src="{% static 'contenidos/mover_datafiles/paso_1.2.png' %}" alt="imagen asignar permisos al usuario sobre el disco">
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — REDIRECCIONAR RUTA LÓGICA ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">Redireccionar la Ruta Lógica del Archivo</h3>
+        </div>
+        <p class="layer-sub">Con el comando <code>ALTER DATABASE ... MODIFY FILE</code> se le indica a SQL Server la <b>nueva ruta física</b> que tendrá cada archivo. Este comando <b>puede ejecutarse con la base de datos en línea</b>, ya que solo actualiza el metadato de la ruta; el cambio se hará efectivo únicamente cuando la base de datos vuelva a iniciar (quede <code>OFFLINE</code> y luego <code>ONLINE</code>). Esto permite adelantar trabajo sin generar indisponibilidad todavía.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Reglas</h4>
+            <p><code>-</code> Los archivos <code>.mdf</code> y <code>.ndf</code> (tipo <code>ROWS</code>) se redireccionan al <b>Disco D</b>.</p>
+            <p><code>-</code> El archivo <code>.ldf</code> (tipo <code>LOG</code>) se redirecciona al <b>Disco L</b>.</p>
+            <p><code>-</code> El <code>NAME</code> usado debe coincidir exactamente con el <b>nombre lógico</b> obtenido en el paso anterior.</p>
+            <p><code>-</code> Verificar previamente que exista <b>espacio suficiente</b> en el disco destino y que la carpeta de destino ya esté creada.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Redireccionar_Rutas.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+                USE [master]
+                GO
+
+                -- Redireccionar archivo(s) de datos (.mdf / .ndf) al Disco D
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS]
+                MODIFY FILE (NAME = N'NOMBRE_LOGICO_MDF', FILENAME = N'D:\SQLData\NOMBRE_ARCHIVO.mdf');
+
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS]
+                MODIFY FILE (NAME = N'NOMBRE_LOGICO_NDF', FILENAME = N'D:\SQLData\NOMBRE_ARCHIVO.ndf');
+
+                -- Redireccionar archivo de log (.ldf) al Disco L
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS]
+                MODIFY FILE (NAME = N'NOMBRE_LOGICO_LDF', FILENAME = N'L:\SQLLog\NOMBRE_ARCHIVO.ldf');
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — VENTANA DE INDISPONIBILIDAD ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">Poner la Base de Datos Fuera de Línea</h3>
+        </div>
+        <p class="layer-sub">A partir de este punto <b>inicia la ventana de indisponibilidad</b>. Se debe colocar la base de datos en estado <code>OFFLINE</code> para poder mover los archivos físicos sin que se encuentren en uso por el motor de SQL Server. Se recomienda validar previamente que no existan transacciones activas ni sesiones abiertas contra la base de datos.</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Poner_Offline.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+                USE [master]
+                GO
+
+                -- Cerrar conexiones activas y dejar la base de datos fuera de línea
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS]
+                SET OFFLINE WITH ROLLBACK IMMEDIATE;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — MOVER ARCHIVOS FÍSICOS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">Mover Físicamente los Archivos</h3>
+        </div>
+        <p class="layer-sub">Con la base de datos <code>OFFLINE</code>, se procede a mover (no copiar) los archivos desde el <b>Disco C</b> hacia sus nuevos destinos. Es importante <code>cortar y pegar</code> o usar una utilidad que <b>mueva</b> el archivo, evitando dejar duplicados en el disco de origen que consuman espacio innecesariamente.</p>
+        <p class="layer-sub">Tambien se debe asignar <code>PERMISO TOTAL</code> al usuario sobre el disco para realizar dicha maniobra:</p>
+
+        <div class="images">
+            <img src="{% static 'contenidos/mover_datafiles/paso_4.png' %}" alt="imagen asignar permisos al usuario sobre el disco">
+        </div>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Desde el Explorador de Archivos</h4>
+            <p> Cortar los archivos <code>.mdf</code> y <code>.ndf</code> desde la ruta actual en el <b>Disco C</b> y pegarlos en la ruta configurada en el <b>Disco D</b> (por ejemplo <code>D:\SQLData\</code>). Cortar el archivo <code>.ldf</code> y pegarlo en la ruta configurada en el <b>Disco L</b> (por ejemplo <code>L:\SQLLog\</code>).
+            </p>
+        </div>
+    
+        <div class="card mssql">
+            <h4>Desde Línea de Comandos (opcional)</h4>
+            <p> Se puede usar <code>robocopy</code> con el parámetro <code>/MOV</code> para mover el archivo conservando permisos, o el comando <code>move</code> de <code>CMD</code> para una migración rápida dentro de la misma máquina.
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Mover_Archivos.cmd</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+                :: Mover archivos de datos al Disco D
+                move "C:\SQLData\NOMBRE_ARCHIVO.mdf" "D:\SQLData\NOMBRE_ARCHIVO.mdf"
+                move "C:\SQLData\NOMBRE_ARCHIVO.ndf" "D:\SQLData\NOMBRE_ARCHIVO.ndf"
+
+                :: Mover archivo de log al Disco L
+                move "C:\SQLLog\NOMBRE_ARCHIVO.ldf" "L:\SQLLog\NOMBRE_ARCHIVO.ldf"
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — PONER EN LINEA Y VALIDAR ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">Poner en Línea y Validar la Información</h3>
+        </div>
+        <p class="layer-sub">Una vez movidos los archivos a las nuevas rutas, se coloca la base de datos nuevamente <code>ONLINE</code>. En este momento SQL Server buscará los archivos en las rutas configuradas en el <b>Paso 02</b>; si la ruta y el nombre coinciden, la base de datos abrirá sin pérdida de información, con lo cual finaliza la ventana de indisponibilidad.</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Poner_Online_Y_Validar.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+                USE [master]
+                GO
+
+                -- Poner la base de datos nuevamente en línea
+                ALTER DATABASE [NOMBRE_BASE_DE_DATOS]
+                SET ONLINE;
+                GO
+
+                -- Validar que las rutas físicas ya correspondan al Disco D y Disco L
+                SELECT
+                    DB_NAME(database_id) AS BaseDatos,
+                    name                  AS NombreLogico,
+                    type_desc             AS TipoArchivo,
+                    physical_name         AS RutaActual,
+                    state_desc            AS Estado
+                FROM sys.master_files
+                WHERE database_id = DB_ID(N'NOMBRE_BASE_DE_DATOS');
+
+                -- Validar el estado general de la base de datos
+                SELECT name, state_desc
+                FROM sys.databases
+                WHERE name = N'NOMBRE_BASE_DE_DATOS';
+            </code></pre>
+        </div>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Puntos de Validación</h4>
+            <p><code>-</code> El campo <code>state_desc</code> de <code>sys.databases</code> debe mostrar <b>ONLINE</b>.</p>
+            <p><code>-</code> Las rutas en <code>physical_name</code> deben apuntar ya al <b>Disco D</b> (MDF/NDF) y al <b>Disco L</b> (LDF).</p>
+            <p><code>-</code> Revisar el <code>Log de Errores</code> de SQL Server (SSMS &gt; Management &gt; SQL Server Logs) para confirmar que no se generaron errores al montar los archivos.</p>
+            <p><code>-</code> Realizar una consulta rápida (por ejemplo <code>SELECT TOP 10 * FROM</code> alguna tabla) para confirmar que la información se conserva intacta.</p>
+        </div>
+        </div>
+
+    </section>
+
+    <div class="foot">
+        Guía de Movimiento de Datafiles para administradores de bases de datos — SQL Server
+    </div>
+
+    </div>
+
+</div>
+
+<script src="{% static 'js/desvanecimiento_texto.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+{% endblock %}
