@@ -23,438 +23,438 @@
 
     <div class="wrap">
 
-    <div class="hero">
-        <h1 class="title"><span class="a">Guía Mantenimiento</span></h1>
-        <p class="lead">Esta guía presenta un <b>la ejecución de un mantenimiento</b> para los diferentes clientes con motores de bases de datos SQL Server. A continuación se mostrará el paso a paso a tener presente:</p>
-    </div>
-
-    <!-- ================= LAYER 1 — INSTANCE MODEL ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">01</span>
-        <h3 class="layer-title">Chequeo de Integridad</h3>
-        </div>
-        <p class="layer-sub">El primer paso para realizar un mantenimiento será ejecutar un chequeo de integridad para cada base de datos presente en la instancia
-            debemos tener presente que dicho paso se encuentra automatizado con un archivo ".bat":
-        </p>
-
-        <p class="layer-sub">Este Chequeo sirve para validar la precisión, coherencia y fiabilidad de la información almacenada. Permite detectar corrupción de datos 
-            causada por fallas de hardware, errores de software o caídas del sistema, garantizando que la estructura y 
-            las relaciones entre los datos sigan intactas.
-        </p>
-
-        <div class="doble">
-        <div class="card mssql">
-            <h4>Verificar Bases de Datos</h4>
-            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>chequeo_integridad.bat</code> o <code>chequeo.bat</code>
-                antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
-                registradas en dicho archivo.
-            </p>
-        </div>
-        <div class="card mssql">
-            <h4>Ejecutar Archivo .bat</h4>
-            <p> luego de la verificación del archivo <code>chequeo_integridad.bat</code>. debemos hacer clic derecho
-                en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
-                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con el <b>chequeo</b> teniendo presente
-                la ruta establecida. 
-            </p>
-        </div>
+        <div class="hero">
+            <h1 class="title"><span class="a">Guía Mantenimiento</span></h1>
+            <p class="lead">Esta guía presenta un <b>la ejecución de un mantenimiento</b> para los diferentes clientes con motores de bases de datos SQL Server. A continuación se mostrará el paso a paso a tener presente:</p>
         </div>
 
-        <div class="images">
-            <img src="{% static 'contenidos/mantenimientos/paso_1.png' %}" alt="imagen"> 
-            <img src="{% static 'contenidos/mantenimientos/paso_1.1.png' %}" alt="imagen"> 
-        </div>
-    </section>
-
-    <!-- ================= LAYER 2 — SCHEMA = USER ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">02</span>
-        <h3 class="layer-title">Reconstrucción y Reorganización de Índices</h3>
-        </div>
-        <p class="layer-sub">luego de llevar a cabo el chequeo de integridad, se procedera a realizar la <code>Reorganización</code> y <code>Reconstrucción</code> de índices para cada instancia presentada en la maquina,
-        debemos tener presente que, para dicho paso, se utilizara otro <b>script</b> para automatizar y optimizar dicho proceso. este script tomara todos los índices creados por el cliente, y dependiento la fragmentacion
-        de cada uno, el script ejecutara una reorganizacion o una Reconstrucción</p>
-
-        <div class="simple">
-        <div class="card mssql">
-            <h4>Reglas</h4>
-            <p><code>-</code> Se <code>Organizara</code> el indice si su fragmentacion es <b>MENOR</b> a <code>30</code>.</p>
-            <p><code>-</code> Se <code>Reconstruira</code> el indice si su fragmentacion es <b>MAYOR</b> a <code>30</code>.</p>
-            <p><code>-</code> En el caso de presentar error con la <code>Reorganización</code> debido a un bloqueo a nivel de página por estar deshabilitado 
-                              se reconstruira el indice de forma <code>Manual</code>.</p>
-        </div>
-        </div>
-
-        <div class="code-container">
-            <!-- Barra de título estilo VS Code -->
-            <div class="code-header">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-                <span class="filename">Reorganización_y_Reconstrucción.sql</span>
+        <!-- ================= LAYER 1 — INSTANCE MODEL ================= -->
+        <section class="layer reveal">
+            <div class="layer-head">
+            <span class="layer-num">01</span>
+            <h3 class="layer-title">Chequeo de Integridad</h3>
             </div>
-            
-            <!-- Tu código aquí -->
-            <pre class="line-numbers"><code class="language-javascript">
-            -- =====================================================================
-            -- Script combinado: escaneo de fragmentación + ejecución secuencial por lotes
-            -- Ajusta los parámetros al inicio: @reportOnly, @databaseToCheck, @fragmentationThreshold,
-            -- @indexFillFactor, @indexStatisticsScanningMode, @sortInTempdb, @verboseMode, @batchSize
-            -- =====================================================================
+            <p class="layer-sub">El primer paso para realizar un mantenimiento será ejecutar un chequeo de integridad para cada base de datos presente en la instancia
+                debemos tener presente que dicho paso se encuentra automatizado con un archivo ".bat":
+            </p>
 
-            SET NOCOUNT ON;
-            -------------------------------------------------------------
-            -- Parámetros de control (ajusta a tu gusto)
-            -------------------------------------------------------------
-            DECLARE @reportOnly BIT = 0;               -- 1 = solo reporte, 0 = ejecutar
-            DECLARE @databaseToCheck SYSNAME = NULL;   -- NULL = todas (o 'TuDB')
-            DECLARE @fragmentationThreshold INT = 15;  -- umbral para considerar fragmentado
-            DECLARE @indexFillFactor VARCHAR(5) = '90';
-            DECLARE @indexStatisticsScanningMode VARCHAR(20) = 'SAMPLED'; -- 'DEFAULT','LIMITED','SAMPLED','DETAILED'
-            DECLARE @sortInTempdb VARCHAR(3) = 'ON';
-            DECLARE @verboseMode BIT = 0;               -- 1 = prints detallados
-            DECLARE @batchSize INT = 1000;             -- "de mil en mil" -> número de comandos por lote
-            -------------------------------------------------------------
+            <p class="layer-sub">Este Chequeo sirve para validar la precisión, coherencia y fiabilidad de la información almacenada. Permite detectar corrupción de datos 
+                causada por fallas de hardware, errores de software o caídas del sistema, garantizando que la estructura y 
+                las relaciones entre los datos sigan intactas.
+            </p>
 
-            -- Validaciones simples
-            IF @sortInTempdb NOT IN ('ON','OFF') SET @sortInTempdb='ON';
+            <div class="doble">
+            <div class="card mssql">
+                <h4>Verificar Bases de Datos</h4>
+                <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>chequeo_integridad.bat</code> o <code>chequeo.bat</code>
+                    antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
+                    registradas en dicho archivo.
+                </p>
+            </div>
+            <div class="card mssql">
+                <h4>Ejecutar Archivo .bat</h4>
+                <p> luego de la verificación del archivo <code>chequeo_integridad.bat</code>. debemos hacer clic derecho
+                    en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
+                    archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con el <b>chequeo</b> teniendo presente
+                    la ruta establecida. 
+                </p>
+            </div>
+            </div>
 
-            -- Preparar tabla temporal de resultados
-            IF OBJECT_ID('tempdb..#tmpFragmentedIndexes') IS NOT NULL DROP TABLE #tmpFragmentedIndexes;
-            CREATE TABLE #tmpFragmentedIndexes
-            (
-                [Id] INT IDENTITY(1,1) PRIMARY KEY,
-                [dbName] sysname,
-                [tableName] sysname,
-                [schemaName] sysname,
-                [indexName] sysname,
-                [databaseID] SMALLINT,
-                [objectID] INT,
-                [indexID] INT,
-                [AvgFragmentationPercentage] FLOAT,
-                [reorganizationOrRebuildCommand] NVARCHAR(MAX),
-                [Executed] BIT DEFAULT(0),
-                [ExecutionResult] NVARCHAR(4000) NULL,
-                [ExecutionDate] DATETIME NULL
-            );
+            <div class="images">
+                <img src="{% static 'contenidos/mantenimientos/paso_1.png' %}" alt="imagen"> 
+                <img src="{% static 'contenidos/mantenimientos/paso_1.1.png' %}" alt="imagen"> 
+            </div>
+        </section>
 
-            -- Variables para validaciones
-            DECLARE @isSysAdmin INT;
-            DECLARE @SQLServerVersion INT;
-            SET @isSysAdmin = (SELECT IS_SRVROLEMEMBER('sysadmin'));
-            SET @SQLServerVersion = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50)), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50))) - 1) AS INT));
+        <!-- ================= LAYER 2 — SCHEMA = USER ================= -->
+        <section class="layer reveal">
+            <div class="layer-head">
+            <span class="layer-num">02</span>
+            <h3 class="layer-title">Reconstrucción y Reorganización de Índices</h3>
+            </div>
+            <p class="layer-sub">luego de llevar a cabo el chequeo de integridad, se procedera a realizar la <code>Reorganización</code> y <code>Reconstrucción</code> de índices para cada instancia presentada en la maquina,
+            debemos tener presente que, para dicho paso, se utilizara otro <b>script</b> para automatizar y optimizar dicho proceso. este script tomara todos los índices creados por el cliente, y dependiento la fragmentacion
+            de cada uno, el script ejecutara una reorganizacion o una Reconstrucción</p>
 
-            IF @isSysAdmin != 1 OR @SQLServerVersion < 9
-            BEGIN
-                PRINT 'Error: requiere ser sysadmin y SQL Server 2005 o superior.';
-                RETURN;
-            END
+            <div class="simple">
+            <div class="card mssql">
+                <h4>Reglas</h4>
+                <p><code>-</code> Se <code>Organizara</code> el indice si su fragmentacion es <b>MENOR</b> a <code>30</code>.</p>
+                <p><code>-</code> Se <code>Reconstruira</code> el indice si su fragmentacion es <b>MAYOR</b> a <code>30</code>.</p>
+                <p><code>-</code> En el caso de presentar error con la <code>Reorganización</code> debido a un bloqueo a nivel de página por estar deshabilitado 
+                                se reconstruira el indice de forma <code>Manual</code>.</p>
+            </div>
+            </div>
 
-            -- Revisar si AlwaysOn AGs está habilitado
-            DECLARE @isHadrEnabled BIT = CAST(ISNULL(SERVERPROPERTY('IsHadrEnabled'),0) AS BIT);
+            <div class="code-container">
+                <!-- Barra de título estilo VS Code -->
+                <div class="code-header">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                    <span class="filename">Reorganización_y_Reconstrucción.sql</span>
+                </div>
+                
+                <!-- Tu código aquí -->
+                <pre class="line-numbers"><code class="language-javascript">
+                -- =====================================================================
+                -- Script combinado: escaneo de fragmentación + ejecución secuencial por lotes
+                -- Ajusta los parámetros al inicio: @reportOnly, @databaseToCheck, @fragmentationThreshold,
+                -- @indexFillFactor, @indexStatisticsScanningMode, @sortInTempdb, @verboseMode, @batchSize
+                -- =====================================================================
 
-            -- Cursor para bases a escanear (respeta AGs si aplica)
-            DECLARE dbNames_cursor CURSOR LOCAL FAST_FORWARD FOR
-            SELECT s.[name] AS dbName, s.database_id
-            FROM master.sys.databases s
-            LEFT JOIN master.sys.dm_hadr_availability_replica_states r ON s.replica_id = r.replica_id
-            WHERE s.state_desc = 'ONLINE'
-            AND s.is_read_only != 1
-            AND s.[name] NOT IN ('master','model','tempdb')
-            AND s.[compatibility_level] >= 90
-            AND (@databaseToCheck IS NULL OR s.[name] = @databaseToCheck)
-            AND (
-                    @isHadrEnabled = 0
-                    OR (@isHadrEnabled = 1 AND UPPER(ISNULL(r.role_desc,'NonHadrEnabled')) NOT LIKE 'SECONDARY')
-                )
-            ORDER BY s.database_id;
+                SET NOCOUNT ON;
+                -------------------------------------------------------------
+                -- Parámetros de control (ajusta a tu gusto)
+                -------------------------------------------------------------
+                DECLARE @reportOnly BIT = 0;               -- 1 = solo reporte, 0 = ejecutar
+                DECLARE @databaseToCheck SYSNAME = NULL;   -- NULL = todas (o 'TuDB')
+                DECLARE @fragmentationThreshold INT = 15;  -- umbral para considerar fragmentado
+                DECLARE @indexFillFactor VARCHAR(5) = '90';
+                DECLARE @indexStatisticsScanningMode VARCHAR(20) = 'SAMPLED'; -- 'DEFAULT','LIMITED','SAMPLED','DETAILED'
+                DECLARE @sortInTempdb VARCHAR(3) = 'ON';
+                DECLARE @verboseMode BIT = 0;               -- 1 = prints detallados
+                DECLARE @batchSize INT = 1000;             -- "de mil en mil" -> número de comandos por lote
+                -------------------------------------------------------------
 
-            OPEN dbNames_cursor;
+                -- Validaciones simples
+                IF @sortInTempdb NOT IN ('ON','OFF') SET @sortInTempdb='ON';
 
-            DECLARE @dbname sysname;
-            DECLARE @dbid INT;
-            FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
-            WHILE @@FETCH_STATUS = 0
-            BEGIN
-                IF @verboseMode = 1 PRINT 'Scan: ' + @dbname;
-
-                DECLARE @dynamic_command_get_tables NVARCHAR(MAX) = N'
-                USE ' + QUOTENAME(@dbname) + N';
-                INSERT INTO #tmpFragmentedIndexes (
-                [dbName],[tableName],[schemaName],[indexName],[databaseID],[objectID],[indexID],[AvgFragmentationPercentage],[reorganizationOrRebuildCommand]
-                )
-                SELECT
-                DB_NAME() as [dbName],
-                tbl.name as [tableName],
-                SCHEMA_NAME(tbl.schema_id) as schemaName,
-                idx.name as [indexName],
-                pst.database_id as [databaseID],
-                pst.object_id as [objectID],
-                pst.index_id as [indexID],
-                pst.avg_fragmentation_in_percent as [AvgFragmentationPercentage],
-                CASE 
-                    WHEN pst.avg_fragmentation_in_percent > 30 THEN 
-                    ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REBUILD WITH (FILLFACTOR = ' + @indexFillFactor + ', SORT_IN_TEMPDB = ' + @sortInTempdb + ', STATISTICS_NORECOMPUTE = OFF);''
-                    WHEN pst.avg_fragmentation_in_percent > 5 AND pst.avg_fragmentation_in_percent <= 30 THEN
-                    ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REORGANIZE;''
-                    ELSE
-                    NULL
-                END
-                FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, ''' + @indexStatisticsScanningMode + ''') AS pst
-                INNER JOIN sys.tables AS tbl ON pst.object_id = tbl.object_id
-                INNER JOIN sys.indexes idx ON pst.object_id = idx.object_id AND pst.index_id = idx.index_id
-                WHERE pst.index_id <> 0
-                AND pst.alloc_unit_type_desc IN (N''IN_ROW_DATA'', N''ROW_OVERFLOW_DATA'')
-                AND pst.avg_fragmentation_in_percent >= ' + CAST(@fragmentationThreshold AS VARCHAR(10)) + ';';
-
-                IF @verboseMode = 1
-                BEGIN
-                    PRINT @dynamic_command_get_tables;
-                END
-
-                EXEC (@dynamic_command_get_tables);
-
-                FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
-            END
-
-            CLOSE dbNames_cursor;
-            DEALLOCATE dbNames_cursor;
-
-            -- Si solo reporte (no ejecutar), mostrar y salir
-            IF @reportOnly = 1
-            BEGIN
-                SELECT dbName, tableName, schemaName, indexName, AvgFragmentationPercentage, reorganizationOrRebuildCommand
-                FROM #tmpFragmentedIndexes
-                WHERE reorganizationOrRebuildCommand IS NOT NULL
-                ORDER BY AvgFragmentationPercentage DESC;
-                RETURN;
-            END
-
-            -- Si no hay comandos a ejecutar, informar y salir
-            IF NOT EXISTS (SELECT 1 FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL)
-            BEGIN
-                PRINT 'No se encontraron índices que requieran reorganize/rebuild según los parámetros.';
-                RETURN;
-            END
-
-            -- Ejecutar en lotes de @batchSize. Dentro de cada lote, cada comando se ejecuta secuencialmente.
-            DECLARE @totalCommands INT = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL);
-            DECLARE @processed INT = 0;
-
-            PRINT 'Total de comandos a ejecutar: ' + CAST(@totalCommands AS VARCHAR(10));
-
-            WHILE @processed < @totalCommands
-            BEGIN
-                -- Obtener lote de comandos no ejecutados (ordenados por frag desc)
-                ;WITH cteBatch AS
+                -- Preparar tabla temporal de resultados
+                IF OBJECT_ID('tempdb..#tmpFragmentedIndexes') IS NOT NULL DROP TABLE #tmpFragmentedIndexes;
+                CREATE TABLE #tmpFragmentedIndexes
                 (
-                    SELECT TOP (@batchSize) Id, reorganizationOrRebuildCommand
-                    FROM #tmpFragmentedIndexes
-                    WHERE reorganizationOrRebuildCommand IS NOT NULL AND Executed = 0
-                    ORDER BY AvgFragmentationPercentage DESC, Id
-                )
-                SELECT * INTO #BatchTemp FROM cteBatch; -- tabla temporal por lote
+                    [Id] INT IDENTITY(1,1) PRIMARY KEY,
+                    [dbName] sysname,
+                    [tableName] sysname,
+                    [schemaName] sysname,
+                    [indexName] sysname,
+                    [databaseID] SMALLINT,
+                    [objectID] INT,
+                    [indexID] INT,
+                    [AvgFragmentationPercentage] FLOAT,
+                    [reorganizationOrRebuildCommand] NVARCHAR(MAX),
+                    [Executed] BIT DEFAULT(0),
+                    [ExecutionResult] NVARCHAR(4000) NULL,
+                    [ExecutionDate] DATETIME NULL
+                );
 
-                DECLARE @cntThisBatch INT = (SELECT COUNT(*) FROM #BatchTemp);
-                IF @cntThisBatch = 0
+                -- Variables para validaciones
+                DECLARE @isSysAdmin INT;
+                DECLARE @SQLServerVersion INT;
+                SET @isSysAdmin = (SELECT IS_SRVROLEMEMBER('sysadmin'));
+                SET @SQLServerVersion = (SELECT CAST(LEFT(CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50)), CHARINDEX('.', CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR(50))) - 1) AS INT));
+
+                IF @isSysAdmin != 1 OR @SQLServerVersion < 9
                 BEGIN
+                    PRINT 'Error: requiere ser sysadmin y SQL Server 2005 o superior.';
+                    RETURN;
+                END
+
+                -- Revisar si AlwaysOn AGs está habilitado
+                DECLARE @isHadrEnabled BIT = CAST(ISNULL(SERVERPROPERTY('IsHadrEnabled'),0) AS BIT);
+
+                -- Cursor para bases a escanear (respeta AGs si aplica)
+                DECLARE dbNames_cursor CURSOR LOCAL FAST_FORWARD FOR
+                SELECT s.[name] AS dbName, s.database_id
+                FROM master.sys.databases s
+                LEFT JOIN master.sys.dm_hadr_availability_replica_states r ON s.replica_id = r.replica_id
+                WHERE s.state_desc = 'ONLINE'
+                AND s.is_read_only != 1
+                AND s.[name] NOT IN ('master','model','tempdb')
+                AND s.[compatibility_level] >= 90
+                AND (@databaseToCheck IS NULL OR s.[name] = @databaseToCheck)
+                AND (
+                        @isHadrEnabled = 0
+                        OR (@isHadrEnabled = 1 AND UPPER(ISNULL(r.role_desc,'NonHadrEnabled')) NOT LIKE 'SECONDARY')
+                    )
+                ORDER BY s.database_id;
+
+                OPEN dbNames_cursor;
+
+                DECLARE @dbname sysname;
+                DECLARE @dbid INT;
+                FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
+                WHILE @@FETCH_STATUS = 0
+                BEGIN
+                    IF @verboseMode = 1 PRINT 'Scan: ' + @dbname;
+
+                    DECLARE @dynamic_command_get_tables NVARCHAR(MAX) = N'
+                    USE ' + QUOTENAME(@dbname) + N';
+                    INSERT INTO #tmpFragmentedIndexes (
+                    [dbName],[tableName],[schemaName],[indexName],[databaseID],[objectID],[indexID],[AvgFragmentationPercentage],[reorganizationOrRebuildCommand]
+                    )
+                    SELECT
+                    DB_NAME() as [dbName],
+                    tbl.name as [tableName],
+                    SCHEMA_NAME(tbl.schema_id) as schemaName,
+                    idx.name as [indexName],
+                    pst.database_id as [databaseID],
+                    pst.object_id as [objectID],
+                    pst.index_id as [indexID],
+                    pst.avg_fragmentation_in_percent as [AvgFragmentationPercentage],
+                    CASE 
+                        WHEN pst.avg_fragmentation_in_percent > 30 THEN 
+                        ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REBUILD WITH (FILLFACTOR = ' + @indexFillFactor + ', SORT_IN_TEMPDB = ' + @sortInTempdb + ', STATISTICS_NORECOMPUTE = OFF);''
+                        WHEN pst.avg_fragmentation_in_percent > 5 AND pst.avg_fragmentation_in_percent <= 30 THEN
+                        ''ALTER INDEX [''+idx.Name+''] ON [''+DB_NAME()+''].[''+SCHEMA_NAME(tbl.schema_id)+''].[''+tbl.name+''] REORGANIZE;''
+                        ELSE
+                        NULL
+                    END
+                    FROM sys.dm_db_index_physical_stats(DB_ID(), NULL, NULL, NULL, ''' + @indexStatisticsScanningMode + ''') AS pst
+                    INNER JOIN sys.tables AS tbl ON pst.object_id = tbl.object_id
+                    INNER JOIN sys.indexes idx ON pst.object_id = idx.object_id AND pst.index_id = idx.index_id
+                    WHERE pst.index_id <> 0
+                    AND pst.alloc_unit_type_desc IN (N''IN_ROW_DATA'', N''ROW_OVERFLOW_DATA'')
+                    AND pst.avg_fragmentation_in_percent >= ' + CAST(@fragmentationThreshold AS VARCHAR(10)) + ';';
+
+                    IF @verboseMode = 1
+                    BEGIN
+                        PRINT @dynamic_command_get_tables;
+                    END
+
+                    EXEC (@dynamic_command_get_tables);
+
+                    FETCH NEXT FROM dbNames_cursor INTO @dbname, @dbid;
+                END
+
+                CLOSE dbNames_cursor;
+                DEALLOCATE dbNames_cursor;
+
+                -- Si solo reporte (no ejecutar), mostrar y salir
+                IF @reportOnly = 1
+                BEGIN
+                    SELECT dbName, tableName, schemaName, indexName, AvgFragmentationPercentage, reorganizationOrRebuildCommand
+                    FROM #tmpFragmentedIndexes
+                    WHERE reorganizationOrRebuildCommand IS NOT NULL
+                    ORDER BY AvgFragmentationPercentage DESC;
+                    RETURN;
+                END
+
+                -- Si no hay comandos a ejecutar, informar y salir
+                IF NOT EXISTS (SELECT 1 FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL)
+                BEGIN
+                    PRINT 'No se encontraron índices que requieran reorganize/rebuild según los parámetros.';
+                    RETURN;
+                END
+
+                -- Ejecutar en lotes de @batchSize. Dentro de cada lote, cada comando se ejecuta secuencialmente.
+                DECLARE @totalCommands INT = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE reorganizationOrRebuildCommand IS NOT NULL);
+                DECLARE @processed INT = 0;
+
+                PRINT 'Total de comandos a ejecutar: ' + CAST(@totalCommands AS VARCHAR(10));
+
+                WHILE @processed < @totalCommands
+                BEGIN
+                    -- Obtener lote de comandos no ejecutados (ordenados por frag desc)
+                    ;WITH cteBatch AS
+                    (
+                        SELECT TOP (@batchSize) Id, reorganizationOrRebuildCommand
+                        FROM #tmpFragmentedIndexes
+                        WHERE reorganizationOrRebuildCommand IS NOT NULL AND Executed = 0
+                        ORDER BY AvgFragmentationPercentage DESC, Id
+                    )
+                    SELECT * INTO #BatchTemp FROM cteBatch; -- tabla temporal por lote
+
+                    DECLARE @cntThisBatch INT = (SELECT COUNT(*) FROM #BatchTemp);
+                    IF @cntThisBatch = 0
+                    BEGIN
+                        DROP TABLE #BatchTemp;
+                        BREAK;
+                    END
+
+                    PRINT '----------------------------------------------------';
+                    PRINT 'Iniciando lote: procesando ' + CAST(@cntThisBatch AS VARCHAR(10)) + ' comandos. Ya procesados: ' + CAST(@processed AS VARCHAR(10));
+
+                    -- Cursor local para ejecutar cada comando dentro del lote (uno a uno)
+                    DECLARE batch_cursor CURSOR LOCAL FAST_FORWARD FOR
+                    SELECT Id, reorganizationOrRebuildCommand FROM #BatchTemp ORDER BY Id;
+
+                    DECLARE @cmdId INT;
+                    DECLARE @cmd NVARCHAR(MAX);
+
+                    OPEN batch_cursor;
+                    FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
+                    WHILE @@FETCH_STATUS = 0
+                    BEGIN
+                        PRINT '--- Ejecutando Id=' + CAST(@cmdId AS VARCHAR(10)) + ' ---';
+                        PRINT LEFT(@cmd, 200); -- primeros 200 chars para identificar
+
+                        BEGIN TRY
+                            EXEC (@cmd);
+
+                            UPDATE #tmpFragmentedIndexes
+                            SET Executed = 1,
+                                ExecutionResult = 'OK',
+                                ExecutionDate = GETDATE()
+                            WHERE Id = @cmdId;
+
+                            PRINT '✔ OK Id=' + CAST(@cmdId AS VARCHAR(10)) + ' - ' + CONVERT(VARCHAR(20), GETDATE(), 120);
+                        END TRY
+                        BEGIN CATCH
+                            DECLARE @errMsg NVARCHAR(4000) = ERROR_MESSAGE();
+                            PRINT '❌ Error Id=' + CAST(@cmdId AS VARCHAR(10)) + ': ' + @errMsg;
+
+                            -- Marcar como procesado para no bloquear siguiente lote.
+                            -- Si prefieres reintentar los fallidos en un futuro, cambia Executed a 0 aquí.
+                            UPDATE #tmpFragmentedIndexes
+                            SET Executed = 1,
+                                ExecutionResult = LEFT('ERROR: ' + @errMsg, 4000),
+                                ExecutionDate = GETDATE()
+                            WHERE Id = @cmdId;
+                        END CATCH;
+
+                        FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
+                    END
+
+                    CLOSE batch_cursor;
+                    DEALLOCATE batch_cursor;
+
+                    SET @processed = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE Executed = 1);
+                    PRINT 'Lote finalizado. Total procesados hasta ahora: ' + CAST(@processed AS VARCHAR(10)) + '/' + CAST(@totalCommands AS VARCHAR(10));
+
                     DROP TABLE #BatchTemp;
-                    BREAK;
                 END
 
                 PRINT '----------------------------------------------------';
-                PRINT 'Iniciando lote: procesando ' + CAST(@cntThisBatch AS VARCHAR(10)) + ' comandos. Ya procesados: ' + CAST(@processed AS VARCHAR(10));
+                PRINT 'Ejecución completa. Resumen:';
+                SELECT Id, dbName, schemaName, tableName, indexName, AvgFragmentationPercentage, Executed, ExecutionResult, ExecutionDate
+                FROM #tmpFragmentedIndexes
+                ORDER BY AvgFragmentationPercentage DESC, Id;
 
-                -- Cursor local para ejecutar cada comando dentro del lote (uno a uno)
-                DECLARE batch_cursor CURSOR LOCAL FAST_FORWARD FOR
-                SELECT Id, reorganizationOrRebuildCommand FROM #BatchTemp ORDER BY Id;
+                -- Fin del script
 
-                DECLARE @cmdId INT;
-                DECLARE @cmd NVARCHAR(MAX);
+                </code></pre>
+            </div>
 
-                OPEN batch_cursor;
-                FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
-                WHILE @@FETCH_STATUS = 0
-                BEGIN
-                    PRINT '--- Ejecutando Id=' + CAST(@cmdId AS VARCHAR(10)) + ' ---';
-                    PRINT LEFT(@cmd, 200); -- primeros 200 chars para identificar
+        </section>
 
-                    BEGIN TRY
-                        EXEC (@cmd);
+        <!-- ================= LAYER 3 — STORAGE ================= -->
+        <section class="layer reveal">
+            <div class="layer-head">
+            <span class="layer-num">03</span>
+            <h3 class="layer-title">Actualización de Estadisticas</h3>
+            </div>
+            <p class="layer-sub">En este paso se realizará la actualización de estadisticas la cual,
+                sirve para que el optimizador de consultas conozca la distribución exacta de los datos. 
+                Esto le permite calcular el plan de ejecución más rápido y eficiente para recuperar información, 
+                evitando tiempos de espera lentos en el sistema. </p>
 
-                        UPDATE #tmpFragmentedIndexes
-                        SET Executed = 1,
-                            ExecutionResult = 'OK',
-                            ExecutionDate = GETDATE()
-                        WHERE Id = @cmdId;
+            <p class="layer-sub">Se tendra presente la ejecución de un archivo <code>.bat</code> el cual ayudara a optimizar
+                dicho proceso:</p>
 
-                        PRINT '✔ OK Id=' + CAST(@cmdId AS VARCHAR(10)) + ' - ' + CONVERT(VARCHAR(20), GETDATE(), 120);
-                    END TRY
-                    BEGIN CATCH
-                        DECLARE @errMsg NVARCHAR(4000) = ERROR_MESSAGE();
-                        PRINT '❌ Error Id=' + CAST(@cmdId AS VARCHAR(10)) + ': ' + @errMsg;
+            <div class="doble">
+            <div class="card mssql">
+                <h4>Verificar Bases de Datos</h4>
+                <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>Actualización_estadisticas.bat</code> o <code>Actualización.bat</code>
+                    antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
+                    registradas en dicho archivo.
+                </p>
+            </div>
+            <div class="card mssql">
+                <h4>Ejecutar Archivo .bat</h4>
+                <p> luego de la verificación del archivo <code>Actualización_estadisticas.bat</code>. debemos hacer clic derecho
+                    en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
+                    archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con la <b>Actualización</b> teniendo presente
+                    la ruta establecida. 
+                </p>
+            </div>
+            </div>
 
-                        -- Marcar como procesado para no bloquear siguiente lote.
-                        -- Si prefieres reintentar los fallidos en un futuro, cambia Executed a 0 aquí.
-                        UPDATE #tmpFragmentedIndexes
-                        SET Executed = 1,
-                            ExecutionResult = LEFT('ERROR: ' + @errMsg, 4000),
-                            ExecutionDate = GETDATE()
-                        WHERE Id = @cmdId;
-                    END CATCH;
+            <div class="images">
+                <img src="{% static 'contenidos/mantenimientos/paso_3.png' %}" alt="imagen"> 
+                <img src="{% static 'contenidos/mantenimientos/paso_3.1.png' %}" alt="imagen"> 
+            </div>
 
-                    FETCH NEXT FROM batch_cursor INTO @cmdId, @cmd;
-                END
+        </section>
 
-                CLOSE batch_cursor;
-                DEALLOCATE batch_cursor;
+        <!-- ================= LAYER 4 — NETWORK ================= -->
+        <section class="layer reveal">
+            <div class="layer-head">
+            <span class="layer-num">04</span>
+            <h3 class="layer-title">Depuración del Log</h3>
+            </div>
+            <p class="layer-sub">Luego de realizar la <b>Actualización de estadisticas</b> se procedera a realizar una depuración del Log, utilizando el comando <code>SHRINKFILE</code>
+                este comando se aplicara para archivos <code>.ldf</code> que tengan un tamaño grande que afecte el almacenamiento del disco</p>
+            
+            <p class="layer-sub">Para realizar dicha depuración se utilizara el siguiente <code>Script</code>:</p>
 
-                SET @processed = (SELECT COUNT(*) FROM #tmpFragmentedIndexes WHERE Executed = 1);
-                PRINT 'Lote finalizado. Total procesados hasta ahora: ' + CAST(@processed AS VARCHAR(10)) + '/' + CAST(@totalCommands AS VARCHAR(10));
+            <div class="code-container">
+                <!-- Barra de título estilo VS Code -->
+                <div class="code-header">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                    <span class="filename">Depuración_Log.sql</span>
+                </div>
+                
+                <!-- Tu código aquí -->
+                <pre class="line-numbers"><code class="language-javascript">
+                    -- TRUNCAR LOG TRANSACCIONAL DE UNA BASE DE DATOS
+                    -- PRIMERO SE DEBE REALIZAR BACKUP AL LOG SI ESTA EN MODELO DE RECUPERACION FULL
+                    -- LUEGO DEL BACKUP PROCEDER A TRUNCAR LOG PARA ELLO REALIZAR LO SIGUIENTE
 
-                DROP TABLE #BatchTemp;
-            END
+                    --TOMAR EL NOMBRE LOGICO DEL LOG
+                    SP_HELPDB [NOMBRE_BASE_DE_DATOS]
 
-            PRINT '----------------------------------------------------';
-            PRINT 'Ejecución completa. Resumen:';
-            SELECT Id, dbName, schemaName, tableName, indexName, AvgFragmentationPercentage, Executed, ExecutionResult, ExecutionDate
-            FROM #tmpFragmentedIndexes
-            ORDER BY AvgFragmentationPercentage DESC, Id;
 
-            -- Fin del script
+                    ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY SIMPLE
 
-            </code></pre>
-        </div>
+                    USE [NOMBRE_BASE_DE_DATOS]
+                    DBCC SHRINKFILE(NOMBRE_LOGICO_ARCHIVO_LDF,1)
 
-    </section>
+                    ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY FULL
 
-    <!-- ================= LAYER 3 — STORAGE ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">03</span>
-        <h3 class="layer-title">Actualización de Estadisticas</h3>
-        </div>
-        <p class="layer-sub">En este paso se realizará la actualización de estadisticas la cual,
-            sirve para que el optimizador de consultas conozca la distribución exacta de los datos. 
-            Esto le permite calcular el plan de ejecución más rápido y eficiente para recuperar información, 
-            evitando tiempos de espera lentos en el sistema. </p>
+                </code></pre>
+            </div>       
+        </section>
 
-        <p class="layer-sub">Se tendra presente la ejecución de un archivo <code>.bat</code> el cual ayudara a optimizar
-            dicho proceso:</p>
-
-        <div class="doble">
-        <div class="card mssql">
-            <h4>Verificar Bases de Datos</h4>
-            <p> ingresar al directorio <b>Documents</b> en el se encontrara un archivo llamado <code>Actualización_estadisticas.bat</code> o <code>Actualización.bat</code>
-                antes de ejecutar dicho archivo, verificar que coincidan las bases de datos presentes en la instancia con las bases de datos
-                registradas en dicho archivo.
+        <!-- ================= LAYER 5 — BACKUP ================= -->
+        <section class="layer reveal">
+            <div class="layer-head">
+            <span class="layer-num">05</span>
+            <h3 class="layer-title">Envio de Evidencia generada</h3>
+            </div>
+            <p class="layer-sub">Como último paso se enviaran los archivos generados por el <code>Chequeo de integridad</code> y la <code>Actualización de estadisticas</code>
+                dichas rutas que se programan en estos archivos <code>.bat</code> apuntan al directorio <code>Temp</code>, en este directorio es posible que se encuentre
+                carpetas con el nombre de la instancia, o con la referencia <b>Chequeo de Integridad</b> o <b>Actualización de Estadisticas</b></p>
+            
+            <p class="layer-sub">Tener presente que si los archivos no se generan en el directorio <code>Temp</code>, se deben mover manualmente a dicha ruta y luego verificar los archivos
+                <code>.bat</code> para configurar la ruta de generacion de los archivos.  
             </p>
-        </div>
-        <div class="card mssql">
-            <h4>Ejecutar Archivo .bat</h4>
-            <p> luego de la verificación del archivo <code>Actualización_estadisticas.bat</code>. debemos hacer clic derecho
-                en dicho archivo y ejecutar como <b>administrador</b>, se abrirá una <code>terminal</code> en el cual empezara a ejecutar dicho
-                archivo, al terminar dicho proceso la ventana se cerrara generando los archivos relacionados con la <b>Actualización</b> teniendo presente
-                la ruta establecida. 
+
+            <p class="layer-sub"> Verificar que los archivos generados con el <code>.bat</code> coincidan con los que se encuentran en la carpeta, para ello se debe observar <b>fecha de creacion</b>
+                y <b>nombre del archivo generado</b></p>
+
+            <div class="images">
+                <img src="{% static 'contenidos/mantenimientos/paso_5.png' %}" alt="imagen"> 
+                <img src="{% static 'contenidos/mantenimientos/paso_5.1.png' %}" alt="imagen">
+                <img src="{% static 'contenidos/mantenimientos/paso_5.2.png' %}" alt="imagen">  
+            </div>
+
+            <p class="layer-sub"> Luego de verificar la ruta y la generacion de los archivos se seleccionara la carpetas que contienen el <code>chequeo de integridad</code> y la <code>actualización de
+                estadisticas</code> y se generara un archivo <code>.zip</code> el cual se le especificara el <b>nombre del mantenimiento</b> con la <b>fecha en que se realizó</b>
             </p>
-        </div>
-        </div>
 
-        <div class="images">
-            <img src="{% static 'contenidos/mantenimientos/paso_3.png' %}" alt="imagen"> 
-            <img src="{% static 'contenidos/mantenimientos/paso_3.1.png' %}" alt="imagen"> 
-        </div>
+            <p class="layer-sub"> Tener presente que muchas veces este archivo <code>.zip</code> se genera en el <b>Escritorio</b> de la maquina
+            </p>
 
-    </section>
-
-    <!-- ================= LAYER 4 — NETWORK ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">04</span>
-        <h3 class="layer-title">Depuración del Log</h3>
-        </div>
-        <p class="layer-sub">Luego de realizar la <b>Actualización de estadisticas</b> se procedera a realizar una depuración del Log, utilizando el comando <code>SHRINKFILE</code>
-            este comando se aplicara para archivos <code>.ldf</code> que tengan un tamaño grande que afecte el almacenamiento del disco</p>
-        
-        <p class="layer-sub">Para realizar dicha depuración se utilizara el siguiente <code>Script</code>:</p>
-
-        <div class="code-container">
-            <!-- Barra de título estilo VS Code -->
-            <div class="code-header">
-                <span class="dot dot-red"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-green"></span>
-                <span class="filename">Depuración_Log.sql</span>
+            <div class="images">
+                <img src="{% static 'contenidos/mantenimientos/paso_5.3.png' %}" alt="imagen">
+                <img src="{% static 'contenidos/mantenimientos/paso_5.4.png' %}" alt="imagen"> 
+                <img src="{% static 'contenidos/mantenimientos/paso_5.5.png' %}" alt="imagen">  
             </div>
             
-            <!-- Tu código aquí -->
-            <pre class="line-numbers"><code class="language-javascript">
-                -- TRUNCAR LOG TRANSACCIONAL DE UNA BASE DE DATOS
-                -- PRIMERO SE DEBE REALIZAR BACKUP AL LOG SI ESTA EN MODELO DE RECUPERACION FULL
-                -- LUEGO DEL BACKUP PROCEDER A TRUNCAR LOG PARA ELLO REALIZAR LO SIGUIENTE
+            <p class="layer-sub"> Por último este archivo <code>.zip</code> se enviara por correo como evidencia, además se copiara en la ruta compartida
+                <code>\\Port-dlenis\informacion de empresas\(nombre del DP)\(nombre de la empresa)\(MTTO o Mantenimiento)</code>
+            </p>
+            
+        </section>
 
-                --TOMAR EL NOMBRE LOGICO DEL LOG
-                SP_HELPDB [NOMBRE_BASE_DE_DATOS]
-
-
-                ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY SIMPLE
-
-                USE [NOMBRE_BASE_DE_DATOS]
-                DBCC SHRINKFILE(NOMBRE_LOGICO_ARCHIVO_LDF,1)
-
-                ALTER DATABASE [NOMBRE_BASE_DE_DATOS] SET RECOVERY FULL
-
-            </code></pre>
-        </div>       
-    </section>
-
-    <!-- ================= LAYER 5 — BACKUP ================= -->
-    <section class="layer reveal">
-        <div class="layer-head">
-        <span class="layer-num">05</span>
-        <h3 class="layer-title">Envio de Evidencia generada</h3>
+        <div class="foot">
+            Guía de Mantenimiento para administradores de bases de datos — SQL Server
         </div>
-        <p class="layer-sub">Como último paso se enviaran los archivos generados por el <code>Chequeo de integridad</code> y la <code>Actualización de estadisticas</code>
-            dichas rutas que se programan en estos archivos <code>.bat</code> apuntan al directorio <code>Temp</code>, en este directorio es posible que se encuentre
-            carpetas con el nombre de la instancia, o con la referencia <b>Chequeo de Integridad</b> o <b>Actualización de Estadisticas</b></p>
-        
-        <p class="layer-sub">Tener presente que si los archivos no se generan en el directorio <code>Temp</code>, se deben mover manualmente a dicha ruta y luego verificar los archivos
-            <code>.bat</code> para configurar la ruta de generacion de los archivos.  
-        </p>
-
-        <p class="layer-sub"> Verificar que los archivos generados con el <code>.bat</code> coincidan con los que se encuentran en la carpeta, para ello se debe observar <b>fecha de creacion</b>
-            y <b>nombre del archivo generado</b></p>
-
-        <div class="images">
-            <img src="{% static 'contenidos/mantenimientos/paso_5.png' %}" alt="imagen"> 
-            <img src="{% static 'contenidos/mantenimientos/paso_5.1.png' %}" alt="imagen">
-            <img src="{% static 'contenidos/mantenimientos/paso_5.2.png' %}" alt="imagen">  
-        </div>
-
-        <p class="layer-sub"> Luego de verificar la ruta y la generacion de los archivos se seleccionara la carpetas que contienen el <code>chequeo de integridad</code> y la <code>actualización de
-            estadisticas</code> y se generara un archivo <code>.zip</code> el cual se le especificara el <b>nombre del mantenimiento</b> con la <b>fecha en que se realizó</b>
-        </p>
-
-        <p class="layer-sub"> Tener presente que muchas veces este archivo <code>.zip</code> se genera en el <b>Escritorio</b> de la maquina
-        </p>
-
-        <div class="images">
-            <img src="{% static 'contenidos/mantenimientos/paso_5.3.png' %}" alt="imagen">
-            <img src="{% static 'contenidos/mantenimientos/paso_5.4.png' %}" alt="imagen"> 
-            <img src="{% static 'contenidos/mantenimientos/paso_5.5.png' %}" alt="imagen">  
-        </div>
-        
-        <p class="layer-sub"> Por último este archivo <code>.zip</code> se enviara por correo como evidencia, además se copiara en la ruta compartida
-            <code>\\Port-dlenis\informacion de empresas\(nombre del DP)\(nombre de la empresa)\(MTTO o Mantenimiento)</code>
-        </p>
-        
-    </section>
-
-    <div class="foot">
-        Guía de Mantenimiento para administradores de bases de datos — SQL Server
-    </div>
 
     </div>
 
