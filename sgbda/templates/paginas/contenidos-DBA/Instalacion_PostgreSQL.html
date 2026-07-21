@@ -1,0 +1,393 @@
+{% extends "base.html" %}
+
+{% block titulo %} Instalación PostgreSQL {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+<div class="contents">
+    
+    <div class="content-container">
+        <h1 class="title-text">Contenidos</h1>
+        <div class="contenido-opciones">
+            <a href="{% url 'info_motores' %}" class="btn-options nav-link page-transition"> Motores de Bases de Datos</a></li>
+            <a href="{% url 'mantenimientos_sqlserver' %}" class="btn-options nav-link page-transition"> Mantenimientos SQL Server</a></li>
+            <a href="{% url 'mover_datafiles' %}" class="btn-options nav-link page-transition"> Mover Datafiles SQL Server</a></li>
+            <a href="{% url 'instalar_postgresql' %}" class="btn-options nav-link page-transition"> Instalar Postgresql</a></li>
+        </div>
+    </div>
+
+</div>
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <h1 class="title"><span class="a">Guía Instalación PostgreSQL</span></h1>
+        <p class="lead">Esta guía presenta el <b>paso a paso para la instalación de PostgreSQL</b> sobre <code>Oracle Linux 9 / 10</code>, utilizando el repositorio oficial <code>PGDG</code>. A continuación se mostrará el paso a paso a tener presente:</p>
+    </div>
+
+    <!-- ================= LAYER 1 — ACTUALIZAR SISTEMA ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">Actualizar el Sistema Operativo</h3>
+        </div>
+        <p class="layer-sub">Antes de instalar cualquier paquete, se debe actualizar el sistema operativo. Al ser <code>Oracle Linux 9 / 10</code> un sistema basado en <code>RHEL</code>, el gestor de paquetes a utilizar es <code>dnf</code> y no <code>apt</code> (este último corresponde a distribuciones basadas en Debian).
+        </p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Actualizar_Sistema.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+sudo dnf update -y
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — REPOSITORIO PGDG ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">Agregar el Repositorio Oficial de PostgreSQL (PGDG)</h3>
+        </div>
+        <p class="layer-sub">Los repositorios por defecto del sistema operativo no siempre traen la versión de PostgreSQL deseada, 
+            por lo cual se agrega el repositorio oficial <code>PGDG</code> (PostgreSQL Global Development Group), que permite elegir e 
+            instalar versiones específicas del motor.</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Repositorio_PGDG_ORACLE_LINUX_10.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-10-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+            </code></pre>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Repositorio_PGDG.Repositorio_PGDG_ORACLE_LINUX_9.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+sudo dnf install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-9-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+            </code></pre>
+        </div>
+
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Deshabilitar Módulo del Sistema (Opcional)</h4>
+            <p><code>-</code> En versiones antiguas de RHEL/OL, el sistema trae un módulo de PostgreSQL propio que entra en conflicto con el repositorio PGDG y debe deshabilitarse.</p>
+            <p><code>-</code> En versiones recientes del sistema operativo (como <code>OL10</code>) <b>no existe dicho módulo</b>, por lo tanto no hay conflicto activo y este paso puede omitirse.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Deshabilitar_Modulo.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+sudo dnf -qy module disable postgresql
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — INSTALACION ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">Instalar una Versión Específica de PostgreSQL</h3>
+        </div>
+        <p class="layer-sub">Se instala la versión del motor requerida, indicando explícitamente el número de versión en el nombre del paquete.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Buenas Prácticas</h4>
+            <p><code>-</code> Siempre fijar la <b>versión</b> del paquete a instalar, evitando el uso de <code>latest</code> en ambientes de producción.</p>
+            <p><code>-</code> Versiones recomendadas actualmente: <b>15</b> y <b>16</b>.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Instalar_PostgreSQL.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Ejemplo instalando la version 16
+sudo dnf install -y postgresql16-server postgresql16
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — ESTRUCTURA Y CLUSTER ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">Crear Estructura en Disco e Inicializar el Clúster</h3>
+        </div>
+        <p class="layer-sub">Se verifica que el binario de instalación exista, se crea la estructura de directorios en el disco dedicado para las bases de datos, se ajustan los permisos correspondientes al usuario <code>postgres</code> y finalmente se inicializa el clúster con <code>initdb</code>.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Verificar Binarios</h4>
+            <p> Confirmar que existan los archivos de instalación (<code>initdb</code>, entre otros) en la ruta <code>/usr/pgsql-16/bin</code> antes de continuar.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Permisos y Propietario</h4>
+            <p> El directorio destinado a los datos debe pertenecer al usuario <code>postgres</code> y tener permisos restringidos (<code>700</code>), ya que este usuario es quien administra el motor.
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Crear_Estructura_e_Inicializar.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Verificar si hay archivos en esta ruta (initdb, etc)
+ls /usr/pgsql-16/bin
+
+-- Creación de estructura en el disco dedicado para BD
+sudo mkdir -p /var/lib/postgresql/16/main
+sudo chown -R postgres:postgres /var/lib/postgresql
+sudo chmod 700 /var/lib/postgresql/16/main
+
+-- Inicializar el clúster correctamente
+sudo -u postgres /usr/pgsql-16/bin/initdb -D /var/lib/postgresql/16/main
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_4.png' %}" alt="imagen resultado initdb"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — SERVICIO SYSTEMD ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">Configurar e Iniciar el Servicio</h3>
+        </div>
+        <p class="layer-sub">Si al iniciar el servicio se presenta algún error, se debe verificar el archivo de configuración del servicio <code>systemd</code>, validando que la ruta del clúster configurada coincida con la creada en el paso anterior. Luego se procede a iniciar el servicio y dejarlo habilitado para que inicie junto con el sistema operativo.</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Configurar_Servicio.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Si existe un error, verificar la ruta configurada en el servicio
+sudo nano /usr/lib/systemd/system/postgresql-16.service
+
+-- hacer que systemd vuelva a leer los archivos de configuración de los servicios.
+sudo systemctl daemon-reload
+
+-- Iniciar el servicio de PostgreSQL
+sudo systemctl start postgresql-16
+
+-- Verificar que el servicio este corriendo
+sudo systemctl status postgresql-16
+
+-- Para que inicie automaticamente con el sistema
+sudo systemctl enable postgresql-16
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_5.png' %}" alt="imagen systemctl status postgresql"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 6 — USUARIO POSTGRES Y AUTENTICACION ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">06</span>
+        <h3 class="layer-title">Configurar el Usuario postgres y la Autenticación</h3>
+        </div>
+        <p class="layer-sub">Por defecto se crea el usuario <code>postgres</code>, el cual cumple un rol equivalente al usuario <code>root</code> en <code>MariaDB</code>. Este usuario no tiene contraseña por defecto, ya que utiliza <code>autenticación del sistema (Linux)</code> a través del método <code>peer</code>.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Asignar Contraseña</h4>
+            <p> Ingresar como el usuario <code>postgres</code> del sistema operativo, abrir la consola <code>psql</code> y asignar una contraseña al usuario <code>postgres</code> de la base de datos.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Habilitar Autenticación por Contraseña</h4>
+            <p> Una vez asignada la contraseña, se debe editar el archivo <code>pg_hba.conf</code> para cambiar el método de autenticación local del usuario <code>postgres</code>, pasando de <code>peer</code> a <code>md5</code>, habilitando así el ingreso por contraseña (socket).
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Configurar_Usuario_Postgres.sh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Ingresar como el usuario postgres del sistema operativo
+sudo -i -u postgres
+psql
+
+-- Nota: el usuario postgres no tiene contraseña por defecto
+-- si el usuario es postgres, usa autenticacion del sistema (peer)
+
+-- Asignar contraseña al usuario postgres
+ALTER USER postgres WITH PASSWORD 'N2tgr45psa';
+            </code></pre>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">pg_hba.conf</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Ruta del archivo a editar (segun la version instalada)
+nano /var/lib/postgresql/16/main/pg_hba.conf
+
+-- Cambiar la siguiente linea o comentar
+# local   all             all                                     trust
+# local   all             postgres                                peer
+
+-- Por la siguiente
+local   all             postgres                                md5
+
+-- Se Reinicia el Servicio de Postgresql-16
+sudo systecmtl restart postgresql-16
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_6.png' %}" alt="imagen ALTER USER postgres password"> 
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_6.1.png' %}" alt="imagen edicion pg_hba.conf"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 7 — CONEXION DESDE PGADMIN ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">07</span>
+        <h3 class="layer-title">Conectarse desde pgAdmin</h3>
+        </div>
+        <p class="layer-sub">Como último paso, se valida la conexión al motor recién instalado utilizando <code>pgAdmin</code>, ingresando los datos configurados en los pasos anteriores.</p>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">postgresql.conf</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Ruta del archivo a editar (segun la version instalada)
+nano /var/lib/postgresql/16/main/postgresql.conf
+
+-- Se cambia la linea:
+listen_addresses = 'localhost' 
+
+-- por:
+listen_addresses = '*'
+
+-- luego ir a la ruta:
+nano /var/lib/postgresql/16/main/pg_hba.conf
+
+-- anexar la siguiente linea para conexion remota:
+host    all             postgres        0.0.0.0/0               md5
+
+-- reiniciar el servicio:
+sudo systemctl restart postgresql-16
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_7.png' %}" alt="imagen conexion pgAdmin">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_7.1.png' %}" alt="imagen conexion pgAdmin">  
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Configuracion_firewall.ssh</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Se habilita puerto 5432
+sudo firewall-cmd --add-port=5432/tcp --permanent
+sudo firewall-cmd --reload
+
+-- Se verifica la configuracion del firewall
+sudo firewall-cmd --list-all
+
+-- se verifica la comunicacion con el host y puerto
+ping (IP_MAQUINA)
+telnet (IP_MAQUINA) 5432
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_7.2.png' %}" alt="imagen conexion pgAdmin"> 
+        </div>
+
+        <p class="layer-sub">habilitar el puerto en el firewall es necesario si se instala postgresql en una
+            distribucion basada en Red Hat
+        </p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Datos de Conexión</h4>
+            <p><code>-</code> Host: <code>(IP_MAQUINA) / localhost</code></p>
+            <p><code>-</code> Usuario: <code>postgres</code> (o el usuario que se haya creado)</p>
+            <p><code>-</code> Password: la contraseña configurada en el <b>Paso 06</b></p>
+            <p><code>-</code> Puerto: <code>5432</code></p>
+        </div>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/instalacion_postgresql/paso_7.3.png' %}" alt="imagen conexion pgAdmin"> 
+        </div>
+    </section>
+
+    <div class="foot">
+        Guía de Instalación de PostgreSQL para administradores de bases de datos — Oracle Linux 9 / 10
+    </div>
+
+    </div>
+
+</div>
+
+<script src="{% static 'js/desvanecimiento_texto.js' %}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+{% endblock %}

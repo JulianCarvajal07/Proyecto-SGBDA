@@ -11,3 +11,7 @@ def mantenimientos_SqlServer(request):
 def Mover_datafiles(request):
 
     return render(request, 'paginas/contenidos-DBA/Mover_Datafiles.html')
+
+def Instalar_Postgresql(request):
+
+    return render(request, 'paginas/contenidos-DBA/Instalacion_PostgreSQL.html')

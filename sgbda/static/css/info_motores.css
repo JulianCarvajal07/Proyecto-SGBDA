@@ -6,7 +6,112 @@
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  gap: 15px;
 }
+/* ============================================ */
+/* ============================================ */
+/* ============================================ */
+/* ============================================ */
+/* ============================================
+   TÍTULO "CONTENIDOS" - ARMONIZADO CON BOTÓN
+   ============================================ */
+.content-container {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 20px;
+    background: var(--surface);
+    border-radius: 14px;
+    box-shadow: 
+        0 2px 6px #4F83C2(19, 23, 228, 0.815),
+        0 0 0 1px #336791(255,255,255,0.1) inset,
+        0 -2px 0 #1F3C68(0,0,0,0.2) inset;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    cursor: default;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.title-text{
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow:
+        0 2px 3px rgba(0,0,0,.25),
+        0 8px 15px rgba(0,0,0,.35);
+    -webkit-text-stroke: 1px rgba(0,0,0,.25);
+}
+
+h1.title-text .a{color:var(--mssql);}
+h1.title-text .b{color:var(--oracle);}
+h1.title-text .c{color:var(--postgres);}
+
+/* Efecto de brillo al pasar el mouse (igual que el botón) */
+.content-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.2),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.content-container:hover::before {
+    left: 100%;
+}
+
+.content-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+        0 3px 8px rgba(17, 114, 241, 0.966),
+        0 0 0 1px rgba(247, 213, 213, 0.15) inset,
+        0 -2px 0 rgba(0,0,0,0.2) inset;
+}
+
+.content-container:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 
+        0 2px 10px rgba(16, 20, 240, 0.61),
+        0 0 0 1px rgba(255,255,255,0.1) inset;
+}
+
+/* Icono decorativo antes del texto (opcional) */
+.content-container::after {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 813px) {
+    .content-container {
+        flex-direction: column;
+        font-size: 1.6rem;
+        padding: 12px 24px;
+    }
+    .content-container:after {
+        font-size: 1.3rem;
+    }
+}
+/* ============================================ */
+/* ============================================ */
+/* ============================================ */
+/* ============================================ */
 
 .contenido-opciones{
   display: flex;
