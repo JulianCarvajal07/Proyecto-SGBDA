@@ -76,7 +76,7 @@ h1.title-text .c{color:var(--postgres);}
 .content-container:hover {
     transform: translateY(-2px);
     box-shadow: 
-        0 3px 8px rgba(17, 114, 241, 0.966),
+        0 3px 8px rgba(39, 117, 219, 0.966),
         0 0 0 1px rgba(247, 213, 213, 0.15) inset,
         0 -2px 0 rgba(0,0,0,0.2) inset;
 }
