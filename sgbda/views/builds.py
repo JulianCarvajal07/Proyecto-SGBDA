@@ -6,7 +6,7 @@ from sgbda.services.microsoft_gdr__postgresql_sync_v2 import sync_gdr
 
 def listar_builds(request):
     
-    builds = actualizaciones.objects.all().order_by('major_version','-release_date')
+    builds = actualizaciones.objects.all().order_by('-release_date','-major_version')
 
     buscar = request.GET.get('buscar','').strip()
     version = request.GET.get('version')
