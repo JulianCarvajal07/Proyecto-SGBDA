@@ -100,6 +100,17 @@ class conexion(models.Model):
 
     def __str__(self):
         return f"Conexion {self.id_conexion} - {self.instancia}"
+
+class conexion_ssh(models.Model):
+    ip_servidor = models.GenericIPAddressField()
+    usuario = models.CharField(max_length=255)
+    password_encriptado = EncryptedPasswordField()
+
+    class Meta:
+        db_table = 'conexion_ssh'
+
+    def __str__(self):
+        return f"Conexion {self.id_conexion} - {self.instancia}"
     
 #================================================================
 #================================================================

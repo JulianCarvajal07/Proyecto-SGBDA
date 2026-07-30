@@ -63,7 +63,7 @@
             </div>
 
             <div class="registro-body">
-                <form method="POST" action="">
+                <form method="POST" action="{% url 'registro_conexion' %}">
                     {% csrf_token %}
 
                     <div class="form-group-custom">

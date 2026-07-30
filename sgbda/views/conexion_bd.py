@@ -1,4 +1,4 @@
-import pyodbc
+import pyodbc, ipaddress
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -17,12 +17,13 @@ def registro_conexion(request):
     if request.method == 'POST':
 
         motor = request.POST.get('motor').strip()
-        ip_servidor = request.POST.get('ip_servidor').strip()
+        ip_servidor = request.POST.get('ip_servidor', '').strip()
         puerto = request.POST.get('puerto').strip()
         autenticacion = request.POST.get('autenticacion').strip()
         usuario = request.POST.get('usuario', '').strip()
         password = request.POST.get('contraseña', '').strip()
 
+        print(repr(ip_servidor))
         # ==========================================
         # VALIDACIONES GENERALES
         # ==========================================
@@ -33,6 +34,12 @@ def registro_conexion(request):
             autenticacion.strip()
         ]):
             messages.error(request,"IP, puerto y autenticación son obligatorios")
+            return redirect ('listar_conexiones')
+
+        try:
+            ipaddress.ip_address(ip_servidor)
+        except ValueError:
+            messages.error(request, "La dirección IP no es válida.")
             return redirect ('listar_conexiones')
         
         # ==========================================
@@ -90,7 +97,7 @@ def registro_conexion(request):
             # TEST DE CONEXION
             # =====================================================
 
-            with pyodbc.connect(conn_str):
+            with pyodbc.connect(conn_str, timeout=5):
                 pass
 
             # =====================================================

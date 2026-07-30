@@ -4,7 +4,7 @@ from .views.usuarios import registro_usuarios, listar_usuarios, eliminar_usuario
 from .views.login import login_usuario
 
 from .views.conexion_bd import registro_conexion, listar_conexiones, eliminar_conexion
-from .views.conexion_ssh import listar_conexiones_ssh
+from .views.conexion_ssh import listar_conexiones_ssh, registro_conexion_ssh, eliminar_conexion_ssh
 
 from .views.inventario import listar_inventario, detalles_instancia, eliminar_instancia, stream_actualizacion, exportar_excel
 from .views.builds import listar_builds, actualizar_builds
@@ -29,6 +29,8 @@ urlpatterns = [
     path('eliminar_conexion/<int:id>/', eliminar_conexion, name='eliminar_conexion'),
 
     path('listar_conexiones_ssh/', listar_conexiones_ssh, name='listar_conexiones_ssh'),
+    path('registro_conexion_ssh/', registro_conexion_ssh, name='registro_conexion_ssh'),
+    path('eliminar_conexion_ssh/<int:id>/', eliminar_conexion_ssh, name='eliminar_conexion_ssh'),
 
     path('listar_clientes/', listar_clientes, name='listar_clientes'),
     path('registro_cliente/', registro_cliente, name='registro_cliente'),
