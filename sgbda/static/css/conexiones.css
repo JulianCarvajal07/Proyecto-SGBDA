@@ -1,3 +1,9 @@
+    .option-conect{
+        display: flex;
+        gap: 10px;
+        margin: 0 0 20px
+    }
+
     .contenedor-conexiones {
         display: grid;
         grid-template-columns: 380px 1fr;

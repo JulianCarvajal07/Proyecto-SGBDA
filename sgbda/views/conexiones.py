@@ -8,7 +8,7 @@ def listar_conexiones(request):
     
     todas_conexiones = conexion.objects.all()
     
-    return render(request, 'paginas/conexiones.html', {
+    return render(request, 'paginas/conexiones/conexion_bd.html', {
         "conexiones": todas_conexiones
     })
 
@@ -126,7 +126,7 @@ def registro_conexion(request):
 
         return redirect('listar_conexiones')
 
-    return render(request, 'paginas/conexiones.html')
+    return render(request, 'paginas/conexiones/conexion_bd.html')
 
 
 def eliminar_conexion(request, id):
