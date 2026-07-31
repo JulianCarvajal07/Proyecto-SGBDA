@@ -13,9 +13,12 @@ from .views.informacion import informacion_motores, mantenimientos_SqlServer, Mo
 from .views.calendario import calendario_view, crear_asignacion, eliminar_asignacion
 from django.contrib.auth.views import LogoutView
 
+from .views.informes_oracle import informes_oracle
+
 
 
 urlpatterns = [
+
     path('', inicio),
     path('bienvenida/', bienvenida, name='bienvenida'),
     path('login/', login_usuario, name='login'),
@@ -61,5 +64,7 @@ urlpatterns = [
     # API para crear asignaciones
     path('crea_asignacion/', crear_asignacion, name='crear_asignacion'),
     path('eliminar_calendario/', eliminar_asignacion, name='eliminar_asignacion'),
+
+    path('informes_oracle', informes_oracle, name='informes_oracle'),
 
 ]
