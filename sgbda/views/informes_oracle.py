@@ -4,4 +4,9 @@ from sgbda.models import conexion_ssh
 
 def informes_oracle(request):
 
-    return render (request, 'paginas/informes_oracle.html')
+    todas_conexiones = conexion_ssh.objects.all()
+    
+    return render(request, 'paginas/informes_oracle.html', {
+        "conexiones": todas_conexiones
+    })
+
