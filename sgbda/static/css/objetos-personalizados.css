@@ -237,3 +237,14 @@
 
 
 
+.td-medium , .th-medium {
+    width: 200px;
+    overflow-wrap:break-word;
+    word-break:break-word;
+}
+
+.td-small , .th-small {
+    width: 64px;
+    overflow-wrap:break-word;
+    word-break:break-word;
+}

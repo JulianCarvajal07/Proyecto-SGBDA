@@ -70,7 +70,7 @@ def construir_documento_docx(datos):
     r_sub.font.bold = True
     r_sub.font.color.rgb = RGBColor(0x77, 0x77, 0x77)
     
-    r_title = p_hdr.add_run(f"UNIAJC — {datos['fecha_informe'].capitalize()}")
+    r_title = p_hdr.add_run(f"{datos['fecha_informe'].capitalize()}")
     r_title.font.size = Pt(18)
     r_title.font.bold = True
     r_title.font.color.rgb = RGBColor(0x18, 0x5F, 0xA5)

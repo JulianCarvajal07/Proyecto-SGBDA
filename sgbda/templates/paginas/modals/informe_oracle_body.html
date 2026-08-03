@@ -251,6 +251,9 @@
                     <thead>
                         <tr>
                             <th>Tablespace</th>
+                            <th class="th-medium">File_name</th>
+                            <th>Status</th>
+                            <th class="td-small">Auto Extend</th>
                             <th>Asignado (MB)</th>
                             <th>Usado (MB)</th>
                             <th>% Uso</th>
@@ -260,6 +263,9 @@
                         {% for ts in reporte.tablespaces|slice:":8" %}
                         <tr>
                             <td>{{ ts.nombre }}</td>
+                            <td class="td-medium">{{ ts.file_name }}</td>
+                            <td>{{ ts.status }}</td>
+                            <td class="td-small">{{ ts.autoextend }}</td>
                             <td class="text-right">
                                 {{ ts.asignado_mb }}
                             </td>

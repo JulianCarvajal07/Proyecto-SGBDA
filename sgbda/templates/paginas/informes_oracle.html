@@ -106,8 +106,6 @@
                                 </div>
                             </td>
                             <td style="text-align: center;">
-                                <form method="POST" action="{% url 'generar_informe' conexion.id %}" style="display:inline;">
-                                    {% csrf_token %}
                                     <button type="button" 
                                             class="btn-gen-custom" 
                                             onclick="generarInformeModal('{% url 'generar_informe' conexion.id %}')">
@@ -121,7 +119,6 @@
                                             <line x1="9" y1="9" x2="11" y2="9"/>
                                         </svg>
                                     </button>
-                                </form>
                             </td>
                         </tr>
                         {% endfor %}
