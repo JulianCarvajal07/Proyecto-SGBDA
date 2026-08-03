@@ -1,0 +1,514 @@
+/* ==========================================================
+   DOCUMENTO
+========================================================== */
+
+.preview-document{
+    background:#d8d8d8;
+    padding:40px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:40px;
+    min-height:100%;
+}
+
+/* ==========================================================
+   PAGINAS
+========================================================== */
+
+.page{
+    width:210mm;
+    min-height:297mm;
+    background:#ffffff;
+    padding:25mm;
+    box-sizing:border-box;
+    box-shadow:0 0 12px rgba(0,0,0,.18);
+    border-radius:6px;
+    position:relative;
+    overflow:hidden;
+}
+
+.page-break{
+    height:20px;
+}
+
+/* ==========================================================
+   PORTADA
+========================================================== */
+
+.cover-page{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.cover-header{
+    text-align:center;
+    margin-top:30px;
+}
+
+.cover-title{
+    font-size:36px;
+    font-weight:700;
+    color:#185FA5;
+    margin-bottom:15px;
+    text-transform:uppercase;
+}
+
+.cover-subtitle{
+    font-size:22px;
+    font-weight:500;
+    margin-bottom:10px;
+    color: #333;
+}
+
+.cover-company{
+    font-size:30px;
+    color:#333;
+    font-weight:bold;
+}
+
+.cover-center{
+    text-align:center;
+    margin:80px 0;
+}
+
+.cover-month{
+    font-size:42px;
+    color:#185FA5;
+    font-weight:700;
+    margin-bottom:40px;
+}
+
+.cover-client{
+    font-size:28px;
+    color:#333;
+}
+
+.cover-information{
+    width:80%;
+    margin:auto;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #ddd;
+    padding:12px 0;
+}
+
+.info-title{
+    font-weight:bold;
+    color:#185FA5;
+}
+
+.info-value{
+    color:#444;
+}
+
+.cover-footer{
+    margin-top:80px;
+    border-top:1px solid #ccc;
+    padding-top:20px;
+    font-size:13px;
+    color:#666;
+    text-align:center;
+}
+
+/* ==========================================================
+   TABLA DE CONTENIDO
+========================================================== */
+
+.toc{
+    margin-top:30px;
+}
+
+.toc-title{
+    font-size:28px;
+    font-weight:bold;
+    color:#185FA5;
+    margin-bottom:40px;
+}
+
+.toc-table{
+    width:100%;
+    border-collapse:collapse;
+    color:#333
+}
+
+.toc-table tr{
+    border-bottom:1px dotted #bbb;
+}
+
+.toc-table td{
+    padding:14px 8px;
+    font-size:17px;
+}
+
+.toc-page-number{
+    text-align:right;
+    font-weight:bold;
+    width:80px;
+}
+
+/* ==========================================================
+   SECCIONES
+========================================================== */
+
+.report-section{
+    width:100%;
+}
+
+.section-title{
+    color:#185FA5;
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:25px;
+    border-bottom:2px solid #185FA5;
+    padding-bottom:10px;
+}
+
+.section-description{
+    margin-bottom:25px;
+    color:#666;
+    line-height:1.7;
+}
+
+/* ==========================================================
+   KPI
+========================================================== */
+
+.kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:40px;
+}
+
+.kpi-card{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:20px;
+    text-align:center;
+    background:#fafafa;
+}
+
+.kpi-label{
+    display:block;
+    color:#666;
+    margin-bottom:12px;
+    font-size:14px;
+}
+
+.kpi-value{
+    font-size:28px;
+    font-weight:bold;
+    color:#185FA5;
+}
+
+/* ==========================================================
+   SERVIDOR
+========================================================== */
+
+.server-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:40px;
+}
+
+.server-card{
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:18px;
+    background:white;
+}
+
+.server-label{
+    display:block;
+    color:#666;
+    margin-bottom:10px;
+}
+
+.server-value{
+    font-size:24px;
+    font-weight:bold;
+    color:#185FA5;
+}
+
+/* ==========================================================
+   CONTENEDORES DE TABLAS
+========================================================== */
+
+.table-container{
+    width:100%;
+    margin-bottom:35px;
+    overflow-x:auto;
+    color: #555;
+}
+
+/* ==========================================================
+   TABLAS
+========================================================== */
+
+.report-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+    background:#ffffff;
+}
+
+.report-table thead{
+    background:#185FA5;
+}
+
+.report-table th{
+    color:#ffffff;
+    padding:12px 14px;
+    text-align:left;
+    font-weight:600;
+    border:1px solid #185FA5;
+}
+
+.report-table td{
+    padding:12px 14px;
+    border:1px solid #dcdcdc;
+    vertical-align:middle;
+}
+
+.report-table tbody tr:nth-child(even){
+    background:#f8f9fa;
+}
+
+.report-table tbody tr:hover{
+    background:#eef5fc;
+}
+
+.text-right{
+    text-align:right;
+}
+
+/* ==========================================================
+   ESTADOS DE TABLA
+========================================================== */
+
+.report-table-success{
+    color:#198754;
+    font-weight:bold;
+}
+
+.report-table-warning{
+    color:#d97706;
+    font-weight:bold;
+}
+
+.report-table-danger{
+    color:#dc3545;
+    font-weight:bold;
+}
+
+/* ==========================================================
+   LISTAS
+========================================================== */
+
+.report-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+    border:1px solid #dddddd;
+    border-radius:6px;
+    overflow:hidden;
+}
+
+.report-list-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 18px;
+    border-bottom:1px solid #e5e5e5;
+}
+
+.report-list-item:last-child{
+    border-bottom:none;
+}
+
+.report-list-label{
+    color:#555555;
+}
+
+.report-list-value{
+    font-weight:bold;
+    color:#185FA5;
+}
+
+/* ==========================================================
+   OBSERVACIONES
+========================================================== */
+
+.observations{
+    border:1px solid #dddddd;
+    border-radius:6px;
+    padding:20px;
+    background:#fafafa;
+    line-height:1.8;
+    color: #444;
+}
+
+.observations p{
+    margin:0;
+}
+
+.observations ul{
+    margin:0;
+    padding-left:20px;
+}
+
+.observations li{
+    margin-bottom:10px;
+}
+
+/* ==========================================================
+   PIE DE PAGINA
+========================================================== */
+
+.page-footer{
+    position:absolute;
+    left:25mm;
+    right:25mm;
+    bottom:15mm;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-top:1px solid #d9d9d9;
+    padding-top:10px;
+    font-size:12px;
+    color:#777777;
+}
+
+/* ==========================================================
+   TITULOS SECUNDARIOS
+========================================================== */
+
+.subsection-title{
+    font-size:18px;
+    color:#185FA5;
+    font-weight:600;
+    margin:30px 0 15px;
+}
+
+/* ==========================================================
+   TEXTOS
+========================================================== */
+
+.text-center{
+    text-align:center;
+}
+
+.text-left{
+    text-align:left;
+}
+
+.text-right{
+    text-align:right;
+}
+
+.text-muted{
+    color:#777777;
+}
+
+.text-primary{
+    color:#185FA5;
+}
+
+/* ==========================================================
+   SEPARADORES
+========================================================== */
+
+.separator{
+    width:100%;
+    height:1px;
+    background:#e0e0e0;
+    margin:30px 0;
+}
+
+/* ==========================================================
+   RESPONSIVE (MODAL)
+========================================================== */
+
+@media (max-width:1200px){
+    .page{
+        width:100%;
+        min-height:auto;
+        padding:30px;
+    }
+}
+
+@media (max-width:992px){
+    .kpi-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+    .server-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media (max-width:768px){
+    .preview-document{
+        padding:15px;
+    }
+    .page{
+        padding:20px;
+    }
+    .kpi-grid{
+        grid-template-columns:1fr;
+    }
+    .server-grid{
+        grid-template-columns:1fr;
+    }
+    .info-row{
+        flex-direction:column;
+        gap:6px;
+    }
+    .report-list-item{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+    .page-footer{
+        position:relative;
+        left:auto;
+        right:auto;
+        bottom:auto;
+        margin-top:40px;
+    }
+}
+
+/* ==========================================================
+   IMPRESION
+========================================================== */
+
+@media print{
+    body{
+        background:#ffffff;
+    }
+    .preview-document{
+        padding:0;
+        background:#ffffff;
+        gap:0;
+    }
+    .page{
+        width:100%;
+        min-height:auto;
+        margin:0;
+        border-radius:0;
+        box-shadow:none;
+        page-break-after:always;
+    }
+    .page:last-child{
+        page-break-after:auto;
+    }
+    .page-break{
+        display:none;
+    }
+}

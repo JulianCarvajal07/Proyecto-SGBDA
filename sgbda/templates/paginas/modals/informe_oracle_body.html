@@ -1,0 +1,495 @@
+<div class="preview-document">
+    <!-- ==========================
+            PÁGINA 1 - PORTADA
+    =========================== -->
+    <section class="page">
+
+        <div class="cover-page">
+
+            <div class="cover-header">
+                <h1 class="cover-title">
+                    INFORME CONSOLIDADO
+                </h1>
+                <h3 class="cover-subtitle">
+                    ACTIVIDADES EFECTUADAS POR
+                </h3>
+                <h2 class="cover-company">
+                    NETGROUP S.A.
+                </h2>
+            </div>
+
+            <div class="cover-center">
+                <h1 class="cover-month">
+                    {{ reporte.fecha_informe|upper }}
+                </h1>
+                <h3 class="cover-client">
+                    {{ empresa.nombre }}
+                </h3>
+            </div>
+
+            <div class="cover-information">
+
+                <div class="info-row">
+                    <span class="info-title">
+                        Dirigido a
+                    </span>
+                    <span class="info-value">
+                        {{ empresa.contacto }}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-title">
+                        Servidor
+                    </span>
+                    <span class="info-value">
+                        {{ conexion.ip_servidor }}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-title">
+                        Usuario
+                    </span>
+                    <span class="info-value">
+                        {{ conexion.usuario }}
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-title">
+                        Recopilado por
+                    </span>
+                    <span class="info-value">
+                        Área Bases de Datos
+                    </span>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-title">
+                        Fecha del informe
+                    </span>
+                    <span class="info-value">
+                        {{ reporte.fecha_informe|title }}
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="cover-footer">
+                <p>
+                    Este documento contiene información confidencial y es de uso
+                    exclusivo del cliente y del personal autorizado de NetGroup S.A.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ==========================
+            PÁGINA 2 - CONTENIDO
+    =========================== -->
+    <section class="page">
+
+        <div class="toc">
+            <h2 class="toc-title">
+                Contenido
+            </h2>
+
+            <table class="toc-table">
+                <tbody>
+                    <tr>
+                        <td>1. Resumen Ejecutivo</td>
+                        <td class="toc-page-number">3</td>
+                    </tr>
+                    <tr>
+                        <td>2. Estado del Servidor</td>
+                        <td class="toc-page-number">3</td>
+                    </tr>
+                    <tr>
+                        <td>3. Uso de Tablespaces</td>
+                        <td class="toc-page-number">4</td>
+                    </tr>
+                    <tr>
+                        <td>4. Rendimiento de la Instancia</td>
+                        <td class="toc-page-number">5</td>
+                    </tr>
+                    <tr>
+                        <td>5. Uso del Filesystem</td>
+                        <td class="toc-page-number">6</td>
+                    </tr>
+                    <tr>
+                        <td>6. Backups</td>
+                        <td class="toc-page-number">7</td>
+                    </tr>
+                    <tr>
+                        <td>7. Objetos Inválidos</td>
+                        <td class="toc-page-number">8</td>
+                    </tr>
+                    <tr>
+                        <td>8. Observaciones y Recomendaciones</td>
+                        <td class="toc-page-number">9</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ==========================
+            PÁGINA 3
+            RESUMEN EJECUTIVO
+    =========================== -->
+    <section class="page">
+
+        <div class="report-section">
+
+            <h2 class="section-title">
+                1. Resumen Ejecutivo
+            </h2>
+
+            <div class="kpi-grid">
+
+                <div class="kpi-card">
+                    <span class="kpi-label">
+                        Tamaño Base de Datos
+                    </span>
+                    <span class="kpi-value">
+                        {{ reporte.bd_tamano_tb }} TB
+                    </span>
+                </div>
+
+                <div class="kpi-card">
+                    <span class="kpi-label">
+                        Uso Filesystem
+                    </span>
+                    <span class="kpi-value">
+                        {{ reporte.filesystem_pct }}%
+                    </span>
+                </div>
+
+                <div class="kpi-card">
+                    <span class="kpi-label">
+                        Backups
+                    </span>
+                    <span class="kpi-value">
+                        30 / 30
+                    </span>
+                </div>
+
+                <div class="kpi-card">
+                    <span class="kpi-label">
+                        Objetos Inválidos
+                    </span>
+                    <span class="kpi-value">
+                        {{ reporte.obj_invalidos }}
+                    </span>
+                </div>
+
+            </div>
+
+            <h2 class="section-title">
+                2. Estado del Servidor
+            </h2>
+
+            <div class="server-grid">
+
+                <div class="server-card">
+                    <span class="server-label">
+                        CPU
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.cpu_prom_pct }}%
+                    </span>
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        RAM
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.ram_usada_pct }}%
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Load Average
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.load_avg }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Uptime
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.uptime }}
+                    </span>
+
+                </div>
+
+            </div>
+
+            <h2 class="section-title">
+                3. Uso de Tablespaces
+            </h2>
+
+            <div class="table-container">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Tablespace</th>
+                            <th>Asignado (MB)</th>
+                            <th>Usado (MB)</th>
+                            <th>% Uso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ts in reporte.tablespaces|slice:":8" %}
+                        <tr>
+                            <td>{{ ts.nombre }}</td>
+                            <td class="text-right">
+                                {{ ts.asignado_mb }}
+                            </td>
+                            <td class="text-right">
+                                {{ ts.usado_mb }}
+                            </td>
+                            <td class="text-right">
+                                <span class="
+                                    {% if ts.pct_uso >= 90 %}
+                                        report-table-danger
+                                    {% elif ts.pct_uso >= 70 %}
+                                        report-table-warning
+                                    {% else %}
+                                        report-table-success
+                                    {% endif %}
+                                ">
+                                    {{ ts.pct_uso }}%
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h2 class="section-title">
+                4. Rendimiento de la Instancia
+            </h2>
+
+            <ul class="report-list">
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        Buffer Cache Hit Ratio
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.buffer_hit }}%
+                    </span>
+                </li>
+
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        SGA Utilizada
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.sga_gb }} GB
+                    </span>
+                </li>
+
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        PGA Utilizada
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.pga_gb }} GB
+                    </span>
+                </li>
+            </ul>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 4 -->
+    <!-- ===================================== -->
+    <section class="page">
+
+        <div class="report-section">
+            <h2 class="section-title">
+                5. Uso del Filesystem
+            </h2>
+            <p class="section-description">
+                A continuación se presenta el porcentaje de utilización de
+                los diferentes filesystem del servidor Oracle.
+            </p>
+
+            <div class="table-container">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Filesystem</th>
+                            <th>Tamaño</th>
+                            <th>Usado</th>
+                            <th>Disponible</th>
+                            <th>% Uso</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fs in reporte.filesystems %}
+                        <tr>
+                            <td>{{ fs.nombre }}</td>
+                            <td>{{ fs.total }}</td>
+                            <td>{{ fs.usado }}</td>
+                            <td>{{ fs.disponible }}</td>
+                            <td>{{ fs.porcentaje }}%</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5">
+                                No se encontraron registros.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 5 -->
+    <!-- ===================================== -->
+    <section class="page">
+
+        <div class="report-section">
+            
+            <h2 class="section-title">
+                6. Backups
+            </h2>
+
+            <div class="table-container">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Fecha</th>
+                            <th>Tamaño</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for backup in reporte.backups %}
+                        <tr>
+                            <td>{{ backup.nombre }}</td>
+                            <td>{{ backup.fecha }}</td>
+                            <td>{{ backup.tamano }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3">
+                                No existen backups registrados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 6 -->
+    <!-- ===================================== -->
+    <section class="page">
+
+        <div class="report-section">
+            <h2 class="section-title">
+                7. Objetos Inválidos
+            </h2>
+
+            <div class="table-container">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th>Owner</th>
+                            <th>Objeto</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for obj in reporte.objetos_invalidos %}
+                        <tr>
+                            <td>{{ obj.owner }}</td>
+                            <td>{{ obj.nombre }}</td>
+                            <td>{{ obj.tipo }}</td>
+                            <td>{{ obj.estado }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">
+                                No existen objetos inválidos.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 7 -->
+    <!-- ===================================== -->
+    <section class="page">
+
+        <div class="report-section">
+            <h2 class="section-title">
+                8. Observaciones y Recomendaciones
+            </h2>
+
+            <div class="observations">
+                {% if reporte.observaciones %}
+                    <ul class="report-list">
+                        {% for observacion in reporte.observaciones %}
+                        <li class="report-list-item">
+                            {{ observacion }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>
+                        No existen observaciones registradas para este período.
+                    </p>
+                {% endif %}
+            </div>
+
+        </div>
+        
+    </section>
+
+</div>

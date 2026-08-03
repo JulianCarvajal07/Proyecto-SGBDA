@@ -13,7 +13,7 @@ from .views.informacion import informacion_motores, mantenimientos_SqlServer, Mo
 from .views.calendario import calendario_view, crear_asignacion, eliminar_asignacion
 from django.contrib.auth.views import LogoutView
 
-from .views.informes_oracle import informes_oracle
+from .views.informes_oracle import informes_oracle, generar_informe
 
 
 
@@ -34,6 +34,7 @@ urlpatterns = [
     path('listar_conexiones_ssh/', listar_conexiones_ssh, name='listar_conexiones_ssh'),
     path('registro_conexion_ssh/', registro_conexion_ssh, name='registro_conexion_ssh'),
     path('eliminar_conexion_ssh/<int:id>/', eliminar_conexion_ssh, name='eliminar_conexion_ssh'),
+    path('generar_informe/<int:conexion_id>/', generar_informe, name='generar_informe'),
 
     path('listar_clientes/', listar_clientes, name='listar_clientes'),
     path('registro_cliente/', registro_cliente, name='registro_cliente'),

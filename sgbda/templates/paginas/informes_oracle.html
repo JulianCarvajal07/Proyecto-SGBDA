@@ -106,9 +106,12 @@
                                 </div>
                             </td>
                             <td style="text-align: center;">
-                                <form method="POST" action="{% url 'eliminar_conexion_ssh' conexion.id %}" style="display:inline;">
+                                <form method="POST" action="{% url 'generar_informe' conexion.id %}" style="display:inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn-gen-custom" onclick="return confirm('¿Eliminar esta conexión?')">
+                                    <button type="button" 
+                                            class="btn-gen-custom" 
+                                            onclick="generarInformeModal('{% url 'generar_informe' conexion.id %}')">
+                                        Generar Informe
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round">
                                             <path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
@@ -144,4 +147,26 @@
     </div>
 </div>
 
+
+<!-- MODAL INFORME -->
+<div class="modal fade" id="modalInformeOracle" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">📊 Informe Mensual Oracle</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <!-- CUERPO DINÁMICO -->
+      <div class="modal-body p-4" id="modalCuerpoInforme">
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/informe_oracle.js' %}"></script>
 {% endblock %}
