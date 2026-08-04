@@ -36,6 +36,13 @@ def generar_informe(request, conexion_id):
                 key=lambda x: x['pct_uso'], 
                 reverse=True
             )
+
+            # Asegurar que ram_usada_pct sea un número limpio
+            ram_raw = datos.get('ram_usada_pct', 0)
+            try:
+                datos['ram_usada_pct'] = int(float(str(ram_raw).replace('%', '')))
+            except (ValueError, TypeError):
+                datos['ram_usada_pct'] = 0
             
             contexto['reporte'] = datos
             contexto['conexion'] = conexion

@@ -192,39 +192,93 @@
 
             </div>
 
+            <section class="estado-servidor">
+                <h2 class="section-title">2. Estado del Servidor</h2>
+
+                <div class="metricas-grid">
+                    <div class="metrica-card">
+                    <span class="metrica-label">Uptime</span>
+                    <span class="metrica-valor">{{ reporte.uptime }}</span>
+                    </div>
+                    <div class="metrica-card">
+                    <span class="metrica-label">Load Average</span>
+                    <span class="metrica-valor">{{ reporte.load_avg }}</span>
+                    </div>
+                    <div class="metrica-card">
+                    <span class="metrica-label">Filesystem</span>
+                    <span class="metrica-valor">{{ reporte.filesystem_pct }}%</span>
+                    </div>
+                </div>
+
+                <h3 class="subsection-title">Uso de Memoria</h3>
+                
+                <div class="memoria-bar-container">
+                    <div 
+                        class="memoria-bar 
+                            {% if reporte.ram_usada_pct >= 85 %}alta
+                            {% elif reporte.ram_usada_pct >= 60 %}media
+                            {% endif %}"
+                        style="width: {{ reporte.ram_usada_pct|default:0 }}%;" 
+                        data-pct="{{ reporte.ram_usada_pct }}%">
+                    </div>
+                </div>
+
+                <div class="memoria-detalle">
+                    <span>Usado: {{ reporte.ram_usada_gb }} GB</span>
+                    <span>Disponible: {{ reporte.ram_disponible_gb }} GB</span>
+                    <span>Total: {{ reporte.ram_total_gb }} GB</span>
+                    <span class="memoria-pct">100%</span>
+                </div>
+
+                <h3 class="subsection-title">Procesos Clave de Oracle</h3>
+                <table class="tabla-procesos">
+                    <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>PID</th>
+                        <th>Inicio</th>
+                        <th>CPU Time</th>
+                        <th>Proceso</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {% for proceso in reporte.procesos_oracle_clave %}
+                        <tr>
+                            <td>{{ proceso.usuario }}</td>
+                            <td>{{ proceso.pid }}</td>
+                            <td>{{ proceso.inicio }}</td>
+                            <td>{{ proceso.cpu_time }}</td>
+                            <td class="proceso-nombre">{{ proceso.comando }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            </div>
+
             <h2 class="section-title">
-                2. Estado del Servidor
+                3. Estado de la Base de Datos
             </h2>
 
             <div class="server-grid">
 
                 <div class="server-card">
                     <span class="server-label">
-                        CPU
+                        Current status
                     </span>
                     <span class="server-value">
-                        {{ reporte.cpu_prom_pct }}%
+                        {{ reporte.estado_instancia.current_status }}
                     </span>
                 </div>
 
                 <div class="server-card">
 
                     <span class="server-label">
-                        RAM
+                        Up Since
                     </span>
                     <span class="server-value">
-                        {{ reporte.ram_usada_pct }}%
-                    </span>
-
-                </div>
-
-                <div class="server-card">
-
-                    <span class="server-label">
-                        Load Average
-                    </span>
-                    <span class="server-value">
-                        {{ reporte.load_avg }}
+                        {{ reporte.estado_instancia.up_since }}
                     </span>
 
                 </div>
@@ -232,10 +286,98 @@
                 <div class="server-card">
 
                     <span class="server-label">
-                        Uptime
+                        Instance Name
                     </span>
                     <span class="server-value">
-                        {{ reporte.uptime }}
+                        {{ reporte.estado_instancia.instance_name }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Database Version
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.database_version }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Database Status
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.database_status }}
+                    </span>
+
+                </div>
+            
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Shutdown Pending
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.shutdown_pending }}
+                    </span>
+
+                </div>
+            
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Active State
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.active_state }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Blocked
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.blocked }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Parallel
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.parallel }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Archiver
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.archiver }}
+                    </span>
+
+                </div>
+
+                <div class="server-card">
+
+                    <span class="server-label">
+                        Logins
+                    </span>
+                    <span class="server-value">
+                        {{ reporte.estado_instancia.logins }}
                     </span>
 
                 </div>
@@ -243,7 +385,52 @@
             </div>
 
             <h2 class="section-title">
-                3. Uso de Tablespaces
+                4. Rendimiento de la Instancia
+            </h2>
+
+            <ul class="report-list">
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        Buffer Cache Hit Ratio
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.buffer_hit }}%
+                    </span>
+                </li>
+
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        SGA Utilizada
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.sga_gb }} GB
+                    </span>
+                </li>
+
+                <li class="report-list-item">
+                    <span class="report-list-label">
+                        PGA Utilizada
+                    </span>
+                    <span class="report-list-value">
+                        {{ reporte.pga_gb }} GB
+                    </span>
+                </li>
+            </ul>
+
+
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 4 -->
+    <!-- ===================================== -->
+
+    <section class="page">
+
+        <div class="report-section">
+
+            <h2 class="section-title">
+                5. Uso de Tablespaces
             </h2>
 
             <div class="table-container">
@@ -291,46 +478,13 @@
                 </table>
             </div>
 
-            <h2 class="section-title">
-                4. Rendimiento de la Instancia
-            </h2>
-
-            <ul class="report-list">
-                <li class="report-list-item">
-                    <span class="report-list-label">
-                        Buffer Cache Hit Ratio
-                    </span>
-                    <span class="report-list-value">
-                        {{ reporte.buffer_hit }}%
-                    </span>
-                </li>
-
-                <li class="report-list-item">
-                    <span class="report-list-label">
-                        SGA Utilizada
-                    </span>
-                    <span class="report-list-value">
-                        {{ reporte.sga_gb }} GB
-                    </span>
-                </li>
-
-                <li class="report-list-item">
-                    <span class="report-list-label">
-                        PGA Utilizada
-                    </span>
-                    <span class="report-list-value">
-                        {{ reporte.pga_gb }} GB
-                    </span>
-                </li>
-            </ul>
-
         </div>
 
     </section>
 
     <div class="page-break"></div>
     <!-- ===================================== -->
-    <!-- PÁGINA 4 -->
+    <!-- PÁGINA 5 -->
     <!-- ===================================== -->
     <section class="page">
 

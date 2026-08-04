@@ -6,8 +6,29 @@ from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.oxml import parse_xml, OxmlElement
-from docx.oxml.ns import nsdecls, qn
+from docx.oxml import parse_xml
+from docx.oxml.ns import nsdecls
+
+PROCESOS_CLAVE = ['pmon', 'smon', 'lgwr', 'dbwr', 'ckpt', 'tnslsnr', 'reco', 'mmon']
+
+
+def filtrar_procesos_clave(procesos):
+    return [p for p in procesos if any(clave in p.lower() for clave in PROCESOS_CLAVE)]
+
+
+def parsear_procesos(lineas):
+    procesos = []
+    for linea in lineas:
+        partes = linea.split(None, 7)  # separa por espacios, máx 8 columnas
+        if len(partes) >= 8:
+            procesos.append({
+                'usuario': partes[0],
+                'pid': partes[1],
+                'inicio': partes[4],
+                'cpu_time': partes[6],
+                'comando': partes[7],
+            })
+    return procesos
 
 def obtener_metricas_oracle(host, user, password, port=22, script_remoto="/u01/app/oracle/scripts/extraer_metricas_json.sh"):
     """Conecta vía SSH usando los parámetros dinámicos de la BD."""
@@ -35,10 +56,17 @@ def obtener_metricas_oracle(host, user, password, port=22, script_remoto="/u01/a
         raise Exception(f"Error en script SSH: {salida_error}")
         
     try:
-        return json.loads(salida_texto)
+        datos = json.loads(salida_texto)
     except json.JSONDecodeError:
         # Esto te mostrará en pantalla qué texto extraño devolvió el servidor en vez de JSON
         raise Exception(f"Salida no válida recibida del servidor:\n'{salida_texto}'")
+
+    # Procesar la lista de procesos: filtrar solo los clave y parsearlos a dict
+    procesos_raw = datos.get('procesos_oracle', [])
+    procesos_filtrados = filtrar_procesos_clave(procesos_raw)
+    datos['procesos_oracle_clave'] = parsear_procesos(procesos_filtrados)
+
+    return datos
     
 
 def set_cell_background(cell, fill_hex):
@@ -112,9 +140,9 @@ def construir_documento_docx(datos):
     r_sec2.font.bold = True
     r_sec2.font.color.rgb = RGBColor(0x18, 0x5F, 0xA5)
 
-    tbl_ts = doc.add_table(rows=1, cols=4)
+    tbl_ts = doc.add_table(rows=1, cols=6)
     tbl_ts.alignment = WD_TABLE_ALIGNMENT.CENTER
-    headers = ["Tablespace", "Asignado (MB)", "Usado (MB)", "% Uso"]
+    headers = ["Tablespace", "File_name", "Status", "Autoextend", "Asignado (MB)", "Usado (MB)", "% Uso"]
     for i, h in enumerate(headers):
         cell = tbl_ts.rows[0].cells[i]
         set_cell_background(cell, "185FA5")
