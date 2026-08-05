@@ -43,7 +43,39 @@ def generar_informe(request, conexion_id):
                 datos['ram_usada_pct'] = int(float(str(ram_raw).replace('%', '')))
             except (ValueError, TypeError):
                 datos['ram_usada_pct'] = 0
-            
+
+            def get_empresa_por_ip(ip):
+                empresas = {
+                    "10.75.36.": {
+                        "nombre": "UNICLARETIANA",
+                        "dirigido": "Ing. Carlos Alberto Gómez G.", 
+                        "cargo": "Director TIC"
+                    },
+                    "172.21.230": {
+                        "nombre": "BERCHMANS",
+                        "dirigido": "Ing. Diego Fernando Tovar Suarez",
+                        "cargo": "Coordinación de sistemas" 
+                    },
+                    "10.75.60": {
+                        "nombre": "DEBORA",
+                        "dirigido": "Recursos Tecnológicos y Apoyo Académico",
+                        "cargo": ""
+                    },
+                    "10.75.19": {
+                        "nombre": "CAMACHO",
+                        "dirigido": "Ing. Carlos Alberto Rodríguez",
+                        "cargo": "Director TIC"
+                    },
+                }
+                
+                for prefijo, datos in empresas.items():
+                    if ip.startswith(prefijo):
+                        return datos
+                        
+                return {"nombre": "no identificado", "dirigido": "no identificado", "cargo": "no identificado"}
+
+            # Dentro de tu vista:
+            contexto['empresa'] = get_empresa_por_ip(conexion.ip_servidor)
             contexto['reporte'] = datos
             contexto['conexion'] = conexion
             

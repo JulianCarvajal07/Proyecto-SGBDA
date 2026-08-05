@@ -20,22 +20,20 @@
 
             <div class="cover-center">
                 <h1 class="cover-month">
-                    {{ reporte.fecha_informe|upper }}
-                </h1>
-                <h3 class="cover-client">
                     {{ empresa.nombre }}
-                </h3>
+                </h1>
             </div>
 
             <div class="cover-information">
 
-                <div class="info-row">
+                <div class="info-column">
                     <span class="info-title">
-                        Dirigido a
+                        Dirigido a:
                     </span>
-                    <span class="info-value">
-                        {{ empresa.contacto }}
-                    </span>
+                    <div class="info-dirigido">
+                        <h6> {{empresa.dirigido}} </h6>
+                        <h6> {{empresa.cargo}} </h6>
+                    </div>
                 </div>
 
                 <div class="info-row">

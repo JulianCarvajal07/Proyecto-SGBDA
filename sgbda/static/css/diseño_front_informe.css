@@ -100,9 +100,26 @@
     padding:12px 0;
 }
 
+.info-column{
+    border-bottom:1px solid #ddd;
+    padding:12px 0;
+}
+
 .info-title{
     font-weight:bold;
     color:#185FA5;
+}
+
+.info-dirigido {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.info-dirigido h6{
+    font-weight:bold;
+    color: #444;
+    margin: 0;
 }
 
 .info-value{
