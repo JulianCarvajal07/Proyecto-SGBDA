@@ -313,7 +313,12 @@
                     </span>
 
                 </div>
-            
+                <!--======================================================================
+                ==========================================================================
+                ESTA CARACTERISTICAS NO APLICAN FUERON APLICADAS APARTIR DE 11g/12c
+                ==========================================================================
+                =======================================================================-->
+                {% if reporte.estado_instancia.shutdown_pending != "N/A" %}            
                 <div class="server-card">
 
                     <span class="server-label">
@@ -324,7 +329,9 @@
                     </span>
 
                 </div>
-            
+                {% endif %}
+                
+                {% if reporte.estado_instancia.active_state != "N/A" %}  
                 <div class="server-card">
 
                     <span class="server-label">
@@ -335,7 +342,9 @@
                     </span>
 
                 </div>
+                {% endif %}
 
+                {% if reporte.estado_instancia.blocked != "N/A" %}
                 <div class="server-card">
 
                     <span class="server-label">
@@ -346,7 +355,10 @@
                     </span>
 
                 </div>
-
+                {% endif %}
+                <!--======================================================================
+                ==========================================================================
+                =======================================================================-->
                 <div class="server-card">
 
                     <span class="server-label">
