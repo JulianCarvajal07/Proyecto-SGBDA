@@ -11,6 +11,24 @@ from docx.oxml.ns import nsdecls
 
 PROCESOS_CLAVE = ['pmon', 'smon', 'lgwr', 'dbwr', 'ckpt', 'tnslsnr', 'reco', 'mmon']
 
+# Lista de posibles rutas donde puede estar el script
+RUTAS_CANDIDATAS = [
+    "/oracle/app/oracle/scripts/extraer_metricas_json.sh",
+    "/oracle/scripts/extraer_metricas_json.sh",
+    "/u01/app/oracle/scripts/extraer_metricas_json.sh",
+    "/home/oracle/scripts/extraer_metricas_json.sh",
+    "/opt/oracle/scripts/extraer_metricas_json.sh",
+]
+
+
+def detectar_script(ssh, rutas):
+    """Devuelve la primera ruta que exista en el servidor remoto."""
+    for ruta in rutas:
+        stdin, stdout, stderr = ssh.exec_command(f"test -f {ruta} && echo 'EXISTS' || echo 'MISSING'")
+        resultado = stdout.read().decode('utf-8').strip()
+        if resultado == "EXISTS":
+            return ruta
+    return None
 
 def filtrar_procesos_clave(procesos):
     return [p for p in procesos if any(clave in p.lower() for clave in PROCESOS_CLAVE)]
@@ -30,23 +48,30 @@ def parsear_procesos(lineas):
             })
     return procesos
 
-def obtener_metricas_oracle(host, user, password, port=22, script_remoto="/u01/app/oracle/scripts/extraer_metricas_json.sh"):
+def obtener_metricas_oracle(host, puerto, user, password):
     """Conecta vía SSH usando los parámetros dinámicos de la BD."""
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     # Conexión SSH con los datos dinámicos recibidos
     ssh.connect(
-        hostname=host, 
+        hostname=host,
+        port=puerto, 
         username=user, 
         password=password, 
-        port=port, 
         timeout=10
     )
 
-    # Invocamos el script forzando la carga de variables de entorno con un Shell Login
-    stdin, stdout, stderr = ssh.exec_command(f"bash -l {script_remoto}")
+    # 1. Detectar qué script existe
+    script_remoto = detectar_script(ssh, RUTAS_CANDIDATAS)
     
+    if not script_remoto:
+        ssh.close()
+        raise Exception("No se encontró el script extraer_metricas_json.sh en ninguna ruta conocida.")
+
+    
+    comando = f"bash -l {script_remoto} >/dev/null 2>&1 && cat /tmp/metricas_oracle.json"
+    stdin, stdout, stderr = ssh.exec_command(comando)
     salida_texto = stdout.read().decode('utf-8').strip()
     salida_error = stderr.read().decode('utf-8').strip()
     ssh.close()

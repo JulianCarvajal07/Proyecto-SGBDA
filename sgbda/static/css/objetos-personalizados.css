@@ -241,10 +241,14 @@
     width: 200px;
     overflow-wrap:break-word;
     word-break:break-word;
+    white-space: normal;
+    overflow: visible; 
 }
 
 .td-small , .th-small {
     width: 64px;
     overflow-wrap:break-word;
     word-break:break-word;
+    white-space: normal;
+    overflow: visible; 
 }

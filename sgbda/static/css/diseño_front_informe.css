@@ -18,7 +18,7 @@
 
 .page{
     width:215.9mm;
-    min-height:279.4mm;
+    height:279.4mm;
     background:#ffffff;
     padding:10mm;
     box-sizing:border-box;
@@ -26,6 +26,8 @@
     border-radius:6px;
     position:relative;
     overflow:hidden;
+    page-break-after: always;
+    margin-bottom: 40px;   /* separación entre hojas */
 }
 
 .page-break{
@@ -279,6 +281,10 @@
     vertical-align:middle;
     justify-content: center;
     text-align: center;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    white-space: normal;
+    overflow: visible; 
 }
 
 .report-table tbody tr:nth-child(even){
@@ -631,4 +637,44 @@
 .proceso-nombre {
   font-family: monospace;
   color: #185FA5;
+}
+
+.tabla-sql {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Courier New', Courier, monospace; /* Fuente monoespaciada tipo terminal */
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  margin-top: 8px;
+}
+
+.tabla-sql thead tr {
+  border-bottom: 2px solid #333;
+}
+
+.tabla-sql th {
+  text-align: left;
+  padding: 6px 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabla-sql th.col-cantidad {
+  text-align: right;
+}
+
+.tabla-sql td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tabla-sql td.numero {
+  text-align: right;
+  font-weight: 600;
+  color: #185FA5;
+}
+
+.tabla-sql tbody tr:last-child td {
+  border-bottom: 2px solid #333; /* Línea final gruesa, como en SQL*Plus */
 }

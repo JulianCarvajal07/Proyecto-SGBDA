@@ -25,9 +25,9 @@ def generar_informe(request, conexion_id):
             # 1. Extraer datos por SSH
             datos = obtener_metricas_oracle(
                 host=conexion.ip_servidor,
+                puerto=conexion.puerto,
                 user=conexion.usuario,
                 password=conexion.password_encriptado,
-                port=22
             )
             
             # 2. Ordenar tablespaces por % uso

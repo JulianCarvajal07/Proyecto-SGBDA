@@ -18,6 +18,7 @@ def registro_conexion_ssh(request):
     if request.method == 'POST':
 
         ip_servidor = request.POST.get('ip_servidor', '').strip()
+        puerto = request.POST.get('puerto', '').strip()
         usuario = request.POST.get('usuario', '').strip()
         password = request.POST.get('contraseña', '').strip()
 
@@ -27,6 +28,7 @@ def registro_conexion_ssh(request):
         if not all([
 
             ip_servidor.strip(),
+            puerto.strip(),
             usuario.strip(),
             password.strip()
         ]):
@@ -60,6 +62,7 @@ def registro_conexion_ssh(request):
 
             ssh.connect(
                 hostname = ip_servidor,
+                port = puerto,
                 username = usuario,
                 password = password,
                 timeout = 5,
@@ -70,6 +73,7 @@ def registro_conexion_ssh(request):
             # =====================================================
             conexion_ssh.objects.create(
                 ip_servidor=ip_servidor,
+                puerto=puerto,
                 usuario=usuario,
                 password_encriptado=password,
             )

@@ -103,6 +103,7 @@ class conexion(models.Model):
 
 class conexion_ssh(models.Model):
     ip_servidor = models.GenericIPAddressField()
+    puerto = models.CharField(max_length=50)
     usuario = models.CharField(max_length=255)
     password_encriptado = EncryptedPasswordField()
 

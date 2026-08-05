@@ -174,15 +174,6 @@
 
                 <div class="kpi-card">
                     <span class="kpi-label">
-                        Backups
-                    </span>
-                    <span class="kpi-value">
-                        30 / 30
-                    </span>
-                </div>
-
-                <div class="kpi-card">
-                    <span class="kpi-label">
                         Objetos Inválidos
                     </span>
                     <span class="kpi-value">
@@ -254,8 +245,17 @@
                     </tbody>
                 </table>
             </section>
+        </div>
+    </section>
 
-            </div>
+    <div class="page-break"></div>
+    <!-- ==========================
+            PÁGINA 3
+            RESUMEN EJECUTIVO
+    =========================== -->
+    <section class="page">
+
+        <div class="report-section">
 
             <h2 class="section-title">
                 3. Estado de la Base de Datos
@@ -417,6 +417,7 @@
                 </li>
             </ul>
 
+        </div>
 
     </section>
 
@@ -424,41 +425,41 @@
     <!-- ===================================== -->
     <!-- PÁGINA 4 -->
     <!-- ===================================== -->
+    {% load custom_filters %}
 
+    {% for page_ts in reporte.tablespaces|chunk:12 %}
     <section class="page">
-
         <div class="report-section">
-
             <h2 class="section-title">
-                5. Uso de Tablespaces
+                {% if forloop.first %}
+                    5. Uso de Tablespaces ( Total: {{ reporte.tablespaces|length }} )
+                {% else %}
+                    Uso de Tablespaces (continuación)
+                {% endif %}
             </h2>
 
             <div class="table-container">
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>Tablespace</th>
+                            <th class="th-medium">Tablespace</th>
                             <th class="th-medium">File_name</th>
                             <th>Status</th>
                             <th class="td-small">Auto Extend</th>
                             <th>Asignado (MB)</th>
-                            <th>Usado (MB)</th>
+                            <th class="td-small">Usado (MB)</th>
                             <th>% Uso</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for ts in reporte.tablespaces|slice:":8" %}
+                        {% for ts in page_ts %}
                         <tr>
-                            <td>{{ ts.nombre }}</td>
+                            <td class="th-medium">{{ ts.nombre }}</td>
                             <td class="td-medium">{{ ts.file_name }}</td>
                             <td>{{ ts.status }}</td>
                             <td class="td-small">{{ ts.autoextend }}</td>
-                            <td class="text-right">
-                                {{ ts.asignado_mb }}
-                            </td>
-                            <td class="text-right">
-                                {{ ts.usado_mb }}
-                            </td>
+                            <td class="text-right">{{ ts.asignado_mb }}</td>
+                            <td class="td-small">{{ ts.usado_mb }}</td>
                             <td class="text-right">
                                 <span class="
                                     {% if ts.pct_uso >= 90 %}
@@ -477,12 +478,12 @@
                     </tbody>
                 </table>
             </div>
-
         </div>
-
     </section>
 
     <div class="page-break"></div>
+    {% endfor %}
+
     <!-- ===================================== -->
     <!-- PÁGINA 5 -->
     <!-- ===================================== -->
@@ -505,26 +506,24 @@
                             <th>Tamaño</th>
                             <th>Usado</th>
                             <th>Disponible</th>
-                            <th>% Uso</th>
+                            <th>Uso %</th>
+                            <th>Montado en</th>
                         </tr>
                     </thead>
-                    <tbody>
+                        <tbody>
                         {% for fs in reporte.filesystems %}
-                        <tr>
-                            <td>{{ fs.nombre }}</td>
-                            <td>{{ fs.total }}</td>
-                            <td>{{ fs.usado }}</td>
-                            <td>{{ fs.disponible }}</td>
-                            <td>{{ fs.porcentaje }}%</td>
-                        </tr>
+                            <tr>
+                                <td>{{ fs.filesystem }}</td>
+                                <td>{{ fs.size }}</td>
+                                <td>{{ fs.used }}</td>
+                                <td>{{ fs.available }}</td>
+                                <td>{{ fs.use_pct }}</td>
+                                <td>{{ fs.mounted_on }}</td>
+                            </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="5">
-                                No se encontraron registros.
-                            </td>
-                        </tr>
+                            <tr><td colspan="6">No se encontraron filesystems</td></tr>
                         {% endfor %}
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
@@ -541,33 +540,33 @@
         <div class="report-section">
             
             <h2 class="section-title">
-                6. Backups
+                6. Backups en "{{ reporte.backups.0.ruta|default:"N/A" }}"
             </h2>
 
             <div class="table-container">
                 <table class="report-table">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Permisos</th>
+                            <th>Archivo</th>
                             <th>Fecha</th>
-                            <th>Tamaño</th>
+                            <th>Tamaño (bytes)</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for backup in reporte.backups %}
-                        <tr>
-                            <td>{{ backup.nombre }}</td>
-                            <td>{{ backup.fecha }}</td>
-                            <td>{{ backup.tamano }}</td>
-                        </tr>
+                        <tbody>
+                        {% for bk in reporte.backups %}
+                            <tr>
+                                <td>{{ bk.permisos }}</td>
+                                <td>{{ bk.archivo }}</td>
+                                <td>{{ bk.fecha }}</td>
+                                <td>{{ bk.size|filesizeformat }}</td>  {# Django formatea automático a KB/MB/GB #}
+                            </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="3">
-                                No existen backups registrados.
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="4">No se encontraron backups o la ruta no es accesible</td>
+                            </tr>
                         {% endfor %}
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
 
@@ -583,38 +582,69 @@
 
         <div class="report-section">
             <h2 class="section-title">
-                7. Objetos Inválidos
+                7. Resumen de Objetos de la Base de Datos
             </h2>
 
-            <div class="table-container">
-                <table class="report-table">
-                    <thead>
-                        <tr>
-                            <th>Owner</th>
-                            <th>Objeto</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
+            <div class="metricas-grid">
+                <div class="metrica-card">
+                    <span class="metrica-label">Total Objetos</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.total }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Packages</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.packages }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Package Bodies</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.package_bodies }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Tablas</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.tables }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Funciones</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.functions }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Procedimientos</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.procedures }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Secuencias</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.sequences }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Triggers</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.triggers }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Índices</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.indexes }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Vistas</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.views }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Tipos</span>
+                    <span class="metrica-valor">{{ reporte.resumen_objetos.types }}</span>
+                </div>
+            </div>
 
-                    <tbody>
-                        {% for obj in reporte.objetos_invalidos %}
-                        <tr>
-                            <td>{{ obj.owner }}</td>
-                            <td>{{ obj.nombre }}</td>
-                            <td>{{ obj.tipo }}</td>
-                            <td>{{ obj.estado }}</td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4">
-                                No existen objetos inválidos.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
+            <div class="metricas-grid" style="margin-top: 16px;">
+                <div class="metrica-card">
+                    <span class="metrica-label">Objetos Inválidos</span>
+                    <span class="metrica-valor">{{ reporte.obj_invalidos }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Errores de Compilación</span>
+                    <span class="metrica-valor">{{ reporte.errores_compilacion }}</span>
+                </div>
+                <div class="metrica-card">
+                    <span class="metrica-label">Última Modificación</span>
+                    <span class="metrica-valor">{{ reporte.ultima_modificacion_objeto|default:"N/A" }}</span>
+                </div>
             </div>
 
         </div>
@@ -626,10 +656,40 @@
     <!-- PÁGINA 7 -->
     <!-- ===================================== -->
     <section class="page">
+        <h3 class="section-title">Estadísticas de Tablas</h3>
+        <table class="tabla-sql">
+            <thead>
+                <tr>
+                    <th class="col-estado">ESTADO</th>
+                    <th class="col-cantidad">CANTIDAD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>TABLAS CON ESTADISTICAS que se actualizaron</td>
+                    <td class="numero">{{ reporte.stats_tablas.actualizadas }}</td>
+                </tr>
+                <tr>
+                    <td>TABLAS CON ESTADISTICAS no actualizadas</td>
+                    <td class="numero">{{ reporte.stats_tablas.no_actualizadas }}</td>
+                </tr>
+                <tr>
+                    <td>TABLAS SIN ESTADISTICAS</td>
+                    <td class="numero">{{ reporte.stats_tablas.sin_estadisticas }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <div class="page-break"></div>
+    <!-- ===================================== -->
+    <!-- PÁGINA 7 -->
+    <!-- ===================================== -->
+    <section class="page">
 
         <div class="report-section">
             <h2 class="section-title">
-                8. Observaciones y Recomendaciones
+                9. Observaciones y Recomendaciones
             </h2>
 
             <div class="observations">
