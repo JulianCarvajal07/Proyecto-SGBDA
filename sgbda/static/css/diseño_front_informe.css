@@ -695,3 +695,58 @@
 .tabla-sql tbody tr:last-child td {
   border-bottom: 2px solid #333; /* Línea final gruesa, como en SQL*Plus */
 }
+
+/*============================
+============================== 
+FRONTEND PARA OBSERVACIONES 
+==============================
+============================*/
+
+.observaciones-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.obs-card {
+    border-left: 5px solid;
+    padding: 14px 18px;
+    border-radius: 6px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.obs-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.obs-icon {
+    font-size: 1.2rem;
+}
+
+.obs-titulo {
+    font-size: 0.95rem;
+    color: #1a1a1a;
+}
+
+.obs-mensaje {
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.5;
+    padding-left: 30px;
+}
+
+/* Colores por tipo */
+.obs-danger  { border-left-color: #dc2626; background: #fef2f2; }
+.obs-warning { border-left-color: #eab308; background: #fefce8; }
+.obs-info    { border-left-color: #2563eb; background: #eff6ff; }
+.obs-success { border-left-color: #16a34a; background: #f0fdf4; }
+
+.obs-danger .obs-titulo  { color: #991b1b; }
+.obs-warning .obs-titulo { color: #854d0e; }
+.obs-info .obs-titulo    { color: #1e40af; }
+.obs-success .obs-titulo { color: #166534; }

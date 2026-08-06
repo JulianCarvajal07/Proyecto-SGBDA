@@ -695,31 +695,28 @@
     <!-- ===================================== -->
     <!-- PÁGINA 7 -->
     <!-- ===================================== -->
+    {% if observaciones %}
     <section class="page">
-
         <div class="report-section">
-            <h2 class="section-title">
-                9. Observaciones y Recomendaciones
-            </h2>
-
-            <div class="observations">
-                {% if reporte.observaciones %}
-                    <ul class="report-list">
-                        {% for observacion in reporte.observaciones %}
-                        <li class="report-list-item">
-                            {{ observacion }}
-                        </li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>
-                        No existen observaciones registradas para este período.
-                    </p>
-                {% endif %}
+            <h2 class="section-title">6. Observaciones y Recomendaciones del DBA</h2>
+            
+            <div class="observaciones-lista">
+                {% for obs in observaciones %}
+                <div class="obs-card obs-{{ obs.tipo }}">
+                    <div class="obs-header">
+                        <span class="obs-icon">
+                            {% if obs.tipo == 'danger' %}⚠️{% elif obs.tipo == 'warning' %}⚡{% elif obs.tipo == 'info' %}ℹ️{% else %}✅{% endif %}
+                        </span>
+                        <strong class="obs-titulo">{{ obs.titulo }}</strong>
+                    </div>
+                    <div class="obs-mensaje">
+                        {{ obs.mensaje|safe }}
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-
         </div>
-        
     </section>
+    {% endif %}
 
 </div>
