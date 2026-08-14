@@ -171,7 +171,11 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-      </div>
+        <form method="POST" action="{% url 'generar_word' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Descargar Word</button>
+        </form>
+    </div>
     </div>
   </div>
 </div>

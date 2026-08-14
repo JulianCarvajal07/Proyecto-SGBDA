@@ -2,10 +2,19 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from sgbda.models import conexion_ssh
 from django.shortcuts import render, get_object_or_404
-from sgbda.services.extraccion_ssh import obtener_metricas_oracle
+from sgbda.services.extraccion_ssh import obtener_metricas_oracle, generar_reporte_oracle
 from django.http import JsonResponse
 from django.template.loader import render_to_string
+import os
+import json
+from io import BytesIO
+from django.http import FileResponse, HttpResponse
 
+
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def informes_oracle(request):
 
@@ -15,6 +24,10 @@ def informes_oracle(request):
         "conexiones": todas_conexiones
     })
 
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def generar_informe(request, conexion_id):
     conexion = get_object_or_404(conexion_ssh, id=conexion_id)
@@ -74,8 +87,22 @@ def generar_informe(request, conexion_id):
                         
                 return {"nombre": "no identificado", "dirigido": "no identificado", "cargo": "no identificado"}
 
+            # --- CALCULAR EMPRESA PRIMERO ---
+            empresa = get_empresa_por_ip(conexion.ip_servidor)
+
             # --- GENERAR OBSERVACIONES ---
             observaciones = generar_observaciones(datos)
+
+            # ============================================================
+            # GUARDAR EN SESIÓN PARA LA DESCARGA POSTERIOR
+            # ============================================================
+            request.session['metricas_oracle'] = datos
+            request.session['empresa_oracle'] = empresa  # <-- NUEVO
+            request.session['conexion_oracle'] = {
+                'ip_servidor': conexion.ip_servidor,
+                'usuario': conexion.usuario,
+            }  # <-- NUEVO
+            request.session.modified = True
 
             # Dentro de tu vista:
             contexto['empresa'] = get_empresa_por_ip(conexion.ip_servidor)
@@ -99,6 +126,45 @@ def generar_informe(request, conexion_id):
     # Si es una petición GET estándar (al cargar la página por primera vez)
     return render(request, 'paginas/informes_oracle.html', {'conexion': conexion})
 
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+
+def generar_word(request):
+    # Solo aceptar POST (el botón submit envía POST)
+    if request.method != 'POST':
+        return HttpResponse("Método no permitido", status=405)
+    
+    # Recuperar los datos que guardó generar_informe
+    datos = request.session.get('metricas_oracle')
+    empresa = request.session.get('empresa_oracle')
+    conexion = request.session.get('conexion_oracle')
+    
+    if not datos:
+        return HttpResponse(
+            "No hay datos disponibles. Genera primero el informe desde el modal.", 
+            status=404
+        )
+    
+    instancia = datos.get('estado_instancia', {}).get('instance_name', 'Oracle')
+    fecha = datos.get('fecha_informe', 'reporte').replace(' ', '_')
+    filename = f"Reporte_{instancia}_{fecha}.docx"
+    
+    buffer = BytesIO()
+    generar_reporte_oracle(datos, buffer=buffer, empresa=empresa, conexion=conexion)
+    buffer.seek(0)
+    
+    return FileResponse(
+        buffer,
+        as_attachment=True,
+        filename=filename
+    )
+
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def generar_observaciones(datos):
     """Genera recomendaciones de DBA basadas en las métricas recolectadas."""

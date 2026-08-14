@@ -1,13 +1,19 @@
 # reportes/services.py
 import json
-import io
+import os
 import paramiko
 from docx import Document
 from docx.shared import Inches, Pt, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT
 from docx.oxml import parse_xml
 from docx.oxml.ns import nsdecls
+from docx.shared import Inches, Pt, RGBColor, Cm
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
+from django.conf import settings
+from docx import Document
 
 PROCESOS_CLAVE = ['pmon', 'smon', 'lgwr', 'dbwr', 'ckpt', 'tnslsnr', 'reco', 'mmon']
 
@@ -20,6 +26,10 @@ RUTAS_CANDIDATAS = [
     "/opt/oracle/scripts/extraer_metricas_json.sh",
 ]
 
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def detectar_script(ssh, rutas):
     """Devuelve la primera ruta que exista en el servidor remoto."""
@@ -30,9 +40,18 @@ def detectar_script(ssh, rutas):
             return ruta
     return None
 
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+
 def filtrar_procesos_clave(procesos):
     return [p for p in procesos if any(clave in p.lower() for clave in PROCESOS_CLAVE)]
 
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def parsear_procesos(lineas):
     procesos = []
@@ -47,6 +66,11 @@ def parsear_procesos(lineas):
                 'comando': partes[7],
             })
     return procesos
+
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def obtener_metricas_oracle(host, puerto, user, password):
     """Conecta vía SSH usando los parámetros dinámicos de la BD."""
@@ -92,130 +116,538 @@ def obtener_metricas_oracle(host, puerto, user, password):
     datos['procesos_oracle_clave'] = parsear_procesos(procesos_filtrados)
 
     return datos
-    
+
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
 
 def set_cell_background(cell, fill_hex):
     tcPr = cell._element.get_or_add_tcPr()
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{fill_hex}"/>')
     tcPr.append(shd)
 
-def construir_documento_docx(datos):
-    """Construye el documento Word en memoria y retorna un BytesIO buffer."""
-    doc = Document()
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+# =================================================================================== #
+
+# ============================================================
+# CREACION DE DOCUMENTO WORD
+# ============================================================
+def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.docx",
+                           empresa=None, conexion=None):
+    """
+    Genera un reporte Word (.docx) con las métricas de Oracle.
     
-    # Márgenes
-    for section in doc.sections:
-        section.top_margin = Inches(0.8)
-        section.bottom_margin = Inches(0.8)
-        section.left_margin = Inches(0.8)
-        section.right_margin = Inches(0.8)
-
-    # Estilo Normal
-    style = doc.styles['Normal']
-    style.font.name = 'Arial'
-    style.font.size = Pt(10)
-    style.font.color.rgb = RGBColor(0x33, 0x33, 0x33)
-
-    # Header
-    p_hdr = doc.add_paragraph()
-    r_sub = p_hdr.add_run("INFORME MENSUAL · BASE DE DATOS ORACLE\n")
-    r_sub.font.size = Pt(9)
-    r_sub.font.bold = True
-    r_sub.font.color.rgb = RGBColor(0x77, 0x77, 0x77)
+    Args:
+        datos_json: dict con la estructura del JSON de métricas
+        buffer: BytesIO opcional. Si se pasa, guarda ahí (para descarga web).
+        ruta_salida: str opcional. Ruta del archivo si no se pasa buffer.
+    """
+    # ============================================================
+    # ABRIR PLANTILLA
+    # ============================================================
+    if not os.path.exists(settings.PLANTILLA_WORD_PATH):
+        raise FileNotFoundError(f"No existe la plantilla: {settings.PLANTILLA_WORD_PATH}")
     
-    r_title = p_hdr.add_run(f"{datos['fecha_informe'].capitalize()}")
-    r_title.font.size = Pt(18)
-    r_title.font.bold = True
-    r_title.font.color.rgb = RGBColor(0x18, 0x5F, 0xA5)
+    doc = Document(settings.PLANTILLA_WORD_PATH)
+    
+    # ============================================================
+    # CONFIGURAR PÁGINA
+    # ============================================================
+    section = doc.sections[0]
+    section.page_height = Cm(27.94)
+    section.page_width = Cm(21.59)
+    section.top_margin = Cm(2)
+    section.bottom_margin = Cm(2)
+    section.left_margin = Cm(2.5)
+    section.right_margin = Cm(2.5)
+    
+    # ============================================================
+    # FUNCIONES AUXILIARES
+    # ============================================================
+    def parrafo_vacio(espacio_pt=12):
+        p = doc.add_paragraph()
+        p.space_after = Pt(espacio_pt)
+        return p
 
-    # 1. Resumen Ejecutivo
-    p_sec = doc.add_paragraph()
-    p_sec.paragraph_format.space_before = Pt(14)
-    r_sec = p_sec.add_run("1. RESUMEN EJECUTIVO")
-    r_sec.font.bold = True
-    r_sec.font.color.rgb = RGBColor(0x18, 0x5F, 0xA5)
 
-    tbl_kpi = doc.add_table(rows=2, cols=4)
-    tbl_kpi.alignment = WD_TABLE_ALIGNMENT.CENTER
-    kpis = [
-        ("BD tamaño", f"{datos['bd_tamano_tb']} TB"),
-        ("Filesystem", f"{datos['filesystem_pct']}%"),
-        ("Backups", "30/30"),
-        ("Obj. inválidos", str(datos['obj_invalidos']))
+
+    def texto_posicionado(doc, texto, posicion='centro', tamano=11, bold=False,
+                        color=(64,64,64), fuente='Calibri'):
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # ─────────────────────────────────────────
+        # ESPACIO ARRIBA (antes del texto)
+        # Aumentá o disminuí este número para subir/bajar el texto
+        # ─────────────────────────────────────────
+        p.paragraph_format.space_before = Pt(0)   # ← 0 = sin espacio arriba
+
+        # ─────────────────────────────────────────
+        # TEXTO
+        # ─────────────────────────────────────────
+        run = p.add_run(texto)
+        run.font.size = Pt(tamano)
+        run.font.name = fuente
+        run.bold = bold
+        run.font.color.rgb = RGBColor(*color)
+
+        # ─────────────────────────────────────────
+        # ESPACIO ABAJO (después del texto)
+        # Aumentá o disminuí este número para separar más/menos del siguiente elemento
+        # ─────────────────────────────────────────
+        p.paragraph_format.space_after = Pt(0)    # ← 0 = sin espacio abajo
+
+        return p
+
+    def texto_centrado(texto, tamano=11, bold=True, color=(64,64,64), fuente='Calibri', espacio_despues=6):
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = p.add_run(texto)
+        run.font.size = Pt(tamano)
+        run.font.name = fuente
+        run.bold = bold
+        run.font.color.rgb = RGBColor(*color)
+        p.space_after = Pt(espacio_despues)
+        return p
+
+    def tabla_sin_bordes(filas, col_widths, alineacion_col1=WD_ALIGN_PARAGRAPH.RIGHT):
+        """filas: lista de [texto_col1, texto_col2]"""
+        table = doc.add_table(rows=0, cols=2)
+        table.autofit = False
+        table.allow_autofit = False
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        
+        # Quitar bordes globales de la tabla
+        tbl = table._tbl
+        tblPr = tbl.tblPr if tbl.tblPr is not None else OxmlElement('w:tblPr')
+        tblBorders = OxmlElement('w:tblBorders')
+        for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+            border = OxmlElement(f'w:{border_name}')
+            border.set(qn('w:val'), 'nil')
+            border.set(qn('w:sz'), '0')
+            border.set(qn('w:space'), '0')
+            border.set(qn('w:color'), 'auto')
+            tblBorders.append(border)
+        tblPr.append(tblBorders)
+        
+        for fila in filas:
+            row = table.add_row().cells
+            row[0].text = fila[0]
+            row[1].text = fila[1]
+            
+            row[0].width = col_widths[0]
+            row[1].width = col_widths[1]
+            
+            # Formato col 1 (título)
+            for paragraph in row[0].paragraphs:
+                paragraph.alignment = alineacion_col1
+                for run in paragraph.runs:
+                    run.font.bold = True
+                    run.font.size = Pt(12)
+                    run.font.name = 'Calibri'
+                    run.font.color.rgb = RGBColor(80, 80, 80)
+            
+            # Formato col 2 (valor)
+            for paragraph in row[1].paragraphs:
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                for run in paragraph.runs:
+                    run.font.size = Pt(12)
+                    run.font.name = 'Calibri'
+                    run.font.color.rgb = RGBColor(64, 64, 64)
+            
+            # Quitar bordes de celdas individualmente
+            for cell in row:
+                tc = cell._tc
+                tcPr = tc.get_or_add_tcPr()
+                tcBorders = OxmlElement('w:tcBorders')
+                for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+                    border = OxmlElement(f'w:{border_name}')
+                    border.set(qn('w:val'), 'nil')
+                    border.set(qn('w:sz'), '0')
+                    border.set(qn('w:space'), '0')
+                    border.set(qn('w:color'), 'auto')
+                    tcBorders.append(border)
+                tcPr.append(tcBorders)
+        
+        return table
+
+    def agregar_titulo(texto, nivel=1, centrado=False):
+        p = doc.add_heading(texto, level=nivel)
+        if centrado:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        return p
+
+    def agregar_tabla_contenidos(doc, items):
+        """
+        items: lista de tuplas [(titulo, numero_pagina), ...]
+        Ejemplo: [("1. Resumen Ejecutivo", "3"), ("2. Estado del Servidor", "3")]
+        """
+        # Título "Contenido"
+        p = doc.add_paragraph()
+        run = p.add_run("Contenido")
+        run.bold = True
+        run.font.size = Pt(16)
+        run.font.color.rgb = RGBColor(0, 0, 0)  # azul oscuro
+        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        p.space_after = Pt(18)
+
+        # Párrafo vacío de separación (esto sí funciona siempre)
+        sep = doc.add_paragraph()
+        sep.space_after = Pt(20)  # ajustá este número: 10, 15, 20...
+        
+        # Tabla sin bordes visibles
+        table = doc.add_table(rows=0, cols=2)
+        table.autofit = False
+        table.allow_autofit = False
+        
+        # Ancho total de la tabla (ajusta a tus márgenes)
+        table.width = Cm(17)
+        
+        for titulo, pagina in items:
+            row = table.add_row().cells
+            
+            # Celda izquierda: título
+            row[0].text = titulo
+            row[0].width = Cm(14)
+             
+            # Celda derecha: número de página
+            row[1].text = str(pagina)
+            row[1].width = Cm(3)
+   
+            # Formato de texto
+            for paragraph in row[0].paragraphs:
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                for run in paragraph.runs:
+                    run.font.size = Pt(12)
+                    run.font.name = 'Calibri'
+                    run.font.color.rgb = RGBColor(64, 64, 64)
+            
+            for paragraph in row[1].paragraphs:
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+                for run in paragraph.runs:
+                    run.font.size = Pt(12)
+                    run.font.name = 'Calibri'
+                    run.font.color.rgb = RGBColor(64, 64, 64)
+
+            # ============================================================
+            # TRUCO: párrafo vacío en CADA celda para forzar el espacio
+            # ============================================================
+            for cell in row:
+                p_empty = cell.add_paragraph()  # ← esto empuja la siguiente fila hacia abajo
+                p_empty.paragraph_format.space_after = Pt(10)  # ajustá este número
+            
+            # Quitar bordes de la fila
+            for cell in row:
+                tc = cell._tc
+                tcPr = tc.get_or_add_tcPr()
+                tcBorders = OxmlElement('w:tcBorders')
+                for border_name in ['top', 'left', 'right', 'insideH', 'insideV']:
+                    border = OxmlElement(f'w:{border_name}')
+                    border.set(qn('w:val'), 'nil')
+                    border.set(qn('w:sz'), '0')
+                    border.set(qn('w:space'), '0')
+                    border.set(qn('w:color'), 'auto')
+                    tcBorders.append(border)
+                tcPr.append(tcBorders)
+        
+        doc.add_paragraph()  # espacio después
+    
+    def agregar_parrafo(texto, negrita=False, centrado=False, tamano=11, color=None):
+        p = doc.add_paragraph()
+        run = p.add_run(texto)
+        run.font.size = Pt(tamano)
+        run.font.name = 'Calibri'
+        run.bold = negrita
+        if color:
+            run.font.color.rgb = RGBColor(*color)
+        if centrado:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        return p
+    
+    def agregar_tabla(headers, filas, ancho_total=Cm(17)):
+        table = doc.add_table(rows=1, cols=len(headers))
+        table.style = 'Table Grid'
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        table.allow_autofit = False
+        table.width = ancho_total
+        
+        # Encabezados
+        hdr_cells = table.rows[0].cells
+        for i, header in enumerate(headers):
+            hdr_cells[i].text = header
+            for paragraph in hdr_cells[i].paragraphs:
+                paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                for run in paragraph.runs:
+                    run.font.bold = True
+                    run.font.color.rgb = RGBColor(255, 255, 255)
+                    run.font.size = Pt(10)
+            # Fondo azul
+            shading_elm = OxmlElement('w:shd')
+            shading_elm.set(qn('w:fill'), '4472C4')
+            hdr_cells[i]._tc.get_or_add_tcPr().append(shading_elm)
+        
+        # Filas
+        for fila in filas:
+            row_cells = table.add_row().cells
+            for i, valor in enumerate(fila):
+                row_cells[i].text = str(valor)
+                for paragraph in row_cells[i].paragraphs:
+                    paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+                    for run in paragraph.runs:
+                        run.font.size = Pt(10)
+        
+        return table
+    
+    def salto_pagina():
+        doc.add_page_break()
+    
+    # ============================================================
+    # CONTENIDO DEL DOCUMENTO
+    # ============================================================
+    
+    # ---------- PORTADA (Página 1) ----------
+    # Espacio
+    for _ in range(3):
+        parrafo_vacio(20)
+
+    # Título pegado arriba, sin espacio antes, pero con espacio después para separar del subtítulo
+    texto_posicionado(doc, "INFORME CONSOLIDADO", posicion='arriba', tamano=30, bold=True, color=(0,0,0))
+    # ↑ por defecto space_before=0, space_after=0
+
+    # Subtítulo pegado al título (0 espacio arriba y 0 abajo)
+    texto_posicionado(doc, "ACTIVIDADES EFECTUADAS POR", posicion='arriba', tamano=20, color=(100,100,100))
+
+    # NETGROUP pegado al subtítulo
+    texto_posicionado(doc, "NETGROUP S.A.", posicion='arriba', tamano=25, bold=True, color=(0,0,0))
+
+    # Espacio superior
+    for _ in range(8):
+        parrafo_vacio(20)
+    
+    # Nombre de la empresa (centro)
+    nombre_empresa = empresa.get('nombre', 'EMPRESA NO IDENTIFICADA') if empresa else 'EMPRESA NO IDENTIFICADA'
+    texto_centrado(nombre_empresa.upper(), tamano=28, bold=True, 
+                   color=(0, 0, 0), espacio_despues=40)
+    
+    # Espacio
+    for _ in range(3):
+        parrafo_vacio(20)
+    
+    # ---------- DIRIGIDO A ----------
+    dirigido_nombre = empresa.get('dirigido', '') if empresa else ''
+    dirigido_cargo = empresa.get('cargo', '') if empresa else ''
+    
+    # Tabla especial para "Dirigido a"
+    table_dir = doc.add_table(rows=0, cols=2)
+    table_dir.autofit = False
+    table_dir.allow_autofit = False
+    table_dir.alignment = WD_TABLE_ALIGNMENT.CENTER
+    
+    row = table_dir.add_row().cells
+    row[0].text = "Dirigido a:"
+    row[1].text = f"{dirigido_nombre}\n{dirigido_cargo}"
+    
+    row[0].width = Cm(4.5)
+    row[1].width = Cm(10)
+    
+    # Formato celda 0
+    for paragraph in row[0].paragraphs:
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        for run in paragraph.runs:
+            run.font.bold = True
+            run.font.size = Pt(12)
+            run.font.name = 'Calibri'
+            run.font.color.rgb = RGBColor(80, 80, 80)
+    
+    # Formato celda 1 (nombre + cargo)
+    for paragraph in row[1].paragraphs:
+        paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        for run in paragraph.runs:
+            run.font.size = Pt(12)
+            run.font.name = 'Calibri'
+            run.font.color.rgb = RGBColor(64, 64, 64)
+    
+    # Quitar bordes
+    for cell in row:
+        tc = cell._tc
+        tcPr = tc.get_or_add_tcPr()
+        tcBorders = OxmlElement('w:tcBorders')
+        for border_name in ['top', 'left', 'bottom', 'right', 'insideH', 'insideV']:
+            border = OxmlElement(f'w:{border_name}')
+            border.set(qn('w:val'), 'nil')
+            border.set(qn('w:sz'), '0')
+            border.set(qn('w:space'), '0')
+            border.set(qn('w:color'), 'auto')
+            tcBorders.append(border)
+        tcPr.append(tcBorders)
+    
+    
+    # ---------- INFO ROWS ----------
+    ip_servidor = conexion.get('ip_servidor', 'N/A') if conexion else 'N/A'
+    fecha_informe = datos.get('fecha_informe', 'N/A')
+    
+    info_filas = [
+        ["Servidor", ip_servidor],
+        ["Recopilado por", "Área Bases de Datos"],
+        ["Fecha del informe", fecha_informe.title() if isinstance(fecha_informe, str) else fecha_informe],
     ]
-    for i, (label, val) in enumerate(kpis):
-        cell_lbl, cell_val = tbl_kpi.cell(0, i), tbl_kpi.cell(1, i)
-        set_cell_background(cell_lbl, "F0F4F8")
-        set_cell_background(cell_val, "F0F4F8")
-        
-        p0 = cell_lbl.paragraphs[0]
-        p0.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p0.add_run(label).font.size = Pt(9)
-        
-        p1 = cell_val.paragraphs[0]
-        p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = p1.add_run(val)
-        r.font.size = Pt(13)
-        r.font.bold = True
+    
+    tabla_sin_bordes(info_filas, [Cm(4.5), Cm(10)], alineacion_col1=WD_ALIGN_PARAGRAPH.RIGHT)
+    
+    # Espacio antes del footer
+    for _ in range(14):
+        parrafo_vacio(0)
+    
+    # ---------- FOOTER ----------
+    footer_p = doc.add_paragraph()
+    footer_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer_run = footer_p.add_run(
+        "Este documento contiene información confidencial y es de uso "
+        "exclusivo del cliente y del personal autorizado de NetGroup S.A."
+    )
+    footer_run.font.size = Pt(9)
+    footer_run.font.name = 'Calibri'
+    footer_run.font.color.rgb = RGBColor(128, 128, 128)
+    footer_run.italic = True
 
-    # 2. Tablespaces
-    p_sec2 = doc.add_paragraph()
-    p_sec2.paragraph_format.space_before = Pt(14)
-    r_sec2 = p_sec2.add_run("2. USO DE TABLESPACES")
-    r_sec2.font.bold = True
-    r_sec2.font.color.rgb = RGBColor(0x18, 0x5F, 0xA5)
+    # ---------- PÁGINA 2: CONTENIDOS ----------
+    salto_pagina()
+    
+    contenidos = [
+        ("1. Métricas Principales", "3"),
+        ("2. Tablespaces", "4"),
+        ("3. Resumen de Objetos", "5"),
+        ("4. Estadísticas de Tablas", "5"),
+        ("5. Sistema Operativo", "6"),
+        ("6. Filesystems", "6"),
+        ("7. Backups Recientes", "7"),
+        ("8. Procesos Oracle", "8"),
+    ]
+    agregar_tabla_contenidos(doc, contenidos)
+    
+    # ---------- PÁGINA 3: MÉTRICAS ----------
+    salto_pagina()
+    agregar_titulo("1. Métricas Principales", nivel=1)
+    
+    metricas = [
+        ["Tamaño BD", f"{datos.get('bd_tamano_tb', '0')} TB"],
+        ["Objetos Inválidos", str(datos.get('obj_invalidos', 0))],
+        ["Buffer Hit Ratio", f"{datos.get('buffer_hit', '0')}%"],
+        ["SGA", f"{datos.get('sga_gb', '0')} GB"],
+        ["PGA", f"{datos.get('pga_gb', '0')} GB"],
+        ["RAM Usada", f"{datos.get('ram_usada_pct', '0')}%"],
+    ]
+    agregar_tabla(["Métrica", "Valor"], metricas)
+    
+    # ---------- PÁGINA 4: TABLESPACES ----------
+    salto_pagina()
+    agregar_titulo("2. Tablespaces", nivel=1)
+    
+    ts_headers = ["Nombre", "Asignado (MB)", "Usado (MB)", "% Uso", "Status", "Autoextend"]
+    ts_filas = []
+    for ts in datos.get('tablespaces', []):
+        ts_filas.append([
+            ts.get('nombre', 'N/A'),
+            ts.get('asignado_mb', 0),
+            ts.get('usado_mb', 0),
+            f"{ts.get('pct_uso', 0)}%",
+            ts.get('status', 'N/A'),
+            ts.get('autoextend', 'N/A'),
+        ])
+    agregar_tabla(ts_headers, ts_filas)
+    
+    # ---------- PÁGINA 4: OBJETOS Y STATS ----------
+    salto_pagina()
+    agregar_titulo("3. Resumen de Objetos", nivel=1)
+    
+    obj = datos.get('resumen_objetos', {})
+    obj_filas = [
+        ["Tablas", obj.get('tables', 0)],
+        ["Índices", obj.get('indexes', 0)],
+        ["Paquetes", obj.get('packages', 0)],
+        ["Package Bodies", obj.get('package_bodies', 0)],
+        ["Triggers", obj.get('triggers', 0)],
+        ["Vistas", obj.get('views', 0)],
+        ["Secuencias", obj.get('sequences', 0)],
+        ["Procedimientos", obj.get('procedures', 0)],
+        ["Funciones", obj.get('functions', 0)],
+        ["Tipos", obj.get('types', 0)],
+        ["Total", obj.get('total', 0)],
+    ]
+    agregar_tabla(["Tipo de Objeto", "Cantidad"], obj_filas)
+    
+    agregar_titulo("4. Estadísticas de Tablas", nivel=1)
+    stats = datos.get('stats_tablas', {})
+    agregar_tabla(
+        ["Estado", "Cantidad"],
+        [
+            ["Actualizadas (≤7 días)", stats.get('actualizadas', 0)],
+            ["No actualizadas (>7 días)", stats.get('no_actualizadas', 0)],
+            ["Sin estadísticas", stats.get('sin_estadisticas', 0)],
+        ]
+    )
+    
+    # ---------- PÁGINA 5: SISTEMA OPERATIVO ----------
+    salto_pagina()
+    agregar_titulo("5. Sistema Operativo", nivel=1)
+    
+    so_filas = [
+        ["Uptime", datos.get('uptime', 'N/A')],
+        ["Load Average", datos.get('load_avg', 'N/A')],
+        ["RAM Total", f"{datos.get('ram_total_gb', '0')} GB"],
+        ["RAM Usada", f"{datos.get('ram_usada_gb', '0')} GB"],
+        ["RAM Disponible", f"{datos.get('ram_disponible_gb', '0')} GB"],
+    ]
+    agregar_tabla(["Recurso", "Valor"], so_filas)
+    
+    agregar_titulo("6. Filesystems", nivel=1)
+    fs_headers = ["Filesystem", "Tamaño", "Usado", "Disponible", "% Uso", "Montado en"]
+    fs_filas = []
+    for fs in datos.get('filesystems', []):
+        fs_filas.append([
+            fs.get('filesystem', 'N/A'),
+            fs.get('size', 'N/A'),
+            fs.get('used', 'N/A'),
+            fs.get('available', 'N/A'),
+            fs.get('use_pct', 'N/A'),
+            fs.get('mounted_on', 'N/A'),
+        ])
+    agregar_tabla(fs_headers, fs_filas)
+    
+    # ---------- BACKUPS (si existen) ----------
+    backups = datos.get('backups', [])
+    if backups:
+        salto_pagina()
+        agregar_titulo("7. Backups Recientes", nivel=1)
+        bk_headers = ["Archivo", "Tamaño", "Fecha"]
+        bk_filas = [[b.get('archivo', ''), b.get('size', ''), b.get('fecha', '')] for b in backups]
+        agregar_tabla(bk_headers, bk_filas)
+    
+    # --- Procesos ---
+    procesos = datos.get('procesos_oracle', [])
+    if procesos:
+        salto_pagina()
+        agregar_titulo("8. Procesos Oracle", nivel=1)
+        for proc in procesos:
+            p = doc.add_paragraph()
+            p.paragraph_format.left_indent = Cm(0.5)
+            p.paragraph_format.first_line_indent = Cm(-0.5)
+            run = p.add_run(f"• {proc}")
+            run.font.size = Pt(10)
+            run.font.name = 'Calibri'
+    
+    # ============================================================
+    # GUARDAR (buffer o archivo)
+    # ============================================================
+    if buffer is not None:
+        doc.save(buffer)
+        return buffer
+    else:
+        doc.save(ruta_salida)
+        return ruta_salida
 
-    tbl_ts = doc.add_table(rows=1, cols=6)
-    tbl_ts.alignment = WD_TABLE_ALIGNMENT.CENTER
-    headers = ["Tablespace", "File_name", "Status", "Autoextend", "Asignado (MB)", "Usado (MB)", "% Uso"]
-    for i, h in enumerate(headers):
-        cell = tbl_ts.rows[0].cells[i]
-        set_cell_background(cell, "185FA5")
-        p = cell.paragraphs[0]
-        if i > 0: p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        r = p.add_run(h)
-        r.font.bold = True
-        r.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
 
-    ts_sorted = sorted(datos['tablespaces'], key=lambda x: x['pct_uso'], reverse=True)
-    for item in ts_sorted[:8]:
-        row = tbl_ts.add_row().cells
-        row[0].paragraphs[0].add_run(item['nombre'])
-
-        p1 = row[1].paragraphs[0]
-        p1.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p1.add_run(f"{item['file_name']:,}")
-
-        p2 = row[2].paragraphs[0]
-        p2.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p2.add_run(f"{item['status']:,}")
-
-        p3 = row[3].paragraphs[0]
-        p3.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p3.add_run(f"{item['autoextend']:,}")
-        
-        p4 = row[4].paragraphs[0]
-        p4.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p4.add_run(f"{item['asignado_mb']:,}")
-        
-        p5 = row[5].paragraphs[0]
-        p5.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        p5.add_run(f"{item['usado_mb']:,}")
-        
-        p6 = row[6].paragraphs[0]
-        p6.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-        r_pct = p6.add_run(f"{item['pct_uso']}%")
-        r_pct.font.bold = True
-        
-        if item['pct_uso'] >= 90:
-            r_pct.font.color.rgb = RGBColor(0xD8, 0x30, 0x30)
-            set_cell_background(row[3], "FDE8E8")
-        elif item['pct_uso'] >= 70:
-            r_pct.font.color.rgb = RGBColor(0xD8, 0x8A, 0x30)
-            set_cell_background(row[3], "FFF7E6")
-
-    # Guardar en buffer en memoria
-    buffer = io.BytesIO()
-    doc.save(buffer)
-    buffer.seek(0)
-    return buffer
