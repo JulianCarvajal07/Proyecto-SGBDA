@@ -280,24 +280,45 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         return p
 
+    def formatear_celda_contenido(cell, texto, alineacion_horizontal=WD_ALIGN_PARAGRAPH.LEFT):
+        cell.text = texto
+        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+        
+        for paragraph in cell.paragraphs:
+            paragraph.alignment = alineacion_horizontal
+            # Espaciado simétrico para centrar verticalmente el texto
+            paragraph.paragraph_format.space_before = Pt(4)
+            paragraph.paragraph_format.space_after = Pt(4)
+            
+            for run in paragraph.runs:
+                run.font.size = Pt(12)
+                run.font.name = 'Calibri'
+                run.font.color.rgb = RGBColor(64, 64, 64)
+
     def agregar_tabla_contenidos(doc, items):
         """
         items: lista de tuplas [(titulo, numero_pagina), ...]
         Ejemplo: [("1. Resumen Ejecutivo", "3"), ("2. Estado del Servidor", "3")]
         """
+        # Separación 2: otro párrafo vacío (Word nunca colapsa dos seguidos con contenido)
+        sep2 = doc.add_paragraph()
+        sep2.add_run(' ')
+        sep2.paragraph_format.space_after = Pt(4)
+
         # Título "Contenido"
         p = doc.add_paragraph()
         run = p.add_run("Contenido")
         run.bold = True
-        run.font.size = Pt(16)
-        run.font.color.rgb = RGBColor(0, 0, 0)  # azul oscuro
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        p.space_after = Pt(18)
+        run.font.size = Pt(18)
+        run.font.color.rgb = RGBColor(0, 0, 0)
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_after = Pt(12)
 
-        # Párrafo vacío de separación (esto sí funciona siempre)
-        sep = doc.add_paragraph()
-        sep.space_after = Pt(20)  # ajustá este número: 10, 15, 20...
-        
+        # Separación 1: párrafo vacío con run invisible
+        sep1 = doc.add_paragraph()
+        sep1.add_run(' ')
+        sep1.paragraph_format.space_after = Pt(10)
+
         # Tabla sin bordes visibles
         table = doc.add_table(rows=0, cols=2)
         table.autofit = False
@@ -309,37 +330,22 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
         for titulo, pagina in items:
             row = table.add_row().cells
             
-            # Celda izquierda: título
-            row[0].text = titulo
             row[0].width = Cm(14)
-             
-            # Celda derecha: número de página
-            row[1].text = str(pagina)
             row[1].width = Cm(3)
-   
-            # Formato de texto
-            for paragraph in row[0].paragraphs:
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
-                for run in paragraph.runs:
-                    run.font.size = Pt(12)
-                    run.font.name = 'Calibri'
-                    run.font.color.rgb = RGBColor(64, 64, 64)
             
-            for paragraph in row[1].paragraphs:
-                paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-                for run in paragraph.runs:
-                    run.font.size = Pt(12)
-                    run.font.name = 'Calibri'
-                    run.font.color.rgb = RGBColor(64, 64, 64)
-
-            # ============================================================
-            # TRUCO: párrafo vacío en CADA celda para forzar el espacio
-            # ============================================================
-            for cell in row:
-                p_empty = cell.add_paragraph()  # ← esto empuja la siguiente fila hacia abajo
-                p_empty.paragraph_format.space_after = Pt(10)  # ajustá este número
+            # Formatear celdas con centrado vertical
+            formatear_celda_contenido(row[0], titulo, WD_ALIGN_PARAGRAPH.LEFT)
+            formatear_celda_contenido(row[1], str(pagina), WD_ALIGN_PARAGRAPH.RIGHT)
             
-            # Quitar bordes de la fila
+            # Altura de fila
+            tr = row[0]._tc.getparent()
+            trPr = tr.get_or_add_trPr()
+            trHeight = OxmlElement('w:trHeight')
+            trHeight.set(qn('w:val'), '500')
+            trHeight.set(qn('w:hRule'), 'atLeast')
+            trPr.append(trHeight)
+            
+            # Bordes solo abajo
             for cell in row:
                 tc = cell._tc
                 tcPr = tc.get_or_add_tcPr()
@@ -348,12 +354,16 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
                     border = OxmlElement(f'w:{border_name}')
                     border.set(qn('w:val'), 'nil')
                     border.set(qn('w:sz'), '0')
-                    border.set(qn('w:space'), '0')
-                    border.set(qn('w:color'), 'auto')
                     tcBorders.append(border)
+                
+                bottom = OxmlElement('w:bottom')
+                bottom.set(qn('w:val'), 'single')
+                bottom.set(qn('w:sz'), '4')
+                bottom.set(qn('w:color'), 'BFBFBF')
+                tcBorders.append(bottom)
                 tcPr.append(tcBorders)
-        
-        doc.add_paragraph()  # espacio después
+
+        doc.add_paragraph()
     
     def agregar_parrafo(texto, negrita=False, centrado=False, tamano=11, color=None):
         p = doc.add_paragraph()
@@ -531,17 +541,79 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     
     # ---------- PÁGINA 3: MÉTRICAS ----------
     salto_pagina()
+
     agregar_titulo("1. Métricas Principales", nivel=1)
+
+    # Espacio
+    for _ in range(1):
+        parrafo_vacio(20)
     
     metricas = [
         ["Tamaño BD", f"{datos.get('bd_tamano_tb', '0')} TB"],
         ["Objetos Inválidos", str(datos.get('obj_invalidos', 0))],
-        ["Buffer Hit Ratio", f"{datos.get('buffer_hit', '0')}%"],
+        ["Uso Filesystem", f"{datos.get('filesystem_pct', '0')}%"],
         ["SGA", f"{datos.get('sga_gb', '0')} GB"],
         ["PGA", f"{datos.get('pga_gb', '0')} GB"],
         ["RAM Usada", f"{datos.get('ram_usada_pct', '0')}%"],
     ]
     agregar_tabla(["Métrica", "Valor"], metricas)
+
+    # Espacio
+    for _ in range(2):
+        parrafo_vacio(20)
+
+    agregar_titulo("Estado del servidor", nivel=1)
+
+    # Espacio
+    for _ in range(1):
+        parrafo_vacio(20)
+
+    estado_servidor = [
+        ["Uptime", f"{datos.get('uptime', '0')}"],
+        ["Load Average", str(datos.get('load_avg', 0))],
+    ]
+    agregar_tabla(["Métrica", "Valor"],estado_servidor)
+
+    # Espacio
+    for _ in range(2):
+        parrafo_vacio(20)
+
+    agregar_titulo("Uso de Memoria", nivel=1)
+
+    # Espacio
+    for _ in range(1):
+        parrafo_vacio(20)
+
+    memoria_ram = [
+        ["RAM Usada", f"{datos.get('ram_usada_gb', '0')} GB"],
+        ["RAM Disponible", f"{datos.get('ram_disponible_gb', '0')} GB"],
+        ["Total RAM",f"{datos.get('ram_total_gb', '0')} GB"],
+    ]
+    agregar_tabla(["Métrica", "Valor"],memoria_ram)
+
+    # Espacio
+    for _ in range(2):
+        parrafo_vacio(20)
+
+    agregar_titulo("Procesos Claves de Oracle", nivel=1)
+
+    # Espacio
+    for _ in range(1):
+        parrafo_vacio(20)
+
+    procesos_ol =  datos.get('procesos_oracle_clave', [])
+
+    procesos_oracle = []
+    for proc in procesos_ol:
+        procesos_oracle.append([
+            proc.get('usuario', 'N/A'),
+            proc.get('pid', '0'),
+            proc.get('inicio', 'N/A'),
+            proc.get('cpu_time', '0:00'),
+            proc.get('comando', 'N/A'),
+        ])
+
+    agregar_tabla(["Usuario", "PID", "inicio", "CPU Time", "Proceso"],procesos_oracle)
     
     # ---------- PÁGINA 4: TABLESPACES ----------
     salto_pagina()
