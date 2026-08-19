@@ -159,102 +159,39 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
             p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         return p
 
-    def formatear_celda_contenido(cell, texto, alineacion_horizontal=WD_ALIGN_PARAGRAPH.LEFT):
-        cell.text = texto
-        cell.vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
-        
-        for paragraph in cell.paragraphs:
-            paragraph.alignment = alineacion_horizontal
-            # Espaciado simétrico para centrar verticalmente el texto
-            paragraph.paragraph_format.space_before = Pt(4)
-            paragraph.paragraph_format.space_after = Pt(4)
-            
-            for run in paragraph.runs:
-                run.font.size = Pt(12)
-                run.font.name = 'Calibri'
-                run.font.color.rgb = RGBColor(64, 64, 64)
+    def tabla_contenidos_dinamica(doc):
 
-    def agregar_tabla_contenidos(doc, items):
-        """
-        items: lista de tuplas [(titulo, numero_pagina), ...]
-        Ejemplo: [("1. Resumen Ejecutivo", "3"), ("2. Estado del Servidor", "3")]
-        """
-        # Separación 2: otro párrafo vacío (Word nunca colapsa dos seguidos con contenido)
-        # sep2 = doc.add_paragraph()
-        # sep2.add_run(' ')
-        # sep2.paragraph_format.space_after = Pt(4)
-
-        # Título "Contenido"
-        p = doc.add_paragraph()
-        run = p.add_run("Contenido")
-        run.bold = True
-        run.font.size = Pt(18)
-        run.font.color.rgb = RGBColor(0, 0, 0)
+        p = doc.add_paragraph("Contenidos")
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.paragraph_format.space_after = Pt(12)
+        for run in p.runs:
+            run.font.bold = True
+            run.font.size = Pt(16)
 
-        # Separación 1: párrafo vacío con run invisible
-        sep1 = doc.add_paragraph()
-        sep1.add_run(' ')
-        sep1.paragraph_format.space_after = Pt(10)
+        paragraph = doc.add_paragraph()
+        run = paragraph.add_run()
 
-        # Tabla sin bordes visibles
-        table = doc.add_table(rows=0, cols=2)
-        table.autofit = False
-        table.allow_autofit = False
-        
-        # Ancho total de la tabla (ajusta a tus márgenes)
-        table.width = Cm(17)
-        
-        for titulo, pagina in items:
-            row = table.add_row().cells
-            
-            row[0].width = Cm(14)
-            row[1].width = Cm(3)
-            
-            # Formatear celdas con centrado vertical
-            formatear_celda_contenido(row[0], titulo, WD_ALIGN_PARAGRAPH.LEFT)
-            formatear_celda_contenido(row[1], str(pagina), WD_ALIGN_PARAGRAPH.RIGHT)
-            
-            # Altura de fila
-            tr = row[0]._tc.getparent()
-            trPr = tr.get_or_add_trPr()
-            trHeight = OxmlElement('w:trHeight')
-            trHeight.set(qn('w:val'), '500')
-            trHeight.set(qn('w:hRule'), 'atLeast')
-            trPr.append(trHeight)
-            
-            # Bordes solo abajo
-            for cell in row:
-                tc = cell._tc
-                tcPr = tc.get_or_add_tcPr()
-                tcBorders = OxmlElement('w:tcBorders')
-                for border_name in ['top', 'left', 'right', 'insideH', 'insideV']:
-                    border = OxmlElement(f'w:{border_name}')
-                    border.set(qn('w:val'), 'nil')
-                    border.set(qn('w:sz'), '0')
-                    tcBorders.append(border)
-                
-                bottom = OxmlElement('w:bottom')
-                bottom.set(qn('w:val'), 'single')
-                bottom.set(qn('w:sz'), '4')
-                bottom.set(qn('w:color'), 'BFBFBF')
-                tcBorders.append(bottom)
-                tcPr.append(tcBorders)
+        fldChar1 = OxmlElement('w:fldChar')
+        fldChar1.set(qn('w:fldCharType'), 'begin')
 
-        doc.add_paragraph()
-    
-    def agregar_parrafo(texto, negrita=False, centrado=False, tamano=11, color=None):
-        p = doc.add_paragraph()
-        run = p.add_run(texto)
-        run.font.size = Pt(tamano)
-        run.font.name = 'Calibri'
-        run.bold = negrita
-        if color:
-            run.font.color.rgb = RGBColor(*color)
-        if centrado:
-            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        return p
+        instrText = OxmlElement('w:instrText')
+        instrText.set(qn('xml:space'), 'preserve')
+        # \o "1-3" = usa Heading 1 a 3, \h = hipervínculos, \z = oculta tabs en web, \u = usa outline levels
+        instrText.text = 'TOC \\o "1-3" \\h \\z \\u'
+
+        fldChar2 = OxmlElement('w:fldChar')
+        fldChar2.set(qn('w:fldCharType'), 'separate')
+
+        fldChar3 = OxmlElement('w:t')
+        fldChar3.text = "Haz clic derecho y selecciona 'Actualizar campo' para generar la tabla de contenidos."
+
+        fldChar4 = OxmlElement('w:fldChar')
+        fldChar4.set(qn('w:fldCharType'), 'end')
+
+        run._r.append(fldChar1)
+        run._r.append(instrText)
+        run._r.append(fldChar2)
+        run._r.append(fldChar3)
+        run._r.append(fldChar4)
     
     def agregar_tabla(headers, filas, ancho_total=Cm(17)):
         table = doc.add_table(rows=1, cols=len(headers))
@@ -559,9 +496,17 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
             aplicar_anchos(table.rows[-1])
         
         return table
+
+    def forzar_actualizacion_campos(doc):
+        settings = doc.settings.element
+        updateFields = OxmlElement('w:updateFields')
+        updateFields.set(qn('w:val'), 'true')
+        settings.append(updateFields)
     
     def salto_pagina():
         doc.add_page_break()
+
+
 
     # =======================================================================================
     # =======================================================================================
@@ -678,17 +623,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PÁGINA 2: CONTENIDOS ----------
     salto_pagina()
     
-    contenidos = [
-        ("1. Métricas Principales", "3"),
-        ("2. Tablespaces", "4"),
-        ("3. Resumen de Objetos", "5"),
-        ("4. Estadísticas de Tablas", "5"),
-        ("5. Sistema Operativo", "6"),
-        ("6. Filesystems", "6"),
-        ("7. Backups Recientes", "7"),
-        ("8. Procesos Oracle", "8"),
-    ]
-    agregar_tabla_contenidos(doc, contenidos)
+    tabla_contenidos_dinamica(doc)
     
     # ---------- PÁGINA 3: MÉTRICAS ----------
     salto_pagina()
@@ -711,7 +646,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
 
-    agregar_titulo("Estado del servidor", nivel=1)
+    agregar_titulo("1.1. Estado del servidor", nivel=2)
 
     # Espacio
     for _ in range(1):
@@ -727,7 +662,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
 
-    agregar_titulo("Uso de Memoria", nivel=1)
+    agregar_titulo("1.2. Uso de Memoria", nivel=2)
 
     # Espacio
     for _ in range(1):
@@ -744,7 +679,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
 
-    agregar_titulo("Procesos Claves de Oracle", nivel=1)
+    agregar_titulo("1.3. Procesos Claves de Oracle", nivel=2)
 
     # Espacio
     for _ in range(1):
@@ -767,7 +702,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PÁGINA 4: ESTADO DE LA INSTANCIA ----------
     salto_pagina()
 
-    agregar_titulo("Estado de la Base de Datos", nivel=1)
+    agregar_titulo("2. Estado de la Base de Datos", nivel=1)
 
     # Espacio
     for _ in range(1):
@@ -794,7 +729,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
 
-    agregar_titulo("Rendimiento de la Instancia", nivel=1)
+    agregar_titulo("3. Rendimiento de la Instancia", nivel=1)
 
     # Espacio
     for _ in range(1):
@@ -811,7 +746,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PÁGINA 5: TABLESPACES ----------
     salto_pagina()
 
-    agregar_titulo("2. Tablespaces", nivel=1)
+    agregar_titulo("4. Tablespaces", nivel=1)
 
         # Espacio
     for _ in range(1):
@@ -834,7 +769,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PAGINA FILESYSTEMS ----------
     salto_pagina()
 
-    agregar_titulo("Uso de File Systems", nivel=1)
+    agregar_titulo("5. Uso de File Systems", nivel=1)
 
         # Espacio
     for _ in range(1):
@@ -860,7 +795,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
 
-    agregar_titulo("Backups", nivel=1)
+    agregar_titulo("6. Backups", nivel=1)
 
         # Espacio
     for _ in range(1):
@@ -883,7 +818,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PÁGINA 4: OBJETOS Y STATS ----------
     salto_pagina()
 
-    agregar_titulo("Resumen de Objetos", nivel=1)
+    agregar_titulo("7. Resumen de Objetos", nivel=1)
 
     # Espacio
     for _ in range(1):
@@ -912,7 +847,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     for _ in range(2):
         parrafo_vacio(20)
     
-    agregar_titulo("Estadísticas de Tablas", nivel=1)
+    agregar_titulo("8. Estadísticas de Tablas", nivel=1)
 
     # Espacio
     for _ in range(1):
@@ -928,7 +863,8 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
         ],
         mostrar_encabezado=False
     )
-      
+
+    forzar_actualizacion_campos(doc) 
     # ============================================================
     # GUARDAR (buffer o archivo)
     # ============================================================
