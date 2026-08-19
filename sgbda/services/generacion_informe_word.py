@@ -38,8 +38,8 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     section = doc.sections[0]
     section.page_height = Cm(27.94)
     section.page_width = Cm(21.59)
-    section.top_margin = Cm(2)
-    section.bottom_margin = Cm(3.5)
+    section.top_margin = Cm(3)
+    section.bottom_margin = Cm(3)
     section.left_margin = Cm(2.5)
     section.right_margin = Cm(2.5)
     
@@ -180,9 +180,9 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
         Ejemplo: [("1. Resumen Ejecutivo", "3"), ("2. Estado del Servidor", "3")]
         """
         # Separación 2: otro párrafo vacío (Word nunca colapsa dos seguidos con contenido)
-        sep2 = doc.add_paragraph()
-        sep2.add_run(' ')
-        sep2.paragraph_format.space_after = Pt(4)
+        # sep2 = doc.add_paragraph()
+        # sep2.add_run(' ')
+        # sep2.paragraph_format.space_after = Pt(4)
 
         # Título "Contenido"
         p = doc.add_paragraph()
@@ -562,14 +562,17 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     
     def salto_pagina():
         doc.add_page_break()
-    
-    # ============================================================
-    # CONTENIDO DEL DOCUMENTO
-    # ============================================================
-    
+
+    # =======================================================================================
+    # =======================================================================================
+    # =======================================================================================
+    #                                   CONTENIDO DEL DOCUMENTO
+    # =======================================================================================
+    # =======================================================================================
+    # =======================================================================================    
     # ---------- PORTADA (Página 1) ----------
     # Espacio
-    for _ in range(3):
+    for _ in range(1):
         parrafo_vacio(20)
 
     # Título pegado arriba, sin espacio antes, pero con espacio después para separar del subtítulo
@@ -583,7 +586,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     texto_posicionado(doc, "NETGROUP S.A.", posicion='arriba', tamano=25, bold=True, color=(0,0,0))
 
     # Espacio superior
-    for _ in range(8):
+    for _ in range(9):
         parrafo_vacio(20)
     
     # Nombre de la empresa (centro)
@@ -657,7 +660,7 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     tabla_sin_bordes(info_filas, [Cm(4.5), Cm(10)], alineacion_col1=WD_ALIGN_PARAGRAPH.RIGHT)
     
     # Espacio antes del footer
-    for _ in range(14):
+    for _ in range(12):
         parrafo_vacio(0)
     
     # ---------- FOOTER ----------
@@ -689,10 +692,6 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     
     # ---------- PÁGINA 3: MÉTRICAS ----------
     salto_pagina()
-
-    # Espacio
-    for _ in range(1):
-        parrafo_vacio(20)
 
     agregar_titulo("1. Métricas Principales", nivel=1)
 
@@ -768,10 +767,6 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PÁGINA 4: ESTADO DE LA INSTANCIA ----------
     salto_pagina()
 
-    # Espacio
-    for _ in range(1):
-        parrafo_vacio(20)
-
     agregar_titulo("Estado de la Base de Datos", nivel=1)
 
     # Espacio
@@ -839,10 +834,6 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     # ---------- PAGINA FILESYSTEMS ----------
     salto_pagina()
 
-    # Espacio
-    for _ in range(1):
-        parrafo_vacio(20)
-
     agregar_titulo("Uso de File Systems", nivel=1)
 
         # Espacio
@@ -891,10 +882,6 @@ def generar_reporte_oracle(datos, buffer=None, ruta_salida="/tmp/reporte_oracle.
     
     # ---------- PÁGINA 4: OBJETOS Y STATS ----------
     salto_pagina()
-
-    # Espacio
-    for _ in range(1):
-        parrafo_vacio(20)
 
     agregar_titulo("Resumen de Objetos", nivel=1)
 
