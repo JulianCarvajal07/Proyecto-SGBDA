@@ -1,13 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
+from django.shortcuts import render, get_object_or_404
 from sgbda.models import conexion_ssh
 from django.shortcuts import render, get_object_or_404
 from sgbda.services.extraccion_ssh import obtener_metricas_oracle
 from sgbda.services.generacion_informe_word import generar_reporte_oracle
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-import os
-import json
 from io import BytesIO
 from django.http import FileResponse, HttpResponse
 
