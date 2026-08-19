@@ -692,6 +692,8 @@
     </section>
 
     <div class="page-break"></div>
+    {% load custom_filters %}
+    {% for page_ts in observaciones|chunk:8 %}
     <!-- ===================================== -->
     <!-- PÁGINA 7 -->
     <!-- ===================================== -->
@@ -701,7 +703,7 @@
             <h2 class="section-title">6. Observaciones y Recomendaciones del DBA</h2>
             
             <div class="observaciones-lista">
-                {% for obs in observaciones %}
+                {% for obs in page_ts %}
                 <div class="obs-card obs-{{ obs.tipo }}">
                     <div class="obs-header">
                         <span class="obs-icon">
@@ -718,5 +720,7 @@
         </div>
     </section>
     {% endif %}
+
+    {% endfor %}
 
 </div>

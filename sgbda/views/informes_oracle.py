@@ -95,11 +95,11 @@ def generar_informe(request, conexion_id):
             # GUARDAR EN SESIÓN PARA LA DESCARGA POSTERIOR
             # ============================================================
             request.session['metricas_oracle'] = datos
-            request.session['empresa_oracle'] = empresa  # <-- NUEVO
+            request.session['empresa_oracle'] = empresa 
             request.session['conexion_oracle'] = {
                 'ip_servidor': conexion.ip_servidor,
                 'usuario': conexion.usuario,
-            }  # <-- NUEVO
+            }  
             request.session.modified = True
 
             # Dentro de tu vista:
