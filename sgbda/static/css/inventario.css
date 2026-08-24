@@ -29,6 +29,7 @@
 
 .contenedor-filtro-y-logs{
     width: 100%;
+    gap:50px;
     display: flex;
     justify-content: space-between;
 }
