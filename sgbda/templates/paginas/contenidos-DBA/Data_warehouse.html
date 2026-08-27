@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block titulo %} Data Warehouse {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+{% include 'paginas/contenidos-DBA/head-footer/contenidos.html' %}
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <h1 class="title"><span class="a">Guía Data Warehouse</span></h1>
+        <p class="lead">Esta guía presenta de manera <b>sencilla los conceptos esenciales</b> de un <code>Data Warehouse (DWH)</code>, así como los conocimientos principales que se deben manejar para poder <b>participar en un proyecto</b> de este tipo. A continuación se mostrará el contenido a tener presente:</p>
+    </div>
+
+    <!-- ================= LAYER 1 — QUE ES UN DWH ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">¿Qué es un Data Warehouse?</h3>
+        </div>
+        <p class="layer-sub">Un <code>Data Warehouse</code> es un <b>repositorio centralizado de información</b>, diseñado para almacenar datos históricos provenientes de distintas fuentes (bases de datos transaccionales, archivos planos, APIs, entre otros), con el fin de facilitar el <b>análisis</b>, la <b>generación de reportes</b> y la <b>toma de decisiones</b> del negocio.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Características Principales</h4>
+            <p><code>-</code> <b>Orientado a temas:</b> organiza la información por áreas de negocio (ventas, clientes, inventario), no por procesos aislados.</p>
+            <p><code>-</code> <b>Integrado:</b> unifica datos de múltiples orígenes bajo un mismo formato y estándar.</p>
+            <p><code>-</code> <b>Histórico:</b> conserva la información a través del tiempo, permitiendo comparar periodos.</p>
+            <p><code>-</code> <b>No volátil:</b> una vez cargada la información, no se modifica ni se elimina como en un sistema transaccional.</p>
+        </div>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/data_warehouse/paso_1.png' %}" alt="imagen diagrama general de un Data Warehouse"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — OLTP VS OLAP ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">Diferencia entre OLTP y OLAP</h3>
+        </div>
+        <p class="layer-sub">Para entender un Data Warehouse es indispensable diferenciar entre los sistemas <b>transaccionales</b> (donde nace la información) y los sistemas <b>analíticos</b> (donde se consulta y se explota la información).</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>OLTP (Online Transaction Processing)</h4>
+            <p> Sistemas usados en el día a día operativo (por ejemplo un aplicativo de ventas o un ERP). Se caracterizan por manejar muchas transacciones pequeñas, cortas y frecuentes: <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>. Su modelo suele estar <b>normalizado</b> para evitar redundancia.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>OLAP (Online Analytical Processing)</h4>
+            <p> Sistemas usados para el análisis de grandes volúmenes de información histórica. Predominan las consultas de <b>lectura</b> (<code>SELECT</code>), muchas veces con agregaciones y cruces entre varias tablas. Su modelo suele estar <b>desnormalizado</b>, buscando velocidad de consulta más que ahorro de espacio.
+            </p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — ARQUITECTURA GENERAL ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">Arquitectura General de un Data Warehouse</h3>
+        </div>
+        <p class="layer-sub">De manera general, un flujo de Data Warehouse pasa por las siguientes capas antes de llegar al usuario final que consume la información.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Capas del Flujo</h4>
+            <p><code>1.</code> <b>Fuentes de Datos:</b> sistemas transaccionales, archivos planos, APIs, servicios externos.</p>
+            <p><code>2.</code> <b>Staging Area:</b> zona intermedia donde se aterrizan los datos "en crudo", tal cual llegan de la fuente, antes de transformarlos.</p>
+            <p><code>3.</code> <b>ETL / ELT:</b> proceso encargado de extraer, transformar y cargar la información hacia el modelo final.</p>
+            <p><code>4.</code> <b>Data Warehouse:</b> repositorio central ya modelado (hechos y dimensiones) con la información integrada.</p>
+            <p><code>5.</code> <b>Data Marts:</b> subconjuntos del DWH enfocados en un área específica del negocio (ventas, finanzas, RRHH), usados para simplificar el análisis de cada área.</p>
+            <p><code>6.</code> <b>Capa de Presentación:</b> herramientas de reportes o BI (Power BI, Tableau, entre otras) donde el usuario final consulta la información.</p>
+        </div>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/data_warehouse/paso_3.png' %}" alt="imagen arquitectura general fuentes staging etl dwh datamart bi"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — MODELAMIENTO DIMENSIONAL ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">Modelamiento Dimensional: Hechos y Dimensiones</h3>
+        </div>
+        <p class="layer-sub">El modelo dimensional es la forma más común de estructurar un Data Warehouse. Se basa en dos tipos de tablas: <code>tablas de hechos</code> y <code>tablas de dimensiones</code>.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Tabla de Hechos (Fact Table)</h4>
+            <p> Contiene las <b>métricas o mediciones</b> del negocio (por ejemplo: valor de la venta, cantidad vendida). Cada registro suele representar un evento y se relaciona con varias tablas de dimensión a través de llaves foráneas.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Tabla de Dimensión (Dimension Table)</h4>
+            <p> Contiene los <b>atributos descriptivos</b> que dan contexto al hecho (por ejemplo: cliente, producto, fecha, tienda). Permiten filtrar, agrupar y analizar los hechos desde distintas perspectivas.
+            </p>
+        </div>
+        </div>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Esquema Estrella vs Esquema Copo de Nieve</h4>
+            <p><code>-</code> <b>Esquema Estrella (Star Schema):</b> una tabla de hechos central conectada directamente a varias tablas de dimensión desnormalizadas. Es el más usado por su simplicidad y velocidad de consulta.</p>
+            <p><code>-</code> <b>Esquema Copo de Nieve (Snowflake Schema):</b> las dimensiones se normalizan y se dividen en subtablas relacionadas entre sí. Ahorra espacio, pero agrega complejidad y más `JOIN` en las consultas.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Ejemplo_Esquema_Estrella.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Tabla de dimension: Cliente
+CREATE TABLE Dim_Cliente (
+    ClienteKey    INT PRIMARY KEY,
+    NombreCliente VARCHAR(100),
+    Ciudad        VARCHAR(50),
+    Segmento      VARCHAR(50)
+);
+
+-- Tabla de dimension: Producto
+CREATE TABLE Dim_Producto (
+    ProductoKey   INT PRIMARY KEY,
+    NombreProducto VARCHAR(100),
+    Categoria     VARCHAR(50)
+);
+
+-- Tabla de dimension: Fecha
+CREATE TABLE Dim_Fecha (
+    FechaKey INT PRIMARY KEY,
+    Fecha    DATE,
+    Anio     INT,
+    Mes      INT,
+    Trimestre INT
+);
+
+-- Tabla de hechos: Ventas
+CREATE TABLE Fact_Ventas (
+    VentaKey     INT PRIMARY KEY,
+    ClienteKey   INT REFERENCES Dim_Cliente(ClienteKey),
+    ProductoKey  INT REFERENCES Dim_Producto(ProductoKey),
+    FechaKey     INT REFERENCES Dim_Fecha(FechaKey),
+    Cantidad     INT,
+    ValorVenta   DECIMAL(18,2)
+);
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/data_warehouse/paso_4.png' %}" alt="imagen diagrama esquema estrella hechos y dimensiones"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — PROCESO ETL ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">Proceso ETL / ELT</h3>
+        </div>
+        <p class="layer-sub">Es el proceso encargado de mover la información desde las fuentes hasta el Data Warehouse, garantizando que llegue completa, correcta y en el formato adecuado para el análisis.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Etapas del Proceso</h4>
+            <p><code>E - Extracción:</code> se obtiene la información desde las fuentes de origen (bases de datos, archivos, APIs).</p>
+            <p><code>T - Transformación:</code> se limpia, valida, estandariza y transforma la información (tipos de dato, nulos, duplicados, reglas de negocio).</p>
+            <p><code>L - Carga:</code> se inserta la información ya transformada dentro de las tablas de hechos y dimensiones del Data Warehouse.</p>
+            <p><code>-</code> En el enfoque <b>ELT</b> (Extract, Load, Transform) la transformación se hace después de cargar los datos "en crudo", aprovechando el poder de cómputo de plataformas modernas en la nube.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 6 — HERRAMIENTAS COMUNES ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">06</span>
+        <h3 class="layer-title">Herramientas Comunes en Proyectos de DWH</h3>
+        </div>
+        <p class="layer-sub">En un proyecto de Data Warehouse suelen combinarse distintos tipos de herramientas, dependiendo de la etapa del proceso.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>ETL / Orquestación</h4>
+            <p> <code>SQL Server Integration Services (SSIS)</code>, <code>Talend</code>, <code>Informatica PowerCenter</code>, <code>Apache Airflow</code>, <code>Azure Data Factory</code>.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Motores / Plataformas de Datos</h4>
+            <p> <code>SQL Server</code>, <code>Oracle</code>, <code>PostgreSQL</code>, <code>Snowflake</code>, <code>Google BigQuery</code>, <code>Amazon Redshift</code>, <code>Databricks</code>.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Visualización / BI</h4>
+            <p> <code>Power BI</code>, <code>Tableau</code>, <code>Looker</code>, <code>Qlik Sense</code>.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Modelamiento</h4>
+            <p> <code>Erwin Data Modeler</code>, <code>dbt (data build tool)</code>, diagramas entidad-relación tradicionales.
+            </p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 7 — CONOCIMIENTOS PARA PARTICIPAR EN UN PROYECTO ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">07</span>
+        <h3 class="layer-title">Qué Necesitas Saber para Participar en un Proyecto de DWH</h3>
+        </div>
+        <p class="layer-sub">Estos son los conocimientos y habilidades principales que se esperan de alguien que va a participar en un proyecto de Data Warehouse, ya sea en el rol de desarrollador ETL, modelador de datos o analista.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Conocimientos Clave</h4>
+            <p><code>-</code> <b>SQL avanzado:</b> subconsultas, funciones de ventana (`window functions`), agregaciones, optimización de consultas.</p>
+            <p><code>-</code> <b>Modelamiento dimensional:</b> saber identificar hechos, dimensiones, granularidad y llaves subrogadas (`surrogate keys`).</p>
+            <p><code>-</code> <b>Procesos ETL/ELT:</b> entender cómo extraer, limpiar, transformar y cargar información de forma eficiente y controlada.</p>
+            <p><code>-</code> <b>Calidad de datos:</b> validar consistencia, duplicados, valores nulos y reglas de negocio antes de publicar la información.</p>
+            <p><code>-</code> <b>Entendimiento del negocio:</b> comprender qué necesita analizar el área solicitante, para modelar la información de forma útil y no solo técnica.</p>
+            <p><code>-</code> <b>Rendimiento:</b> conocer buenas prácticas de índices, particionamiento y agregaciones para que las consultas analíticas sean rápidas.</p>
+            <p><code>-</code> <b>Documentación:</b> mantener diccionarios de datos y documentar el linaje de la información (`data lineage`), de dónde viene y cómo se transformó cada dato.</p>
+        </div>
+        </div>
+    </section>
+
+    <div class="foot">
+        Guía introductoria a Data Warehouse para participar en proyectos de análisis e integración de datos
+    </div>
+
+    </div>
+
+</div>
+
+{% include 'paginas/contenidos-DBA/head-footer/footer.html' %}
+
+{% endblock %}

@@ -1,0 +1,57 @@
+<div class="contents">
+    <div class="content-container">
+
+        <h1 class="title-text">Contenidos</h1>
+
+        <div class="contenido-opciones">
+
+            <!-- Motor de Bases de Datos -->
+            <a href="{% url 'info_motores' %}" 
+               class="btn-options nav-link page-transition">
+                Motores de Bases de Datos
+            </a>
+
+            <!-- SQL Server -->
+            <div class="custom-select" data-dropdown>
+                <button class="btn-options select-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>SQL Server</span>
+                    <svg class="arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <ul class="select-menu">
+                    <li><a href="{% url 'mantenimientos_sqlserver' %}" class="select-option">Mantenimientos SQL Server</a></li>
+                    <li><a href="{% url 'mover_datafiles' %}" class="select-option">Mover Datafiles SQL Server</a></li>
+                </ul>
+            </div>
+
+            <!-- PostgreSQL -->
+            <div class="custom-select" data-dropdown>
+                <button class="btn-options select-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>PostgreSQL</span>
+                    <svg class="arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <ul class="select-menu">
+                    <li><a href="{% url 'instalar_postgresql' %}" class="select-option">Instalar PostgreSQL</a></li>
+                </ul>
+            </div>
+
+            <!-- Data Warehouse -->
+            <div class="custom-select" data-dropdown>
+                <button class="btn-options select-trigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>Data Warehouse</span>
+                    <svg class="arrow" width="12" height="8" viewBox="0 0 12 8" fill="none">
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <ul class="select-menu">
+                    <li><a href="{% url 'Data_warehouse' %}" class="select-option">¿Que es Data Warehouse?</a></li>
+                    <li><a href="{% url 'SQL_avanzado' %}" class="select-option">SQL Avanzado</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</div>

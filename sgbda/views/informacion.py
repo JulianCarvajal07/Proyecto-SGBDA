@@ -15,3 +15,11 @@ def Mover_datafiles(request):
 def Instalar_Postgresql(request):
 
     return render(request, 'paginas/contenidos-DBA/Instalacion_PostgreSQL.html')
+
+def Data_warehouse(request):
+
+    return render(request, 'paginas/contenidos-DBA/Data_warehouse.html')
+
+def SQL_avanzado(request):
+
+    return render(request, 'paginas/contenidos-DBA/SQL_avanzado.html')

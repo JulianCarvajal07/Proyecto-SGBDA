@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block titulo %} SQL Avanzado para Data Warehouse {% endblock %} 
+
+{% block contenido %}
+
+{% include 'paginas/contenidos-DBA/head-footer/contenidos.html' %}
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <h1 class="title"><span class="a">SQL Avanzado para Data Warehouse</span></h1>
+        <p class="lead">Esta guía detalla los <b>conocimientos concretos de SQL avanzado</b> que se deben dominar para facilitar el trabajo en un proyecto de <code>Data Warehouse</code>: qué hace cada técnica, <b>cuándo usarla</b> y un ejemplo aplicado. A continuación se mostrará el contenido a tener presente:</p>
+    </div>
+
+    <!-- ================= LAYER 1 — WINDOW FUNCTIONS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">Funciones de Ventana (Window Functions)</h3>
+        </div>
+        <p class="layer-sub">Permiten realizar <b>cálculos sobre un conjunto de filas relacionadas</b> (una "ventana") sin necesidad de agrupar el resultado como lo hace un <code>GROUP BY</code> tradicional, es decir, se puede calcular un agregado y aun así ver el detalle de cada fila. Son la base de la mayoría de reportes analíticos en un DWH: rankings, acumulados, comparativos entre periodos.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>¿Cuándo se usan?</h4>
+            <p><code>-</code> Calcular el <b>top N</b> por categoría (ej: mejor cliente por región).</p>
+            <p><code>-</code> Calcular <b>totales acumulados</b> (ventas acumuladas en el año).</p>
+            <p><code>-</code> Comparar un valor contra el <b>periodo anterior o siguiente</b> (variación mes a mes).</p>
+            <p><code>-</code> Detectar y eliminar <b>duplicados</b> en cargas de staging.</p>
+        </div>
+        <div class="card mssql">
+            <h4>Funciones más usadas</h4>
+            <p><code>ROW_NUMBER()</code> numera filas de forma única, útil para deduplicar.</p>
+            <p><code>RANK()</code> / <code>DENSE_RANK()</code> generan rankings, con o sin saltos al empatar.</p>
+            <p><code>SUM()/AVG() OVER()</code> genera acumulados o promedios móviles.</p>
+            <p><code>LAG()</code> / <code>LEAD()</code> traen el valor de la fila anterior o siguiente.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Window_Functions.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Ranking del cliente con mas ventas dentro de cada region
+SELECT ClienteKey, Region, ValorVenta,
+       RANK() OVER (PARTITION BY Region ORDER BY ValorVenta DESC) AS Ranking
+FROM Fact_Ventas;
+
+-- Total acumulado de ventas ordenado por fecha (running total)
+SELECT FechaKey, ValorVenta,
+       SUM(ValorVenta) OVER (ORDER BY FechaKey) AS AcumuladoVentas
+FROM Fact_Ventas;
+
+-- Comparar la venta del mes actual contra el mes anterior
+SELECT FechaKey, ValorVenta,
+       LAG(ValorVenta) OVER (ORDER BY FechaKey) AS VentaMesAnterior
+FROM Fact_Ventas;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — CTE ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">CTEs (Common Table Expressions)</h3>
+        </div>
+        <p class="layer-sub">Una <code>CTE</code> es una <b>consulta temporal con nombre</b>, definida con <code>WITH</code>, que existe únicamente durante la ejecución de la consulta principal. Ayuda a dividir consultas complejas en pasos legibles, evitando anidar múltiples subconsultas difíciles de leer y mantener.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>¿Cuándo se usan?</h4>
+            <p><code>-</code> Cuando una consulta requiere <b>varios pasos intermedios</b> antes del resultado final.</p>
+            <p><code>-</code> Para mejorar la <b>legibilidad</b> de consultas que de otra forma tendrían subconsultas anidadas.</p>
+            <p><code>-</code> Las <b>CTE recursivas</b> se usan para recorrer <b>jerarquías</b>, como una estructura organizacional o un árbol de categorías de producto.</p>
+        </div>
+        <div class="card mssql">
+            <h4>Puntos Clave</h4>
+            <p><code>-</code> Una CTE no se materializa en disco, se resuelve en el momento de ejecutar la consulta.</p>
+            <p><code>-</code> Se pueden encadenar varias CTE dentro de un mismo <code>WITH</code>.</p>
+            <p><code>-</code> Una CTE recursiva necesita un <b>caso base</b> y un <b>caso recursivo</b> unidos por <code>UNION ALL</code>.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">CTE_Simple_y_Recursiva.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- CTE simple: total de ventas por cliente, filtrado despues
+WITH VentasPorCliente AS (
+    SELECT ClienteKey, SUM(ValorVenta) AS Total
+    FROM Fact_Ventas
+    GROUP BY ClienteKey
+)
+SELECT * FROM VentasPorCliente WHERE Total > 1000000;
+
+-- CTE recursiva: recorrer una jerarquia de categorias de producto
+WITH JerarquiaCategoria AS (
+    -- Caso base: categorias raiz (sin padre)
+    SELECT CategoriaKey, NombreCategoria, CategoriaPadreKey, 0 AS Nivel
+    FROM Dim_Categoria
+    WHERE CategoriaPadreKey IS NULL
+
+    UNION ALL
+
+    -- Caso recursivo: hijos de la categoria anterior
+    SELECT h.CategoriaKey, h.NombreCategoria, h.CategoriaPadreKey, j.Nivel + 1
+    FROM Dim_Categoria h
+    INNER JOIN JerarquiaCategoria j ON h.CategoriaPadreKey = j.CategoriaKey
+)
+SELECT * FROM JerarquiaCategoria ORDER BY Nivel;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — GROUPING SETS / ROLLUP / CUBE ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">GROUPING SETS, ROLLUP y CUBE</h3>
+        </div>
+        <p class="layer-sub">Son extensiones del <code>GROUP BY</code> que permiten obtener <b>varios niveles de agregación en una sola consulta</b>, en lugar de escribir múltiples consultas unidas con <code>UNION</code>. Son muy comunes al construir reportes con subtotales y totales generales, como los que se ven en tablas dinámicas.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>¿Cuándo se usan?</h4>
+            <p><code>-</code> Reportes que necesitan <b>subtotales por región</b>, subtotales por categoría y un <b>total general</b> al mismo tiempo.</p>
+            <p><code>-</code> Evitar escribir 3 o 4 consultas distintas unidas con <code>UNION ALL</code> para lograr ese mismo resultado.</p>
+        </div>
+        <div class="card mssql">
+            <h4>Diferencia entre cada una</h4>
+            <p><code>ROLLUP</code> genera subtotales de forma jerárquica (de derecha a izquierda) y un total general.</p>
+            <p><code>CUBE</code> genera <b>todas las combinaciones posibles</b> entre las columnas indicadas.</p>
+            <p><code>GROUPING SETS</code> permite definir manualmente cuáles combinaciones específicas se necesitan, sin generar todas.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Rollup_Cube_GroupingSets.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- ROLLUP: subtotal por region, subtotal por region+categoria y total general
+SELECT Region, Categoria, SUM(ValorVenta) AS TotalVentas
+FROM Fact_Ventas
+GROUP BY ROLLUP(Region, Categoria);
+
+-- CUBE: todas las combinaciones posibles entre region y categoria
+SELECT Region, Categoria, SUM(ValorVenta) AS TotalVentas
+FROM Fact_Ventas
+GROUP BY CUBE(Region, Categoria);
+
+-- GROUPING SETS: solo las combinaciones que se necesitan puntualmente
+SELECT Region, Categoria, SUM(ValorVenta) AS TotalVentas
+FROM Fact_Ventas
+GROUP BY GROUPING SETS ((Region), (Categoria), ());
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — MERGE ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">MERGE (Upsert) para Cargas Incrementales</h3>
+        </div>
+        <p class="layer-sub">El comando <code>MERGE</code> permite <b>insertar, actualizar o incluso eliminar</b> registros en una sola instrucción, comparando una tabla origen (por ejemplo la zona de staging) contra una tabla destino (una dimensión o hecho del DWH). Es el comando central en cualquier proceso <b>ETL/ELT</b> para cargas incrementales, ya que evita truncar y recargar toda la tabla cada vez.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>¿Cuándo se usa?</h4>
+            <p><code>-</code> Cuando se necesita actualizar registros existentes e insertar los nuevos <b>en un solo paso</b>.</p>
+            <p><code>-</code> En cargas incrementales diarias, donde solo llega un subconjunto de datos nuevos o modificados.</p>
+            <p><code>-</code> Para mantener sincronizada una <b>tabla de dimensión</b> contra su fuente de origen.</p>
+        </div>
+        <div class="card mssql">
+            <h4>Puntos Clave</h4>
+            <p><code>-</code> La cláusula <code>ON</code> define la llave de negocio que compara origen y destino.</p>
+            <p><code>-</code> <code>WHEN MATCHED</code> actualiza registros que ya existen.</p>
+            <p><code>-</code> <code>WHEN NOT MATCHED</code> inserta los registros nuevos que no existían en el destino.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Merge_Upsert.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+MERGE INTO Dim_Cliente AS destino
+USING Staging_Cliente AS origen
+ON destino.ClienteID = origen.ClienteID
+
+WHEN MATCHED THEN
+    UPDATE SET destino.Nombre = origen.Nombre,
+               destino.Ciudad = origen.Ciudad
+
+WHEN NOT MATCHED THEN
+    INSERT (ClienteID, Nombre, Ciudad)
+    VALUES (origen.ClienteID, origen.Nombre, origen.Ciudad);
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — PIVOT / UNPIVOT ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">PIVOT y UNPIVOT</h3>
+        </div>
+        <p class="layer-sub">Permiten <b>transformar filas en columnas</b> (<code>PIVOT</code>) o <b>columnas en filas</b> (<code>UNPIVOT</code>). Son muy usados al construir reportes desde el Data Warehouse, ya que la información suele estar guardada por filas (formato largo), pero el usuario de negocio la necesita ver organizada por columnas (formato ancho), como en una tabla dinámica de Excel.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>¿Cuándo se usan?</h4>
+            <p><code>-</code> <code>PIVOT</code> cuando se necesita mostrar, por ejemplo, <b>una columna por cada mes</b> con el total de ventas de ese mes.</p>
+            <p><code>-</code> <code>UNPIVOT</code> cuando la fuente llega en formato ancho (una columna por mes) y se necesita <b>normalizar a formato largo</b> para cargarla correctamente en una tabla de hechos.</p>
+        </div>
+        <div class="card mssql">
+            <h4>Puntos Clave</h4>
+            <p><code>-</code> El resultado de un <code>PIVOT</code> es más fácil de leer para negocio, pero más difícil de mantener a nivel de código.</p>
+            <p><code>-</code> Generalmente se recomienda dejar el <code>PIVOT</code> a la capa de reportes (BI) y mantener el DWH en formato largo.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Pivot_Unpivot.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- PIVOT: pasar de filas (mes) a columnas (una columna por mes)
+SELECT Categoria, [1] AS Enero, [2] AS Febrero, [3] AS Marzo
+FROM (
+    SELECT Categoria, MES(Fecha) AS Mes, ValorVenta
+    FROM Fact_Ventas
+) AS Origen
+PIVOT (
+    SUM(ValorVenta)
+    FOR Mes IN ([1],[2],[3])
+) AS TablaPivote;
+
+-- UNPIVOT: pasar de columnas (una por mes) a filas
+SELECT Categoria, Mes, ValorVenta
+FROM Reporte_Ancho
+UNPIVOT (
+    ValorVenta FOR Mes IN (Enero, Febrero, Marzo)
+) AS TablaUnpivot;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 6 — FECHAS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">06</span>
+        <h3 class="layer-title">Manejo de Fechas y Granularidad Temporal</h3>
+        </div>
+        <p class="layer-sub">Casi toda tabla de hechos en un Data Warehouse se analiza <b>a través del tiempo</b> (por día, mes, trimestre, año), por lo que dominar el manejo de fechas es indispensable, tanto para construir la <code>Dim_Fecha</code> como para calcular métricas comparativas entre periodos.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Funciones Clave</h4>
+            <p><code>DATEPART()</code> extrae una parte específica de una fecha (año, mes, día, trimestre).</p>
+            <p><code>DATEDIFF()</code> calcula la diferencia entre dos fechas en días, meses o años, útil para calcular antigüedad o tiempos de respuesta.</p>
+            <p><code>EOMONTH()</code> obtiene el último día del mes de una fecha dada, muy usado para cierres mensuales.</p>
+            <p><code>Truncar a mes/trimestre</code> (ej: <code>DATEFROMPARTS(YEAR(Fecha), MONTH(Fecha), 1)</code>) para agrupar información por periodo sin perder el detalle del día original.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Manejo_Fechas.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Extraer año, mes y trimestre de una fecha
+SELECT Fecha,
+       DATEPART(YEAR, Fecha)    AS Anio,
+       DATEPART(MONTH, Fecha)   AS Mes,
+       DATEPART(QUARTER, Fecha) AS Trimestre
+FROM Dim_Fecha;
+
+-- Ultimo dia del mes (util para reportes de cierre)
+SELECT EOMONTH(Fecha) AS UltimoDiaMes
+FROM Dim_Fecha;
+
+-- Diferencia en dias entre la fecha de venta y la fecha actual
+SELECT DATEDIFF(DAY, Fecha, GETDATE()) AS DiasDesdeVenta
+FROM Fact_Ventas;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 7 — DUPLICADOS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">07</span>
+        <h3 class="layer-title">Detección y Eliminación de Duplicados</h3>
+        </div>
+        <p class="layer-sub">En la zona de <code>staging</code> es muy común recibir registros duplicados, ya sea porque la fuente los envía repetidos o porque se ejecutó una carga más de una vez. Antes de mover la información hacia el modelo final, se debe garantizar que cada llave de negocio quede <b>una sola vez</b>.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>¿Cuándo se usa?</h4>
+            <p><code>-</code> Justo después de la extracción, dentro de la zona de <code>staging</code>, antes de aplicar el <code>MERGE</code> hacia el modelo final.</p>
+            <p><code>-</code> Al depurar cargas históricas donde se sospecha que un mismo archivo se cargó más de una vez.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Eliminar_Duplicados.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Se numera cada grupo de duplicados por ClienteID, dejando en 1
+-- el registro mas reciente segun FechaCarga
+WITH Duplicados AS (
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY ClienteID
+               ORDER BY FechaCarga DESC
+           ) AS rn
+    FROM Staging_Cliente
+)
+DELETE FROM Duplicados WHERE rn > 1;
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 8 — INDICES Y PLANES DE EJECUCION ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">08</span>
+        <h3 class="layer-title">Índices y Planes de Ejecución</h3>
+        </div>
+        <p class="layer-sub">Las tablas de un Data Warehouse suelen manejar <b>grandes volúmenes de información</b>, por lo que un buen manejo de índices y la capacidad de leer un plan de ejecución son claves para que los reportes y las cargas no se vuelvan lentas con el tiempo.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Tipos de Índice</h4>
+            <p><code>Clustered:</code> define el orden físico de la tabla en disco; solo puede existir uno por tabla.</p>
+            <p><code>Non-Clustered:</code> estructura adicional que apunta a las filas, útil para columnas usadas frecuentemente en filtros o `JOIN`.</p>
+            <p><code>Columnstore:</code> almacena los datos por columna en lugar de por fila; ideal en tablas de hechos grandes, ya que acelera enormemente las agregaciones (`SUM`, `AVG`, `COUNT`).</p>
+        </div>
+        <div class="card mssql">
+            <h4>Plan de Ejecución</h4>
+            <p><code>-</code> Muestra <b>cómo</b> el motor de base de datos va a resolver una consulta: qué índices usa, en qué orden hace los `JOIN`, entre otros.</p>
+            <p><code>-</code> Un <b>Table Scan</b> o <b>Index Scan</b> sobre una tabla grande suele ser señal de que falta un índice adecuado para esa consulta.</p>
+            <p><code>-</code> Revisarlo permite detectar cuellos de botella antes de que un reporte se vuelva lento en producción.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 9 — PARTICIONAMIENTO ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">09</span>
+        <h3 class="layer-title">Particionamiento de Tablas</h3>
+        </div>
+        <p class="layer-sub">Consiste en <b>dividir físicamente una tabla grande</b> en secciones más pequeñas (particiones), generalmente por rango de fechas. Es una práctica habitual en tablas de hechos que acumulan años de historia, ya que mejora tanto el rendimiento de consulta como el de carga.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>¿Cuándo se usa?</h4>
+            <p><code>-</code> En tablas de hechos con <b>millones de registros</b>, particionadas normalmente por año o por mes.</p>
+            <p><code>-</code> Permite hacer <b>"switch" o intercambio de partición</b> al cargar históricos completos, cambiando metadatos en lugar de mover fila por fila, lo cual es mucho más rápido.</p>
+            <p><code>-</code> Facilita el mantenimiento: se puede reconstruir o archivar una sola partición sin afectar el resto de la tabla.</p>
+            <p><code>-</code> El motor puede descartar particiones completas que no aplican a un filtro (<b>partition elimination</b>), acelerando las consultas que ya traen un rango de fechas.</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 10 — SCD ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">10</span>
+        <h3 class="layer-title">Dimensiones de Cambio Lento (SCD)</h3>
+        </div>
+        <p class="layer-sub">Las <code>Slowly Changing Dimensions (SCD)</code> son técnicas para manejar los <b>cambios en los atributos de una dimensión</b> a través del tiempo (por ejemplo, cuando un cliente cambia de ciudad). La forma en que se maneje ese cambio depende de si el negocio necesita conservar el histórico o no.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>SCD Tipo 1 — Sobrescribir</h4>
+            <p> El nuevo valor <b>reemplaza</b> el anterior, sin dejar rastro del cambio. Se usa cuando el histórico del atributo no es relevante para el negocio (ej: corregir un error de digitación en un nombre).
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>SCD Tipo 2 — Histórico</h4>
+            <p> Se <b>inserta un nuevo registro</b> con el valor actualizado, conservando el anterior con columnas de control como <code>FechaInicio</code>, <code>FechaFin</code> y <code>Vigente</code>. Se usa cuando el negocio necesita analizar la información <b>tal como era en el momento del hecho</b> (ej: a qué región pertenecía un cliente cuando se realizó la venta).
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">SCD_Tipo2_con_Merge.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Se cierra la version vigente del cliente si algun atributo cambio
+UPDATE Dim_Cliente
+SET FechaFin = GETDATE(), Vigente = 0
+FROM Dim_Cliente destino
+INNER JOIN Staging_Cliente origen
+    ON destino.ClienteID = origen.ClienteID
+WHERE destino.Vigente = 1
+  AND (destino.Ciudad <> origen.Ciudad);
+
+-- Se inserta la nueva version vigente con el dato actualizado
+INSERT INTO Dim_Cliente (ClienteID, Nombre, Ciudad, FechaInicio, FechaFin, Vigente)
+SELECT origen.ClienteID, origen.Nombre, origen.Ciudad, GETDATE(), NULL, 1
+FROM Staging_Cliente origen
+LEFT JOIN Dim_Cliente destino
+    ON origen.ClienteID = destino.ClienteID AND destino.Vigente = 1
+WHERE destino.ClienteID IS NULL;
+            </code></pre>
+        </div>
+    </section>
+
+    <div class="foot">
+        Guía de SQL avanzado aplicado a proyectos de Data Warehouse
+    </div>
+
+    </div>
+
+</div>
+
+{% include 'paginas/contenidos-DBA/head-footer/footer.html' %}
+
+{% endblock %}
