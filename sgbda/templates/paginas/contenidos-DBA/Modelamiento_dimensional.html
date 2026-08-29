@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block titulo %} Modelamiento Dimensional {% endblock %} 
+
+{% load static %}
+
+{% block contenido %}
+
+{% include 'paginas/contenidos-DBA/head-footer/contenidos.html' %}
+
+<div class="contenedor-informacion">
+
+    <div class="wrap">
+
+    <div class="hero">
+        <h1 class="title"><span class="a">Modelamiento Dimensional</span></h1>
+        <p class="lead">Esta guía explica de forma <b>sencilla y detallada</b> los cuatro pilares del modelamiento dimensional: <code>hechos</code>, <code>dimensiones</code>, <code>granularidad</code> y <code>llaves subrogadas (surrogate keys)</code>. Saber identificar correctamente estos cuatro elementos es la base para diseñar cualquier Data Warehouse. A continuación se mostrará el contenido a tener presente:</p>
+    </div>
+
+    <!-- ================= LAYER 1 — QUE ES EL MODELAMIENTO DIMENSIONAL ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">01</span>
+        <h3 class="layer-title">¿Qué es el Modelamiento Dimensional?</h3>
+        </div>
+        <p class="layer-sub">Es una forma de <b>organizar la información</b> pensada para que sea fácil y rápida de consultar, en lugar de estar pensada para evitar duplicidad de datos (como sí ocurre en un sistema transaccional normalizado). La idea central es sencilla: separar <b>"lo que se mide"</b> de <b>"por qué ángulos se quiere analizar esa medida"</b>.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Una Analogía Sencilla</h4>
+            <p>Piensa en una <b>factura de venta</b>. Lo que se mide es el valor vendido y la cantidad (eso es el <b>hecho</b>). Los ángulos desde donde quieres analizar esa venta son: ¿a qué cliente?, ¿qué producto?, ¿en qué fecha?, ¿en qué tienda? (eso son las <b>dimensiones</b>). El modelamiento dimensional simplemente organiza la base de datos siguiendo esa misma lógica natural con la que un usuario de negocio piensa un reporte.</p>
+        </div>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/modelamiento_dimensional/paso_1.png' %}" alt="imagen analogia factura hechos y dimensiones"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 2 — HECHOS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">02</span>
+        <h3 class="layer-title">Identificar los Hechos (Fact Table)</h3>
+        </div>
+        <p class="layer-sub">Un <b>hecho</b> es un <b>evento medible del negocio</b>: una venta, un despacho, una llamada de un call center, un pago. La tabla de hechos guarda las <b>métricas numéricas</b> de ese evento (cantidades, valores) junto con las llaves que la conectan a cada dimensión relacionada.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>¿Cómo identificar un hecho?</h4>
+            <p>Pregúntate: <i>"¿Qué evento del negocio se repite muchas veces y se puede medir con un número?"</i> Si la respuesta es algo como "cada vez que se vende un producto" o "cada vez que se despacha un pedido", ya encontraste un hecho. La regla práctica es: <b>si se puede sumar, contar o promediar, probablemente es un hecho</b>.</p>
+        </div>
+        </div>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Medidas Aditivas</h4>
+            <p> Se pueden <b>sumar sin problema</b> a través de cualquier dimensión (cliente, producto, tiempo). Ejemplo: <code>ValorVenta</code>, <code>CantidadVendida</code>. Son el tipo de medida más común y más simple de trabajar.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Medidas Semi-Aditivas</h4>
+            <p> Se pueden sumar en algunas dimensiones pero <b>no en el tiempo</b>. Ejemplo: <code>SaldoDeInventario</code>. Sumar el saldo de varios días no tiene sentido de negocio (se debe usar el último saldo o un promedio).
+            </p>
+        </div>
+        </div>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Medidas No Aditivas</h4>
+            <p><code>-</code> No se pueden sumar bajo ninguna dimensión. Ejemplo: un <code>Porcentaje</code>, un <code>Margen %</code> o un <code>Precio Unitario</code>. Estas medidas normalmente se recalculan a partir de otras medidas aditivas (ej: Margen % = Utilidad / Venta), en lugar de sumarlas directamente.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Tabla_de_Hechos.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Fact_Ventas: cada fila representa UN evento de venta
+CREATE TABLE Fact_Ventas (
+    VentaKey     BIGINT PRIMARY KEY,   -- llave subrogada de la tabla de hechos
+    ClienteKey   INT REFERENCES Dim_Cliente(ClienteKey),
+    ProductoKey  INT REFERENCES Dim_Producto(ProductoKey),
+    FechaKey     INT REFERENCES Dim_Fecha(FechaKey),
+    TiendaKey    INT REFERENCES Dim_Tienda(TiendaKey),
+
+    -- Medidas (lo que se mide del evento)
+    Cantidad     INT,             -- aditiva
+    ValorVenta   DECIMAL(18,2)    -- aditiva
+);
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 3 — DIMENSIONES ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">03</span>
+        <h3 class="layer-title">Identificar las Dimensiones (Dimension Table)</h3>
+        </div>
+        <p class="layer-sub">Una <b>dimensión</b> responde a las preguntas <i>quién, qué, cuándo, dónde y cómo</i> alrededor de un hecho. Son las tablas que le dan <b>contexto descriptivo</b> a la medida y permiten filtrar, agrupar y desglosar la información en un reporte.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>¿Cómo identificar una dimensión?</h4>
+            <p>Pregúntate: <i>"¿Por este campo el usuario de negocio querría filtrar o agrupar el reporte?"</i> Si la respuesta es sí (por ciudad, por categoría de producto, por mes, por vendedor), ese campo pertenece a una dimensión. La regla práctica es: <b>si describe o clasifica algo, es una dimensión; si se mide, es un hecho</b>.</p>
+        </div>
+        </div>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Dimensiones Típicas</h4>
+            <p> <code>Dim_Cliente</code> (nombre, ciudad, segmento), <code>Dim_Producto</code> (nombre, categoría, marca), <code>Dim_Fecha</code> (día, mes, año, trimestre), <code>Dim_Tienda</code> (nombre, ciudad, tipo de tienda).
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Dimensión de Fecha (caso especial)</h4>
+            <p> Es la única dimensión que <b>casi siempre se construye manualmente</b> (no viene de un sistema origen), generando una fila por cada día del calendario, con columnas ya calculadas como mes, trimestre, año y nombre del día, para que las consultas de tiempo sean más rápidas y sencillas.
+            </p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Tablas_de_Dimension.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Dim_Cliente: cada fila describe UN cliente
+CREATE TABLE Dim_Cliente (
+    ClienteKey    INT PRIMARY KEY,     -- llave subrogada
+    ClienteID     VARCHAR(20),         -- llave natural (viene del sistema origen)
+    NombreCliente VARCHAR(100),
+    Ciudad        VARCHAR(50),
+    Segmento      VARCHAR(50)
+);
+
+-- Dim_Fecha: una fila por cada dia del calendario
+CREATE TABLE Dim_Fecha (
+    FechaKey  INT PRIMARY KEY,   -- ej: 20250115 (formato AAAAMMDD)
+    Fecha     DATE,
+    Anio      INT,
+    Mes       INT,
+    NombreMes VARCHAR(20),
+    Trimestre INT,
+    DiaSemana VARCHAR(20)
+);
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/modelamiento_dimensional/paso_3.png' %}" alt="imagen ejemplo tabla dimension cliente"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 4 — GRANULARIDAD ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">04</span>
+        <h3 class="layer-title">Granularidad</h3>
+        </div>
+        <p class="layer-sub">La <b>granularidad</b> define <b>qué representa exactamente una fila</b> en la tabla de hechos. Es, sin duda, la decisión <b>más importante</b> de todo el modelo dimensional: si se define mal, luego es muy difícil (o imposible) corregirla sin volver a cargar toda la información desde cero.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Preguntas para Definir la Granularidad</h4>
+            <p><code>-</code> ¿Una fila representa <b>una línea de un pedido</b>, o el <b>pedido completo</b>?</p>
+            <p><code>-</code> ¿Se necesita el detalle <b>día a día</b>, o es suficiente un resumen <b>mensual</b>?</p>
+            <p><code>-</code> ¿Se necesita saber <b>por vendedor</b>, o solo el total <b>por tienda</b>?</p>
+        </div>
+        </div>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Granularidad Fina (Detallada)</h4>
+            <p> Ejemplo: una fila por cada <b>línea de producto dentro de una factura</b>. Ocupa más espacio y son más filas, pero permite responder <b>cualquier pregunta futura</b>, ya que se puede resumir hacia arriba (por cliente, por mes, por tienda) sin problema.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Granularidad Gruesa (Resumida)</h4>
+            <p> Ejemplo: una fila por <b>total de ventas por tienda y por mes</b>. Ocupa menos espacio y es más rápida de consultar, pero <b>ya no se puede "desagregar"</b>: si luego el negocio pide el detalle por producto, no existe forma de recuperarlo desde esa tabla.
+            </p>
+        </div>
+        </div>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Regla de Oro</h4>
+            <p><code>-</code> Ante la duda, <b>siempre es preferible una granularidad más fina</b>. Es fácil resumir datos detallados hacia un nivel más alto (con un simple `GROUP BY`), pero es imposible partir de un dato ya resumido para recuperar el detalle que nunca se guardó.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Ejemplo_Granularidad.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Granularidad FINA: una fila por linea de producto en la factura
+-- (permite responder practicamente cualquier pregunta futura)
+-- Factura 001 -> Producto A, cant 2
+-- Factura 001 -> Producto B, cant 1
+-- Factura 002 -> Producto A, cant 5
+
+-- Granularidad GRUESA: una fila por total de la factura
+-- (ya no se sabe que productos exactos se vendieron en cada factura)
+-- Factura 001 -> Total: 3 unidades
+-- Factura 002 -> Total: 5 unidades
+            </code></pre>
+        </div>
+    </section>
+
+    <!-- ================= LAYER 5 — LLAVES SUBROGADAS ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">05</span>
+        <h3 class="layer-title">Llaves Subrogadas (Surrogate Keys)</h3>
+        </div>
+        <p class="layer-sub">Una <b>llave subrogada</b> es un identificador <b>generado internamente por el Data Warehouse</b> (normalmente un número autoincremental), que <b>no tiene ningún significado de negocio</b> y que se usa como llave primaria en cada tabla de dimensión, en lugar de usar la llave que trae el sistema origen.</p>
+
+        <div class="doble">
+        <div class="card mssql">
+            <h4>Llave Natural</h4>
+            <p> Es el identificador que <b>ya trae el sistema origen</b> (ej: <code>ClienteID = "CL-4521"</code>, una cédula, un código de producto del ERP). Tiene significado de negocio y puede cambiar de formato, ser reutilizado, o incluso repetirse entre distintos sistemas origen.
+            </p>
+        </div>
+        <div class="card mssql">
+            <h4>Llave Subrogada</h4>
+            <p> Es un número <b>propio del DWH</b> (ej: <code>ClienteKey = 1, 2, 3...</code>), sin ningún significado para el negocio, generado únicamente para relacionar las tablas de hechos con las dimensiones dentro del modelo.
+            </p>
+        </div>
+        </div>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>¿Por qué se usan en lugar de la llave natural?</h4>
+            <p><code>-</code> <b>Permiten manejar histórico (SCD Tipo 2):</b> un mismo cliente natural (`ClienteID = "CL-4521"`) puede tener varias filas en el tiempo (una por cada cambio de ciudad), cada una con su propia llave subrogada distinta.</p>
+            <p><code>-</code> <b>Independencia del sistema origen:</b> si el código de negocio cambia de formato, o si se integran varias fuentes que usan el mismo código para cosas distintas, la llave subrogada evita conflictos.</p>
+            <p><code>-</code> <b>Rendimiento:</b> un número entero es más liviano y más rápido para hacer `JOIN` que una llave de texto larga.</p>
+            <p><code>-</code> <b>Manejo de "desconocidos":</b> permite crear un registro especial (ej: <code>ClienteKey = -1</code>, "Cliente Desconocido") para asociar hechos que llegan sin una dimensión válida, sin romper la integridad del modelo.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Llave_Natural_vs_Subrogada.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- Llave natural (ClienteID) vs Llave subrogada (ClienteKey)
+CREATE TABLE Dim_Cliente (
+    ClienteKey    INT IDENTITY(1,1) PRIMARY KEY,  -- llave subrogada (autonumerica)
+    ClienteID     VARCHAR(20)       NOT NULL,     -- llave natural (viene del origen)
+    NombreCliente VARCHAR(100),
+    Ciudad        VARCHAR(50),
+    FechaInicio   DATE,
+    FechaFin      DATE NULL,
+    Vigente       BIT
+);
+
+-- Ejemplo: el mismo cliente natural con dos versiones historicas (SCD Tipo 2)
+-- ClienteKey | ClienteID | Ciudad     | FechaInicio | FechaFin   | Vigente
+-- 101        | CL-4521   | Bogota     | 2022-01-01  | 2024-06-30 | 0
+-- 205        | CL-4521   | Medellin   | 2024-07-01  | NULL       | 1
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/modelamiento_dimensional/paso_5.png' %}" alt="imagen comparacion llave natural vs llave subrogada"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 6 — EJEMPLO INTEGRADO ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">06</span>
+        <h3 class="layer-title">Ejemplo Integrado: los 4 Conceptos Juntos</h3>
+        </div>
+        <p class="layer-sub">A continuación se muestra cómo se aplican los cuatro conceptos en conjunto, tomando como caso de negocio la venta de productos en distintas tiendas.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Definición del Modelo</h4>
+            <p><code>Granularidad:</code> una fila por cada línea de producto vendido, dentro de cada factura.</p>
+            <p><code>Hecho:</code> <code>Fact_Ventas</code>, con las medidas <code>Cantidad</code> y <code>ValorVenta</code>.</p>
+            <p><code>Dimensiones:</code> <code>Dim_Cliente</code>, <code>Dim_Producto</code>, <code>Dim_Fecha</code>, <code>Dim_Tienda</code>.</p>
+            <p><code>Llaves Subrogadas:</code> <code>ClienteKey</code>, <code>ProductoKey</code>, <code>FechaKey</code>, <code>TiendaKey</code>, generadas todas por el DWH.</p>
+        </div>
+        </div>
+
+        <div class="code-container">
+            <div class="code-header">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+                <span class="filename">Modelo_Completo.sql</span>
+            </div>
+            <pre class="line-numbers"><code class="language-javascript">
+-- DIMENSIONES (contexto descriptivo, llave subrogada como PK)
+CREATE TABLE Dim_Cliente (
+    ClienteKey INT IDENTITY(1,1) PRIMARY KEY,
+    ClienteID  VARCHAR(20),
+    Nombre     VARCHAR(100),
+    Ciudad     VARCHAR(50)
+);
+
+CREATE TABLE Dim_Producto (
+    ProductoKey INT IDENTITY(1,1) PRIMARY KEY,
+    ProductoID  VARCHAR(20),
+    Nombre      VARCHAR(100),
+    Categoria   VARCHAR(50)
+);
+
+CREATE TABLE Dim_Tienda (
+    TiendaKey INT IDENTITY(1,1) PRIMARY KEY,
+    TiendaID  VARCHAR(20),
+    Nombre    VARCHAR(100),
+    Ciudad    VARCHAR(50)
+);
+
+CREATE TABLE Dim_Fecha (
+    FechaKey INT PRIMARY KEY,
+    Fecha    DATE,
+    Anio     INT,
+    Mes      INT
+);
+
+-- HECHO (medidas + llaves subrogadas hacia cada dimension)
+-- Granularidad: una fila = una linea de producto dentro de una factura
+CREATE TABLE Fact_Ventas (
+    VentaKey    BIGINT IDENTITY(1,1) PRIMARY KEY,
+    ClienteKey  INT REFERENCES Dim_Cliente(ClienteKey),
+    ProductoKey INT REFERENCES Dim_Producto(ProductoKey),
+    TiendaKey   INT REFERENCES Dim_Tienda(TiendaKey),
+    FechaKey    INT REFERENCES Dim_Fecha(FechaKey),
+    NumeroFactura VARCHAR(20),   -- referencia al documento origen
+    Cantidad    INT,
+    ValorVenta  DECIMAL(18,2)
+);
+            </code></pre>
+        </div>
+
+        <div class="images">
+            <img src="{% static 'contenidos/modelamiento_dimensional/paso_6.png' %}" alt="imagen diagrama esquema estrella completo"> 
+        </div>
+    </section>
+
+    <!-- ================= LAYER 7 — ERRORES COMUNES ================= -->
+    <section class="layer reveal">
+        <div class="layer-head">
+        <span class="layer-num">07</span>
+        <h3 class="layer-title">Errores Comunes al Modelar</h3>
+        </div>
+        <p class="layer-sub">Estos son los errores más frecuentes a la hora de identificar hechos, dimensiones, granularidad y llaves subrogadas, especialmente al iniciar en proyectos de Data Warehouse.</p>
+
+        <div class="simple">
+        <div class="card mssql">
+            <h4>Errores a Evitar</h4>
+            <p><code>-</code> <b>Mezclar granularidades</b> en una misma tabla de hechos (algunas filas a nivel factura, otras a nivel línea de producto).</p>
+            <p><code>-</code> <b>Usar la llave natural</b> como llave primaria de una dimensión, en lugar de crear una llave subrogada propia del DWH.</p>
+            <p><code>-</code> <b>Guardar un atributo descriptivo dentro de la tabla de hechos</b> (ej: el nombre del cliente directamente en `Fact_Ventas`), en lugar de dejarlo en su dimensión correspondiente.</p>
+            <p><code>-</code> <b>Definir la granularidad demasiado resumida</b> desde el inicio, sin considerar preguntas futuras que el negocio pueda llegar a hacer.</p>
+            <p><code>-</code> <b>No contemplar un registro "Desconocido"</b> en las dimensiones, lo que genera errores al llegar hechos sin una relación válida.</p>
+        </div>
+        </div>
+    </section>
+
+    <div class="foot">
+        Guía de Modelamiento Dimensional: hechos, dimensiones, granularidad y llaves subrogadas
+    </div>
+
+    </div>
+
+</div>
+
+{% include 'paginas/contenidos-DBA/head-footer/footer.html' %}
+
+{% endblock %}

@@ -29,46 +29,6 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* Efecto de brillo al pasar el mouse (igual que el botón) */
-.content-container::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent,
-        rgba(255, 255, 255, 0),
-        transparent
-    );
-    transition: left 0.5s ease;
-}
-
-.content-container:hover::before {
-    left: 100%;
-}
-
-.content-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-        0 3px 8px rgba(39, 117, 219, 0.966),
-        0 0 0 1px rgba(247, 213, 213, 0.15) inset,
-        0 -2px 0 rgba(0,0,0,0.2) inset;
-}
-
-.content-container:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 
-        0 2px 10px rgba(16, 20, 240, 0.61),
-        0 0 0 1px rgba(255,255,255,0.1) inset;
-}
-
-/* Icono decorativo antes del texto (opcional) */
-.content-container::after {
-    font-size: 1.6rem;
-    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
-}
-
 /* ============================================
    RESPONSIVE
    ============================================ */

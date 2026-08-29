@@ -23,3 +23,7 @@ def Data_warehouse(request):
 def SQL_avanzado(request):
 
     return render(request, 'paginas/contenidos-DBA/SQL_avanzado.html')
+
+def Modelamiento_dimensional(request):
+
+    return render(request, 'paginas/contenidos-DBA/Modelamiento_dimensional.html')
