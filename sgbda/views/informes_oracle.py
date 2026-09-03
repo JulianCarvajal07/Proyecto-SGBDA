@@ -171,19 +171,42 @@ def generar_observaciones(datos):
     # --- TABLESPACES ---
     for ts in datos.get('tablespaces', []):
         pct = float(ts.get('pct_uso', 0) or 0)
+        asignado_mb = float(ts.get('asignado_mb', 0) or 0)
+        usado_mb = float(ts.get('usado_mb', 0) or 0)
+
         nombre = ts.get('nombre', 'Desconocido')
+        autoextend = str(ts.get('autoextend', 'NO')).upper()
+
+        libre_mb = asignado_mb - usado_mb
         
-        if pct >= 95:
+        # CRÍTICO
+        if pct >= 95 and autoextend == 'NO':
+
             obs.append({
                 'tipo': 'danger',
                 'titulo': f'Crítico: Tablespace {nombre}',
-                'mensaje': f'El tablespace <strong>{nombre}</strong> está al <strong>{pct}%</strong> de su capacidad. Se recomienda agregar datafiles o habilitar autoextend de inmediato para evitar bloqueos de transacciones.'
+                'mensaje': (
+                    f'El tablespace <strong>{nombre}</strong> está al '
+                    f'<strong>{pct}%</strong> de uso. '
+                    f'Dispone de aproximadamente <strong>{libre_mb:.2f} MB</strong> '
+                    f'libres y tiene <strong>autoextend deshabilitado</strong>. '
+                    f'Se recomienda ampliar el tablespace.'
+                )
             })
-        elif pct >= 85:
+
+        # ALERTA
+        elif pct >= 85 and autoextend == 'NO':
+
             obs.append({
                 'tipo': 'warning',
                 'titulo': f'Alerta: Tablespace {nombre}',
-                'mensaje': f'El tablespace <strong>{nombre}</strong> está al <strong>{pct}%</strong> de uso. Se sugiere monitorear y planificar ampliación de almacenamiento.'
+                'mensaje': (
+                    f'El tablespace <strong>{nombre}</strong> está al '
+                    f'<strong>{pct}%</strong> de uso, con aproximadamente '
+                    f'<strong>{libre_mb:.2f} MB</strong> libres. '
+                    f'El autoextend está deshabilitado; se recomienda '
+                    f'planificar una ampliación.'
+                )
             })
     
     # --- OBJETOS INVÁLIDOS ---
